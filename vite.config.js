@@ -6,7 +6,6 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
     tanstackRouter({
       target: 'react',
       autoCodeSplitting: true,
@@ -15,5 +14,6 @@ export default defineConfig({
       generatedRouteTree: './src/routeTree.gen.ts'
     }),
     tailwindcss(),
+    react()
   ],
 })
