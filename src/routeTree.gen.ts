@@ -12,26 +12,40 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
 
+const TripLazyRouteImport = createFileRoute('/trip')()
 const TestLazyRouteImport = createFileRoute('/test')()
+const ReimbursementLazyRouteImport = createFileRoute('/reimbursement')()
 const LoginLazyRouteImport = createFileRoute('/login')()
+const HistoryLazyRouteImport = createFileRoute('/history')()
 const IndexLazyRouteImport = createFileRoute('/')()
 const DashboardIndexLazyRouteImport = createFileRoute('/dashboard/')()
 const DashboardTest2LazyRouteImport = createFileRoute('/dashboard/test2')()
-const DashboardReimbursementLazyRouteImport = createFileRoute(
-  '/dashboard/reimbursement',
-)()
-const DashboardHistoryLazyRouteImport = createFileRoute('/dashboard/history')()
 
+const TripLazyRoute = TripLazyRouteImport.update({
+  id: '/trip',
+  path: '/trip',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/trip.lazy').then((d) => d.Route))
 const TestLazyRoute = TestLazyRouteImport.update({
   id: '/test',
   path: '/test',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/test.lazy').then((d) => d.Route))
+const ReimbursementLazyRoute = ReimbursementLazyRouteImport.update({
+  id: '/reimbursement',
+  path: '/reimbursement',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/reimbursement.lazy').then((d) => d.Route))
 const LoginLazyRoute = LoginLazyRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route))
+const HistoryLazyRoute = HistoryLazyRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/history.lazy').then((d) => d.Route))
 const IndexLazyRoute = IndexLazyRouteImport.update({
   id: '/',
   path: '/',
@@ -51,47 +65,35 @@ const DashboardTest2LazyRoute = DashboardTest2LazyRouteImport.update({
 } as any).lazy(() =>
   import('./routes/dashboard/test2.lazy').then((d) => d.Route),
 )
-const DashboardReimbursementLazyRoute =
-  DashboardReimbursementLazyRouteImport.update({
-    id: '/dashboard/reimbursement',
-    path: '/dashboard/reimbursement',
-    getParentRoute: () => rootRouteImport,
-  } as any).lazy(() =>
-    import('./routes/dashboard/reimbursement.lazy').then((d) => d.Route),
-  )
-const DashboardHistoryLazyRoute = DashboardHistoryLazyRouteImport.update({
-  id: '/dashboard/history',
-  path: '/dashboard/history',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/dashboard/history.lazy').then((d) => d.Route),
-)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/history': typeof HistoryLazyRoute
   '/login': typeof LoginLazyRoute
+  '/reimbursement': typeof ReimbursementLazyRoute
   '/test': typeof TestLazyRoute
-  '/dashboard/history': typeof DashboardHistoryLazyRoute
-  '/dashboard/reimbursement': typeof DashboardReimbursementLazyRoute
+  '/trip': typeof TripLazyRoute
   '/dashboard/test2': typeof DashboardTest2LazyRoute
   '/dashboard': typeof DashboardIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/history': typeof HistoryLazyRoute
   '/login': typeof LoginLazyRoute
+  '/reimbursement': typeof ReimbursementLazyRoute
   '/test': typeof TestLazyRoute
-  '/dashboard/history': typeof DashboardHistoryLazyRoute
-  '/dashboard/reimbursement': typeof DashboardReimbursementLazyRoute
+  '/trip': typeof TripLazyRoute
   '/dashboard/test2': typeof DashboardTest2LazyRoute
   '/dashboard': typeof DashboardIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexLazyRoute
+  '/history': typeof HistoryLazyRoute
   '/login': typeof LoginLazyRoute
+  '/reimbursement': typeof ReimbursementLazyRoute
   '/test': typeof TestLazyRoute
-  '/dashboard/history': typeof DashboardHistoryLazyRoute
-  '/dashboard/reimbursement': typeof DashboardReimbursementLazyRoute
+  '/trip': typeof TripLazyRoute
   '/dashboard/test2': typeof DashboardTest2LazyRoute
   '/dashboard/': typeof DashboardIndexLazyRoute
 }
@@ -99,44 +101,55 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/history'
     | '/login'
+    | '/reimbursement'
     | '/test'
-    | '/dashboard/history'
-    | '/dashboard/reimbursement'
+    | '/trip'
     | '/dashboard/test2'
     | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/history'
     | '/login'
+    | '/reimbursement'
     | '/test'
-    | '/dashboard/history'
-    | '/dashboard/reimbursement'
+    | '/trip'
     | '/dashboard/test2'
     | '/dashboard'
   id:
     | '__root__'
     | '/'
+    | '/history'
     | '/login'
+    | '/reimbursement'
     | '/test'
-    | '/dashboard/history'
-    | '/dashboard/reimbursement'
+    | '/trip'
     | '/dashboard/test2'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  HistoryLazyRoute: typeof HistoryLazyRoute
   LoginLazyRoute: typeof LoginLazyRoute
+  ReimbursementLazyRoute: typeof ReimbursementLazyRoute
   TestLazyRoute: typeof TestLazyRoute
-  DashboardHistoryLazyRoute: typeof DashboardHistoryLazyRoute
-  DashboardReimbursementLazyRoute: typeof DashboardReimbursementLazyRoute
+  TripLazyRoute: typeof TripLazyRoute
   DashboardTest2LazyRoute: typeof DashboardTest2LazyRoute
   DashboardIndexLazyRoute: typeof DashboardIndexLazyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/trip': {
+      id: '/trip'
+      path: '/trip'
+      fullPath: '/trip'
+      preLoaderRoute: typeof TripLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/test': {
       id: '/test'
       path: '/test'
@@ -144,11 +157,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reimbursement': {
+      id: '/reimbursement'
+      path: '/reimbursement'
+      fullPath: '/reimbursement'
+      preLoaderRoute: typeof ReimbursementLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -172,29 +199,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardTest2LazyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/reimbursement': {
-      id: '/dashboard/reimbursement'
-      path: '/dashboard/reimbursement'
-      fullPath: '/dashboard/reimbursement'
-      preLoaderRoute: typeof DashboardReimbursementLazyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/history': {
-      id: '/dashboard/history'
-      path: '/dashboard/history'
-      fullPath: '/dashboard/history'
-      preLoaderRoute: typeof DashboardHistoryLazyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  HistoryLazyRoute: HistoryLazyRoute,
   LoginLazyRoute: LoginLazyRoute,
+  ReimbursementLazyRoute: ReimbursementLazyRoute,
   TestLazyRoute: TestLazyRoute,
-  DashboardHistoryLazyRoute: DashboardHistoryLazyRoute,
-  DashboardReimbursementLazyRoute: DashboardReimbursementLazyRoute,
+  TripLazyRoute: TripLazyRoute,
   DashboardTest2LazyRoute: DashboardTest2LazyRoute,
   DashboardIndexLazyRoute: DashboardIndexLazyRoute,
 }

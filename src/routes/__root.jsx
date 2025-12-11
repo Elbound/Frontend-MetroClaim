@@ -2,6 +2,7 @@ import { createFileRoute, createRootRoute, Outlet, useRouterState } from "@tanst
 import {ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {TanStackRouterDevtools} from '@tanstack/react-router-devtools'
 import SideBarComponent from "../SideBarComponent";
+import { AuthProvider } from "../hooks/AuthContext";
 
 export const Route = createRootRoute({
     component: RootComponent,
@@ -15,10 +16,13 @@ function RootComponent(){
 
     return(
         <>
-        <div className="flex flex-row min-w-auto min-h-screen font-sans antialiased bg-gray-50">
+        <AuthProvider>
+
+        <div className="flex flex-row min-w-auto min-h-screen font-sans antialiased bg-gray-800">
             { showSideBar && <SideBarComponent/>}
             <Outlet />
         </div>
+        </AuthProvider>
         <TanStackRouterDevtools/>
         <ReactQueryDevtools/>
         </>

@@ -1,12 +1,15 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { router } from '../router';
+import { useAuth } from '../hooks/AuthContext';
 
 export const Route = createLazyFileRoute('/login')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
+    const {login} = useAuth();
+
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
@@ -16,7 +19,10 @@ function RouteComponent() {
        
         if(!email || !password) return setError("All fields required!");
         // if(!/^\S+@\S+\.\S+$/.test(email)) return setError("Invalid email format")
-        
+        if(email.includes("man")) console.log("ini manager");
+
+        login(email);
+
         router.navigate({to:"/dashboard"})
     }
 
