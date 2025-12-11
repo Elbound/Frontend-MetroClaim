@@ -1,21 +1,30 @@
-import { createLazyFileRoute } from '@tanstack/react-router'
+import { createLazyFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
+import { router } from '../router';
 
 export const Route = createLazyFileRoute('/login')({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+
+    const [error, setError] = useState('');
+
+    const handleSubmit = async (e) =>{
+       
+        if(!email || !password) return setError("All fields required!");
+        // if(!/^\S+@\S+\.\S+$/.test(email)) return setError("Invalid email format")
+        
+        router.navigate({to:"/dashboard"})
+    }
+
+
+
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-white">
-        <body class="h-full">
-        ```
-      */}
-      <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+      <div className="flex min-w-screen min-h-full flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             alt="Your Company"
@@ -28,7 +37,7 @@ function RouteComponent() {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action="#" method="POST" className="space-y-6">
+          <form action={handleSubmit} method="POST" className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
                 Email address
@@ -40,9 +49,11 @@ function RouteComponent() {
                   type="email"
                   required
                   autoComplete="email"
+                  onChange={(e)=>setEmail(e.target.value)}
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 />
               </div>
+              {error==''? error : <p className="text-red-500 text-sm mt-1">{error}</p>}
             </div>
 
             <div>
@@ -63,6 +74,7 @@ function RouteComponent() {
                   type="password"
                   required
                   autoComplete="current-password"
+                onChange={(e)=>setPassword(e.target.value)}
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 />
               </div>
@@ -79,7 +91,7 @@ function RouteComponent() {
           </form>
 
           <p className="mt-10 text-center text-sm/6 text-gray-500">
-            Dont Have Account? Contact Admin at {' '}
+            Dont Have Account? Contact Admin at{' '}
             <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
               admin@mii.co.id
             </a>
@@ -87,6 +99,5 @@ function RouteComponent() {
         </div>
       </div>
     </>
-  )
+  );
 }
-

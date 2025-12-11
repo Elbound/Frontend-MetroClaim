@@ -13,43 +13,126 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRouteImport } from './routes/__root'
 
 const TestLazyRouteImport = createFileRoute('/test')()
+const LoginLazyRouteImport = createFileRoute('/login')()
 const IndexLazyRouteImport = createFileRoute('/')()
+const DashboardIndexLazyRouteImport = createFileRoute('/dashboard/')()
+const DashboardTest2LazyRouteImport = createFileRoute('/dashboard/test2')()
+const DashboardReimbursementLazyRouteImport = createFileRoute(
+  '/dashboard/reimbursement',
+)()
+const DashboardHistoryLazyRouteImport = createFileRoute('/dashboard/history')()
 
 const TestLazyRoute = TestLazyRouteImport.update({
   id: '/test',
   path: '/test',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/test.lazy').then((d) => d.Route))
+const LoginLazyRoute = LoginLazyRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route))
 const IndexLazyRoute = IndexLazyRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+const DashboardIndexLazyRoute = DashboardIndexLazyRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/dashboard/index.lazy').then((d) => d.Route),
+)
+const DashboardTest2LazyRoute = DashboardTest2LazyRouteImport.update({
+  id: '/dashboard/test2',
+  path: '/dashboard/test2',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/dashboard/test2.lazy').then((d) => d.Route),
+)
+const DashboardReimbursementLazyRoute =
+  DashboardReimbursementLazyRouteImport.update({
+    id: '/dashboard/reimbursement',
+    path: '/dashboard/reimbursement',
+    getParentRoute: () => rootRouteImport,
+  } as any).lazy(() =>
+    import('./routes/dashboard/reimbursement.lazy').then((d) => d.Route),
+  )
+const DashboardHistoryLazyRoute = DashboardHistoryLazyRouteImport.update({
+  id: '/dashboard/history',
+  path: '/dashboard/history',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/dashboard/history.lazy').then((d) => d.Route),
+)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/login': typeof LoginLazyRoute
   '/test': typeof TestLazyRoute
+  '/dashboard/history': typeof DashboardHistoryLazyRoute
+  '/dashboard/reimbursement': typeof DashboardReimbursementLazyRoute
+  '/dashboard/test2': typeof DashboardTest2LazyRoute
+  '/dashboard': typeof DashboardIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/login': typeof LoginLazyRoute
   '/test': typeof TestLazyRoute
+  '/dashboard/history': typeof DashboardHistoryLazyRoute
+  '/dashboard/reimbursement': typeof DashboardReimbursementLazyRoute
+  '/dashboard/test2': typeof DashboardTest2LazyRoute
+  '/dashboard': typeof DashboardIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexLazyRoute
+  '/login': typeof LoginLazyRoute
   '/test': typeof TestLazyRoute
+  '/dashboard/history': typeof DashboardHistoryLazyRoute
+  '/dashboard/reimbursement': typeof DashboardReimbursementLazyRoute
+  '/dashboard/test2': typeof DashboardTest2LazyRoute
+  '/dashboard/': typeof DashboardIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/test'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/test'
+    | '/dashboard/history'
+    | '/dashboard/reimbursement'
+    | '/dashboard/test2'
+    | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/test'
-  id: '__root__' | '/' | '/test'
+  to:
+    | '/'
+    | '/login'
+    | '/test'
+    | '/dashboard/history'
+    | '/dashboard/reimbursement'
+    | '/dashboard/test2'
+    | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/test'
+    | '/dashboard/history'
+    | '/dashboard/reimbursement'
+    | '/dashboard/test2'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  LoginLazyRoute: typeof LoginLazyRoute
   TestLazyRoute: typeof TestLazyRoute
+  DashboardHistoryLazyRoute: typeof DashboardHistoryLazyRoute
+  DashboardReimbursementLazyRoute: typeof DashboardReimbursementLazyRoute
+  DashboardTest2LazyRoute: typeof DashboardTest2LazyRoute
+  DashboardIndexLazyRoute: typeof DashboardIndexLazyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -61,6 +144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -68,12 +158,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/test2': {
+      id: '/dashboard/test2'
+      path: '/dashboard/test2'
+      fullPath: '/dashboard/test2'
+      preLoaderRoute: typeof DashboardTest2LazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/reimbursement': {
+      id: '/dashboard/reimbursement'
+      path: '/dashboard/reimbursement'
+      fullPath: '/dashboard/reimbursement'
+      preLoaderRoute: typeof DashboardReimbursementLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/history': {
+      id: '/dashboard/history'
+      path: '/dashboard/history'
+      fullPath: '/dashboard/history'
+      preLoaderRoute: typeof DashboardHistoryLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  LoginLazyRoute: LoginLazyRoute,
   TestLazyRoute: TestLazyRoute,
+  DashboardHistoryLazyRoute: DashboardHistoryLazyRoute,
+  DashboardReimbursementLazyRoute: DashboardReimbursementLazyRoute,
+  DashboardTest2LazyRoute: DashboardTest2LazyRoute,
+  DashboardIndexLazyRoute: DashboardIndexLazyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
