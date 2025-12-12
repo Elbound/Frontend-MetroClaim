@@ -1,12 +1,11 @@
 import { createLazyFileRoute, Outlet } from '@tanstack/react-router'
 
-export const Route = createLazyFileRoute('/dashboard/')({
+export const Route = createLazyFileRoute('/dashboard')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
   return (
-    // Tailwind: Card-like container
     <div 
       className="min-w-screen min-h-screen p-8 bg-white rounded-xl shadow-lg border-l-4 border-blue-500 transition-all duration-300 hover:shadow-xl"
     >

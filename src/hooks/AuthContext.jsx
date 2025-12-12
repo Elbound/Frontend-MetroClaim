@@ -4,26 +4,29 @@ const AuthContext = createContext(null);
 
 export const useAuth = () => useContext(AuthContext);
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState (null);
 
-  const detectRole = (email) => {
-    return email && email.includes('man') ? 'manager' : 'employee';
-  };
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
 
   const login = (email) => {
-    const role = detectRole(email);
-    setUser({ email, role, isLoggedIn: true });
+    const role = email && email.includes('man') ? 'manager' : 'employee';
+    const newUser = { email, role };
+    setUser(newUser);
+
   };
 
   const logout = () => {
     setUser(null);
+
   };
+
+  const isLoggedIn = !!user;
+  const isManager = user && user.role === 'manager';
 
   const value = {
     user,
-    isLoggedIn: !!user,
-    isManager: user && user.role === 'manager',
+    isLoggedIn,
+    isManager,
     login,
     logout,
   };

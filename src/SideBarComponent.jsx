@@ -6,7 +6,7 @@ export default function SideBarComponent() {
   const { isManager } = useAuth();
   return (
     <>
-      <div className="flex flex-col space-y-5 w-50 min-h-screen bg-blue-800 shadow-black p-5">
+      <div className="flex flex-col space-y-5 w-full min-h-screen bg-blue-800 shadow-black p-5">
         <div>
           <img src={MetroLogo} alt="Metrodata" />
         </div>
