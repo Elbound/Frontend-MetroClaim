@@ -8,7 +8,7 @@ export default function SideBarComponent() {
 
   return (
     <>
-      <div className="flex flex-col space-y-5 w-full min-h-screen bg-blue-800 shadow-black p-5 text-white">
+      <div className="sticky top-0 flex flex-col space-y-5 w-full min-h-screen overflow-y-auto bg-blue-800 shadow-black p-5 text-white">
         <div>
           <img src={MetroLogo} alt="Metrodata" className='w-20 h-auto rounded-full' />
         </div>

@@ -18,7 +18,7 @@ function RootComponent() {
     <>
       <AuthProvider>
         <div className="flex flex-row min-h-screen w-screen bg-gray-50">
-          <div className={showSideBar ? 'w-[15%]' : 'w-0 hidden'}>
+          <div className={showSideBar ? 'w-[15%] ' : 'w-0 hidden'}>
             <SideBarComponent />
           </div>
 
