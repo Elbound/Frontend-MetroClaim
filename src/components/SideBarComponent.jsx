@@ -3,68 +3,60 @@ import MetroLogo from '../assets/metrodata-electronics--600.png';
 import { useAuth } from '../hooks/AuthContext';
 
 export default function SideBarComponent() {
-  const { isManager, isFinance } = useAuth();
+  const { isManager, isFinance, logout } = useAuth();
+  const linkClass = 'p-3 rounded-lg hover:bg-blue-100 hover:text-blue-800';
+
   return (
     <>
-      <div className="flex flex-col space-y-5 w-full min-h-screen bg-blue-800 shadow-black p-5">
+      <div className="flex flex-col space-y-5 w-full min-h-screen bg-blue-800 shadow-black p-5 text-white">
         <div>
-          <img src={MetroLogo} alt="Metrodata" />
+          <img src={MetroLogo} alt="Metrodata" className='w-20 h-auto rounded-full' />
         </div>
-        <div>Your role is: {isManager ? 'Manager' : 'Employee'}</div>
+        <div>Your role is: {isManager ? 'Manager' : isFinance ? 'Finance' : 'Employee'}</div>
         <div className="flex flex-col">
-          <Link to="/login" className="p-3 rounded-lg hover:bg-blue-100  hover:text-white">
-            Login
-          </Link>
-          <Link to="/dashboard" className="p-3 rounded-lg hover:bg-blue-100 hover:text-white">
+          <Link to="/dashboard" className={linkClass}>
             Dashboard
           </Link>
-          <Link to="/reimbursement" className="p-3 rounded-lg hover:bg-blue-100  hover:text-white">
+          <Link to="/reimbursement" className={linkClass}>
             Reimbursement
           </Link>
-          <Link to="/history" className="p-3 rounded-lg hover:bg-blue-100  hover:text-white">
+          <Link to="/history" className={linkClass}>
             History
           </Link>
+          <hr className="border-white my-2" />
 
           {isManager && (
             <>
-              <Link to="/trip" className="p-3 rounded-lg hover:bg-blue-100  hover:text-white">
+              <b className="p-3">Management</b>
+              <Link to="/approval/manager" className={linkClass}>
+                Manager Approval
+              </Link>
+              <Link to="/trip" className={linkClass}>
                 Trip
               </Link>
-              <Link
-                to="/trip/create"
-                className="p-3 rounded-lg hover:bg-blue-100  hover:text-white"
-              >
+              <Link to="/trip/create" className={linkClass}>
                 Create Trip
               </Link>
-              <Link
-                to="/approval/manager"
-                className="p-3 rounded-lg hover:bg-blue-100  hover:text-white"
-              >
-                Manager Approveal
-              </Link>
+              <hr className="border-white my-2" />
             </>
           )}
 
           {isFinance && (
             <>
-            <Link to="/trip" className="p-3 rounded-lg hover:bg-blue-100  hover:text-white">
-                Trip
+              <b className="p-3">Finance</b>
+              <Link to="/approval/finance" className={linkClass}>
+                Finance Approval
               </Link>
-              <Link
-                to="/trip/create"
-                className="p-3 rounded-lg hover:bg-blue-100  hover:text-white"
-              >
-                Create Trip
+              <Link to="/trip/finance" className={linkClass}>
+                Trip Cost Distribution
               </Link>
-              <Link
-                to="/approval/manager"
-                className="p-3 rounded-lg hover:bg-blue-100  hover:text-white"
-              >
-                Manager Approveal
-              </Link>
-              
+              <hr className="border-white my-2" />
             </>
           )}
+
+          <button onClick={logout} className={`${linkClass} text-left`}>
+            Logout
+          </button>
         </div>
       </div>
     </>
