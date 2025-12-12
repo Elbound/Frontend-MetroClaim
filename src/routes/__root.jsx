@@ -1,19 +1,36 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
-import {ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import {TanStackRouterDevtools} from '@tanstack/react-router-devtools'
+import { createFileRoute, createRootRoute, Outlet, useRouterState } from '@tanstack/react-router';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import SideBarComponent from '../SideBarComponent';
+import { AuthProvider } from '../hooks/AuthContext';
 
-export const Route = createFileRoute({
-    component: RootComponent,
-})
+export const Route = createRootRoute({
+  component: RootComponent,
+});
 
-function RootComponent(){
-    return(
-        <>
-        <div className="flex flex-col min-w-screen min-h-screen font-sans antialiased bg-gray-50">
+function RootComponent() {
+  const routerState = useRouterState();
+  const currentPathName = routerState.location.pathname;
+
+  const showSideBar = currentPathName != '/login';
+
+  return (
+    <>
+      <AuthProvider>
+        <div className="flex flex-row min-h-screen bg-gray-50">
+
+          <div className={showSideBar ? 'w-[15%]' : 'w-0 hidden'}>
+            <SideBarComponent />
+          </div>
+
+          <div className={showSideBar ? 'w-[85%]' : 'w-full'}>
             <Outlet />
+          </div>
+
         </div>
-        <TanStackRouterDevtools/>
-        <ReactQueryDevtools/>
-        </>
-    );
+      </AuthProvider>
+      <TanStackRouterDevtools />
+      <ReactQueryDevtools />
+    </>
+  );
 }
