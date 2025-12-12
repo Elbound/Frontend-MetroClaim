@@ -5,5 +5,5 @@ export const Route = createLazyFileRoute('/history')({
 })
 
 function RouteComponent() {
-  return <div className="min-w-screen">Hello "/dashboard/history"!</div>
+  return <div className="">Hello "/dashboard/history"!</div>
 }

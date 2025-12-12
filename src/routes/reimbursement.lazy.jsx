@@ -7,7 +7,7 @@ export const Route = createLazyFileRoute('/reimbursement')({
 
 export default function RouteComponent() {
   return (
-    <div>
+    <div className="">
       <form>
         
         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">

@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
   const login = (email) => {
-    const role = email && email.includes('man') ? 'manager' : 'employee';
+    const role = email && email.includes('manager') ? 'manager' : email.includes('finance')? 'finance' : 'employee';
     const newUser = { email, role };
     setUser(newUser);
 
@@ -22,11 +22,13 @@ export function AuthProvider({ children }) {
 
   const isLoggedIn = !!user;
   const isManager = user && user.role === 'manager';
+  const isFinance = user && user.role === 'finance';
 
   const value = {
     user,
     isLoggedIn,
     isManager,
+    isFinance,
     login,
     logout,
   };

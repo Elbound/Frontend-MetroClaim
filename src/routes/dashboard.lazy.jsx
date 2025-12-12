@@ -7,7 +7,7 @@ export const Route = createLazyFileRoute('/dashboard')({
 function RouteComponent() {
   return (
     <div 
-      className="min-w-screen min-h-screen p-8 bg-white rounded-xl shadow-lg border-l-4 border-blue-500 transition-all duration-300 hover:shadow-xl"
+      className="min-h-screen p-8 bg-white rounded-xl shadow-lg border-l-4 border-blue-500 transition-all duration-300 hover:shadow-xl"
     >
       <h1 className="text-3xl font-bold text-blue-700 mb-2">
         Hello "/dashboard/"!
