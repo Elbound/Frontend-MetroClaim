@@ -1,6 +1,11 @@
 const ReciptList = ({ value }) => {
   const { image, amount } = value;
-  const formatCurrency = (amt) => `$${amt.toFixed(2)}`;
+  const formatCurrency = (amount) => 
+    new Intl.NumberFormat('id-ID', { 
+        style: 'currency', 
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    }).format(amount);
 
   return (
     <div className="flex items-start justify-between">

@@ -1,50 +1,82 @@
-const formatCurrency = (amount) => `$${amount}`;
+import React from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { format } from 'date-fns';
+import { ArrowRight } from 'lucide-react';
 
-const getStatusBadge = (status) => {
-  const colors = {
-    paid: 'bg-green-100 text-green-800',
-    rejected: 'bg-red-100 text-red-800',
-    pending: 'bg-yellow-100 text-yellow-800',
-  };
-  return (
-    <span
-      className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}`}
-    >
-      {status}
-    </span>
-  );
+const formatCurrency = (amount) =>
+  new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0, 
+  }).format(amount);
+
+
+const getStatusVariant = (status) => {
+  switch (status) {
+
+    case 'Approved':
+    case 'ManagerApproved':
+    case 'FinanceApproved':
+      return 'default'; // Blue/Primary
+    case 'Rejected':
+    case 'Revise':
+      return 'destructive'; // Red
+    case 'Pending':
+    case 'Submitted':
+      return 'secondary'; // Gray
+    case 'paid':
+      return 'default'; // Use 'default' for paid
+    case 'rejected':
+      return 'destructive'; // Use 'destructive' for rejected
+    case 'pending':
+      return 'secondary'; // Use 'secondary' for pending
+    default:
+      return 'outline';
+  }
 };
 
-const ReimbursementList = ({ items }) => (
-  <div className="space-y-1">
-    {items.length === 0 ? (
-      <div className="text-center py-8 text-gray-500">
-        <p>No requests found</p>
-      </div>
-    ) : (
-      items.map((request) => (
-        <div
-          key={request.id}
-          className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-        >
-          <div className="flex items-start justify-between">
-            <div className=" min-w-0">
-              <p className="font-semibold text-gray-900 truncate">{request.title}</p>
-              <p className="text-gray-600 text-sm">{request.requestorName}</p>
-              <p className="text-gray-500 text-xs mt-1">{request.date}</p>
-            </div>
-            <div className="text-center">
-              <p className="font-bold text-gray-900">date</p>
-            </div>
-            <div className="text-right min-w-20">
-              <p className="font-bold text-gray-900">{formatCurrency(request.amount)}</p>
-              <div className="mt-1">{getStatusBadge(request.status)}</div>
-            </div>
-          </div>
-        </div>
-      ))
-    )}
-  </div>
-);
 
-export default ReimbursementList;
+export default function ReimbursementList({ items, onRowClick }) {
+  return (
+    <div className="space-y-3 p-4">
+      {items.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <p>No requests found</p>
+        </div>
+      ) : (
+        items.map((request) => (
+          <Card
+            key={request.id}
+            className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-primary/50"
+            onClick={() => onRowClick(request.id)}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                {/* Left Section: Title, Requestor, Date */}
+                <div className="min-w-0 pr-4 flex-1">
+                  <p className="font-semibold text-gray-900 truncate">{request.title}</p>
+                  <p className="text-gray-600 text-sm mt-0.5">
+                    {request.requestorName} • ID: {request.id}
+                  </p>
+                  <p className="text-gray-500 text-xs mt-1">
+                    {request.date ? format(new Date(request.date), 'dd MMM yyyy') : '-'}
+                  </p>
+                </div>
+
+                {/* Right Section: Amount and Status */}
+                <div className="flex flex-col items-end space-y-2 min-w-[150px]">
+                  <p className="font-bold text-lg text-primary">{formatCurrency(request.amount)}</p>
+                  <Badge variant={getStatusVariant(request.status)}>{request.status}</Badge>
+                </div>
+
+                {/* Click Indicator */}
+                <ArrowRight className="h-5 w-5 ml-4 text-muted-foreground hidden sm:block" />
+              </div>
+            </CardContent>
+          </Card>
+        ))
+      )}
+    </div>
+  );
+}

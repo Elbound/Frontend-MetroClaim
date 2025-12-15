@@ -2,6 +2,7 @@ import { createLazyFileRoute } from '@tanstack/react-router';
 import { useAuth } from '../hooks/AuthContext';
 import { useState } from 'react';
 import ReciptList from '../components/ReciptList';
+import { router } from '@/router';
 
 export const Route = createLazyFileRoute('/reimbursement')({
   component: RouteComponent,
@@ -85,12 +86,19 @@ export default function RouteComponent() {
     setDesc(null);
     setItems([]);
     setReimbursement(null);
+
+    router.navigate({to:'/dashboard'})
   };
+
+  const MOCK_CATEGORY = [
+    { id: '1', name: 'business' },
+    { id: '2', name: 'trip' },
+    { id: '3', name: 'eating' },
+  ];
 
   return (
     <div className="max-w-4xl mx-auto overflow-y-auto p-6 ">
       <form onSubmit={handleSubmit}>
-
         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
             <label htmlFor="category" className="block text-sm/6 font-medium text-gray-900">
@@ -98,18 +106,13 @@ export default function RouteComponent() {
             </label>
             <select
               className="block min-w-0 rounded-md border border-gray-300 bg-white py-1.5 pr-3 pl-1 text-base text-gray-90 focus:outline-none sm:text-sm/6"
-              onChange={(e)=>setCategory(e.target.value)}
+              onChange={(e) => setCategory(e.target.value)}
               name="category"
             >
-                <option>
-                  category 1
-                </option>
-                <option>
-                  category 2
-                </option>
-          
+              {MOCK_CATEGORY.map((c) => (
+                <option key={c.id}>{c.name}</option>
+              ))}
             </select>
-        
           </div>
         </div>
 
