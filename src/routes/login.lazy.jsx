@@ -16,11 +16,10 @@ function RouteComponent() {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    if (!email || !password) return setError('All fields required!');
-    // if(!/^\S+@\S+\.\S+$/.test(email)) return setError("Invalid email format")
-    if (email.includes('man')) console.log('ini manager');
+    const response = await postLogin(email, password);
+    const token = response.data.token;
 
-    login(email, password);
+    login(token);
 
     router.navigate({ to: '/dashboard' });
   };

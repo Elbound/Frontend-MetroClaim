@@ -11,10 +11,8 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const router = useRouter();
 
-  const login = async (email, password) => {
-    const response = await postLogin(email, password);
-    const token = response.data.token;
-
+  const login = async (token) => {
+    
     const raw = jwtDecode(token);
 
     const userTK = {
@@ -26,6 +24,7 @@ export function AuthProvider({ children }) {
     };
 
     setUser(userTK);
+    
   };
 
   const logout = () => {
