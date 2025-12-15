@@ -20,7 +20,7 @@ function RouteComponent() {
     // if(!/^\S+@\S+\.\S+$/.test(email)) return setError("Invalid email format")
     if (email.includes('man')) console.log('ini manager');
 
-    login(email);
+    login(email, password);
 
     router.navigate({ to: '/dashboard' });
   };
