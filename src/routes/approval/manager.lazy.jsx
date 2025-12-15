@@ -4,9 +4,16 @@ import { router } from '../../router';
 import ReimbursementList from '../../components/ReimbursementList';
 import { Check, RotateCcw, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
-
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 export const Route = createLazyFileRoute('/approval/manager')({
   component: RouteComponent,
@@ -14,6 +21,8 @@ export const Route = createLazyFileRoute('/approval/manager')({
 
 function RouteComponent() {
   const { isManager } = useAuth();
+
+  const [modalState, setModalState] = useState({ isOpen: false, type: null, requestId: null });
 
   // Mock data \
   const requests = [
@@ -43,8 +52,13 @@ function RouteComponent() {
     },
   ];
 
+  const openAction = (id, type) => {
+    setModalState({ isOpen: true, type, requestId: id });
+  };
+
   return (
-    <>
+    <div className="mx-6 mt-5 space-y-6">
+      <h2 className="text-3xl font-bold tracking-tight">Pending Approvals</h2>
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -113,6 +127,58 @@ function RouteComponent() {
           </Table>
         </CardContent>
       </Card>
-    </>
+      <ActionModal
+        isOpen={modalState.isOpen}
+        actionType={modalState.type}
+        requestId={modalState.requestId}
+        onClose={() => setModalState({ ...modalState, isOpen: false })}
+        // onConfirm={(id, action, comment) => processMutation.mutate({ id, action, comment })}
+      />
+    </div>
   );
 }
+
+const ActionModal = ({ isOpen, onClose, actionType, requestId, onConfirm }) => {
+  const [comment, setComment] = useState('');
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg animate-in fade-in zoom-in-95">
+        <h3 className="text-lg font-semibold mb-2">
+          {actionType === 0
+            ? 'Approve Request?'
+            : actionType === 1
+              ? 'Reject Request'
+              : 'Request Revision'}
+        </h3>
+        <p className="text-sm text-gray-500 mb-4">
+          {actionType === 0
+            ? 'Are you sure you want to approve this request?'
+            : 'Please provide a reason.'}
+        </p>
+
+        {(actionType === 1 || actionType === 2) && (
+          <textarea
+            className="w-full border rounded-md p-2 text-sm mb-4"
+            placeholder="Add a comment..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+        )}
+
+        <div className="flex justify-end space-x-2">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            variant={actionType === 1 ? 'destructive' : 'default'}
+            onClick={() => onConfirm(requestId, actionType, comment)}
+          >
+            Confirm
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
