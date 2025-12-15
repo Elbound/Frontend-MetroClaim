@@ -28,12 +28,15 @@ const ReimbursementList = ({ items }) => (
           className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
         >
           <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0">
+            <div className=" min-w-0">
               <p className="font-semibold text-gray-900 truncate">{request.title}</p>
               <p className="text-gray-600 text-sm">{request.requestorName}</p>
               <p className="text-gray-500 text-xs mt-1">{request.date}</p>
             </div>
-            <div className="text-right">
+            <div className="text-center">
+              <p className="font-bold text-gray-900">date</p>
+            </div>
+            <div className="text-right min-w-20">
               <p className="font-bold text-gray-900">{formatCurrency(request.amount)}</p>
               <div className="mt-1">{getStatusBadge(request.status)}</div>
             </div>

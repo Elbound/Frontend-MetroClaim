@@ -9,6 +9,11 @@ export const Route = createLazyFileRoute('/dashboard')({
 function RouteComponent() {
   const [limits, setLimits] = useState([]);
 
+  //get category
+  //get userlimit owned by user
+
+  //make create userlimit
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="flex flex-row gap-4 mt-6 justify-between">

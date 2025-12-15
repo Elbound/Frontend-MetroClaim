@@ -11,7 +11,7 @@ function RouteComponent() {
   const { isManager, isFinance, logOut } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
 
-  // Mock data - replace with actual data fetching
+  // Mock data \
   const requests = [
     {
       id: 1,
@@ -46,6 +46,8 @@ function RouteComponent() {
   const paidRequests = requests.filter((r) => r.status === 'paid');
   const rejectedRequests = requests.filter((r) => r.status === 'rejected');
   const pendingRequests = requests.filter((r) => r.status === 'pending')
+
+  
 
 
   return (

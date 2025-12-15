@@ -8,25 +8,22 @@ export const Route = createLazyFileRoute('/login')({
 });
 
 function RouteComponent() {
-    const {login} = useAuth();
+  const { login } = useAuth();
 
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-    const [error, setError] = useState('');
+  const [error, setError] = useState('');
 
-    const handleSubmit = async (e) =>{
-       
-        if(!email || !password) return setError("All fields required!");
-        // if(!/^\S+@\S+\.\S+$/.test(email)) return setError("Invalid email format")
-        if(email.includes("man")) console.log("ini manager");
+  const handleSubmit = async (e) => {
+    if (!email || !password) return setError('All fields required!');
+    // if(!/^\S+@\S+\.\S+$/.test(email)) return setError("Invalid email format")
+    if (email.includes('man')) console.log('ini manager');
 
-        login(email);
+    login(email);
 
-        router.navigate({to:"/dashboard"})
-    }
-
-
+    router.navigate({ to: '/dashboard' });
+  };
 
   return (
     <>
@@ -55,11 +52,11 @@ function RouteComponent() {
                   type="email"
                   required
                   autoComplete="email"
-                  onChange={(e)=>setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 />
               </div>
-              {error==''? error : <p className="text-red-500 text-sm mt-1">{error}</p>}
+              {error == '' ? error : <p className="text-red-500 text-sm mt-1">{error}</p>}
             </div>
 
             <div>
@@ -80,7 +77,7 @@ function RouteComponent() {
                   type="password"
                   required
                   autoComplete="current-password"
-                onChange={(e)=>setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 />
               </div>
