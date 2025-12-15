@@ -155,7 +155,7 @@ export default function RouteComponent() {
             htmlFor="cover-photo"
             className="block text-sm/6 font-medium text-gray-900 break-all"
           >
-            Cover photo: {image ? image.name : 'No file selected'}
+            Recipt photo: {image ? image.name : 'No file selected'}
           </label>
           <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 py-10">
             <div className="text-center">
