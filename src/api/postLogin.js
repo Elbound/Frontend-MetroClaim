@@ -8,9 +8,10 @@ export default async function postLogin(email, password) {
   });
 
   const res = await response.json();
+
   console.log(res);
 
-  if (!response.ok || res.Status !== 200) {
+  if (!response.ok || res.status !== 200) {
     throw new Error(res.Message || "Login failed");
   }
 
