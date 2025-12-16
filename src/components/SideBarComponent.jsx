@@ -3,7 +3,7 @@ import MetroLogo from '../assets/metrodata-electronics--600.png';
 import { useAuth } from '../hooks/AuthContext';
 
 export default function SideBarComponent() {
-  const { isManager, isFinance, logout } = useAuth();
+  const { user, isManager, isFinance, logout } = useAuth();
   const linkClass = 'p-3 rounded-lg hover:bg-blue-100 hover:text-blue-800';
 
   return (
@@ -13,6 +13,7 @@ export default function SideBarComponent() {
           <img src={MetroLogo} alt="Metrodata" className='w-20 h-auto rounded-full' />
         </div>
         <div>Your role is: {isManager ? 'Manager' : isFinance ? 'Finance' : 'Employee'}</div>
+        <div>Your role is: {user? user.tk : ''}</div>
         <div className="flex flex-col">
           <Link to="/dashboard" className={linkClass}>
             Dashboard

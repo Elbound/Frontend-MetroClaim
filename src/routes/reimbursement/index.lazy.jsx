@@ -78,7 +78,7 @@ export default function RouteComponent() {
   };
 
   //create reimbursement item
-  const handleCreateRecipt = (e) => {
+  const handleCreateRecipt = async (e) => {
     e.preventDefault();
     if (!image || parseFloat(amount) <= 0 || !amount) {
       toast.warning('Missing Data', {
@@ -86,8 +86,11 @@ export default function RouteComponent() {
       });
       return;
     }
+
+
     
-    const convertedImage = convertFile(image);
+    const convertedImage = await convertFile(image);
+    console.log(convertedImage)
 
     const newItem = {
       recipt: convertedImage,

@@ -1,34 +1,15 @@
-import { useCallback, useState } from "react";
-
-
 function useImageConverter(){
-  const [base64, setBase64] = useState(null);
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const convertFile = useCallback((file) => {
-    if (!file) return;
+  const convertFile = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  };
 
-    setIsLoading(true);
-    setError(null);
-    setBase64(null);
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      setBase64(reader.result);
-      setIsLoading(false);
-    };
-
-    reader.onerror = (e) => {
-      setError('Failed to read file.');
-      setIsLoading(false);
-    };
-
-    reader.readAsDataURL(file);
-  }, []);
-
-  return {base64, error, isLoading, convertFile}
+  return {convertFile}
 };
 
 export default useImageConverter;
