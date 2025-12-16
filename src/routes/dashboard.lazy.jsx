@@ -13,11 +13,12 @@ function RouteComponent() {
   const [limits, setLimits] = useState([]);
 
   const handleCategoryClick = (limit) => {
-    console.log(limit.categoryName);
+    // console.log(limit.categoryName);
     router.navigate({
       to: '/reimbursement',
-      state: {
-        categoryId: limit.id, 
+      search: {
+        categoryId: limit.categoryId,
+        categoryName: limit.categoryName 
       },
     });
   };

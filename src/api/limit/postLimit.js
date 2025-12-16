@@ -1,10 +1,12 @@
-export default async function getCategory(token) {
+export default async function postCategory(categoryId, token) {
+    console.log("token sent: " + token)
   const response = await fetch("/api/category", {
-    method: "GET",
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`
     },
+    body: JSON.stringify(categoryId)
   });
 
   const res = await response.json();

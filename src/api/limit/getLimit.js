@@ -1,5 +1,5 @@
 export default async function getLimit(token) {
-  const response = await fetch("/api/category", {
+  const response = await fetch("/api/user-limit", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -9,7 +9,7 @@ export default async function getLimit(token) {
 
   const res = await response.json();
 
-  console.log(res.data);
+  // console.log(res.data);
 
   if (!response.ok) {
     throw new Error(res.Message || "Data not Recieved");
