@@ -35,6 +35,7 @@ import putTripFinanceReview from '@/api/trip/putTripFinanceReview';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Users, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 export const Route = createLazyFileRoute('/trip/finance')({
   component: RouteComponent,
@@ -67,6 +68,10 @@ function RouteComponent() {
   useEffect(() => {
     fetchRequests();
   }, [user?.tk]);
+
+  useEffect(() => {
+    console.log('active request content: ' + activeRequest);
+  }, [activeRequest]);
   // ----------------------------------------
 
   const openAction = (id, type) => {
@@ -75,9 +80,17 @@ function RouteComponent() {
 
   const handleConfirmAction = async (requestId, cost) => {
     if (!user?.tk) return;
+
+    const submitedData = {
+      isApproved: true,
+      allocatedCost: cost,
+      rejectionReason: 'string',
+    };
+    
     try {
       setIsSubmitting(true);
-      await putTripFinanceReview(requestId, cost, user.tk);
+      console.log(submitedData)
+      await putTripFinanceReview(requestId, submitedData, user.tk);
       toast.success('Success', { description: 'Reimbursement status updated.' });
       setModalState({ isOpen: false, type: null, requestId: null });
       setActiveRequest(null); // Close detail view
@@ -120,7 +133,7 @@ function RouteComponent() {
                 <TableRow
                   key={req.id}
                   className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => setActiveRequest(req)}
+                  onClick={() => setActiveRequest(req.id)}
                 >
                   <TableCell className="py-4 pl-6 font-medium text-gray-900">{req.title}</TableCell>
                   <TableCell className="py-4 text-gray-600">{req.destination}</TableCell>
@@ -174,7 +187,7 @@ function RouteComponent() {
           <div className="flex-1 min-h-0 overflow-y-auto">
             {activeRequest ? (
               <TripDetail
-                detailData={activeRequest}
+                tripId={activeRequest}
                 onClose={() => setActiveRequest(null)}
                 userRole="Manager"
                 onAction={(actionType) => openAction(activeRequest.id, actionType)}

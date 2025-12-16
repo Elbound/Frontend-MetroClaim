@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, User, Check, X, AlertCircle } from 'lucide-react';
+import { Loader2, User, Check, X, AlertCircle, DollarSign } from 'lucide-react';
 import getTripById from '@/api/trip/getTripById';
 import postTripPublish from '@/api/trip/postTripPublish';
 import putTripCancel from '@/api/trip/putTripCancel';
@@ -12,13 +12,15 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 
-export default function TripDetail({ tripId, onClose }) {
+export default function TripDetail({ tripId, onClose, onAction }) {
   const { user, isFinance } = useAuth();
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmationAction, setConfirmationAction] = useState(null); // 'confirm' | 'cancel' | null
+
+  // console.log(tripId)
 
   const fetchTrip = async () => {
     if (!tripId || !user?.tk) return;
@@ -131,7 +133,7 @@ export default function TripDetail({ tripId, onClose }) {
               size="sm"
               variant="default"
               className="h-8 p-2 bg-blue-600 hover:bg-blue-700"
-              onClick={() => openAction(req.id, 0)}
+              onClick={() => onAction(0)}
               title="Set Approved Cost"
             >
               <DollarSign className="w-4 h-4 mr-1" />

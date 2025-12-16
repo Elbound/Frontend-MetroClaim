@@ -1,13 +1,13 @@
 import { format } from "date-fns";
 
-export default async function putTripFinanceReview(id, allocatedCost, token) {
+export default async function putTripFinanceReview(id, data, token) {
   const response = await fetch(`/api/trips/${id}/finance-review`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`
     },
-    body: JSON.stringify({allocatedCost}),
+    body: JSON.stringify(data),
   });
 
   const res = await response.json();
