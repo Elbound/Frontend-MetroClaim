@@ -1,112 +1,43 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { FileClock } from 'lucide-react';
 
-// --- NEW IMPORTS ---
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import ReimbursementList from '../components/ReimbursementList'; // Will be updated
-import ReimbursementDetail from '../components/ReimbursementDetail.jsx'; // NEW Component
+
+import ReimbursementList from '../components/ReimbursementList';
+import ReimbursementDetail from '../components/ReimbursementDetail.jsx';
+import getReimbursementMe from '@/api/reimbursement/getReimbursementMe';
+import { useAuth } from '@/hooks/AuthContext';
 
 export const Route = createLazyFileRoute('/history')({
   component: RouteComponent,
 });
 
-// Mock Data (Expanded to include details needed for the sheet)
-const mockRequests = [
-  {
-    id: 'REIMB-001',
-    title: 'Travel Expense Q1',
-    requestorName: 'John Doe',
-    date: '2024-01-15',
-    amount: 500000,
-    status: 'Approved', // Match your first component's statuses
-    category: 'Travel',
-    description: 'Flight and accommodation for Jakarta business trip.',
-    items: [
-      {
-        id: 'i1',
-        dateOfExpense: '2024-01-14',
-        amount: 300000,
-        receipt: '/mock-receipt-flight.jpg',
-      },
-      { id: 'i2', dateOfExpense: '2024-01-15', amount: 200000, receipt: '/mock-receipt-hotel.jpg' },
-    ],
-    logs: [
-      {
-        id: 'l1',
-        createdAt: '2024-01-15T10:00:00Z',
-        action: 'Submitted',
-        approverName: 'John Doe',
-      },
-      {
-        id: 'l2',
-        createdAt: '2024-01-16T15:30:00Z',
-        action: 'ManagerApproved',
-        approverName: 'Manager A',
-      },
-    ],
-  },
-  {
-    id: 'REIMB-002',
-    title: 'Office Supplies - Jan',
-    requestorName: 'Jane Smith',
-    date: '2024-01-10',
-    amount: 200000,
-    status: 'Rejected',
-    category: 'Supplies',
-    description: 'Purchase of stationary and printer ink.',
-    items: [
-      { id: 'i3', dateOfExpense: '2024-01-09', amount: 200000, receipt: '/mock-receipt-ink.jpg' },
-    ],
-    logs: [
-      {
-        id: 'l3',
-        createdAt: '2024-01-10T09:00:00Z',
-        action: 'Submitted',
-        approverName: 'Jane Smith',
-      },
-      {
-        id: 'l4',
-        createdAt: '2024-01-10T11:00:00Z',
-        action: 'Rejected',
-        approverName: 'Manager B',
-        comment: 'Receipt total amount is incorrect.',
-      },
-    ],
-  },
-  {
-    id: 'REIMB-003',
-    title: 'Client Dinner',
-    requestorName: 'Bob Johnson',
-    date: '2024-01-05',
-    amount: 300000,
-    status: 'Submitted', // Pending approval
-    category: 'Entertainment',
-    description: 'Dinner with client ABC on 04/01/2024.',
-    items: [
-      {
-        id: 'i4',
-        dateOfExpense: '2024-01-04',
-        amount: 300000,
-        receipt: '/mock-receipt-dinner.jpg',
-      },
-    ],
-    logs: [
-      {
-        id: 'l5',
-        createdAt: '2024-01-05T08:00:00Z',
-        action: 'Submitted',
-        approverName: 'Bob Johnson',
-      },
-    ],
-  },
-];
-
 function RouteComponent() {
-  // 1. Data and Filtering (useMemo is a good practice for heavy filtering)
-  const [activeTab, setActiveTab] = useState('all');
+  const { user } = useAuth();
 
-  const allRequests = mockRequests;
+  const [activeTab, setActiveTab] = useState('all');
+  const [selectedId, setSelectedId] = useState(null);
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      if (!user || !user.tk) return;
+
+      try {
+        const response = await getReimbursementMe(user.tk);
+        setData(response || []);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setData([]);
+      }
+    };
+
+    fetchRequests();
+  }, [user?.tk]);
+
+  const allRequests = data || [];
+
   const filteredRequests = useMemo(() => {
     switch (activeTab) {
       case 'paid':
@@ -122,15 +53,12 @@ function RouteComponent() {
       default:
         return allRequests;
     }
-  }, [activeTab]);
+  }, [activeTab, allRequests]); 
 
-  // 2. Detail Sheet State
-  const [selectedId, setSelectedId] = useState(null);
-
-  // Find the selected reimbursement object from mock data
+ 
   const selectedRequest = useMemo(() => {
-    return mockRequests.find((r) => r.id === selectedId);
-  }, [selectedId]);
+    return allRequests.find((r) => r.id === selectedId);
+  }, [selectedId, allRequests]);
 
   const handleRowClick = (id) => {
     setSelectedId(id);
@@ -156,12 +84,15 @@ function RouteComponent() {
     },
   ];
 
+  
+  const isFetching = data === null; 
+
   return (
     <div className="p-6 pl-10 pr-10 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-extrabold mb-2 text-gray-900">Reimbursement History</h1>
       <p className="text-gray-500 mb-6">View and track all your submitted requests.</p>
 
-      {/* Tabs (Improved with shadcn/ui principles) */}
+      {/* Tabs */}
       <div className="mb-6 border-b border-gray-200">
         <div className="flex space-x-2">
           {tabs.map((tab) => (
@@ -182,30 +113,38 @@ function RouteComponent() {
 
       {/* Content */}
       <div className="bg-white rounded-lg shadow-sm border">
-        {filteredRequests.length > 0 ? (
-          <ReimbursementList items={filteredRequests} onRowClick={handleRowClick} />
-        ) : (
+        {/* If data is null (first render), show the "No requests found" section as a silent loading indicator. */}
+        {isFetching || filteredRequests.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
             <FileClock className="h-12 w-12 mb-4 text-gray-300" />
-            <p>No requests found in the **{activeTab}** category.</p>
+            <p>
+              {isFetching
+                ? 'Loading history...'
+                : `No requests found in the **${activeTab}** category.`}
+            </p>
           </div>
+        ) : (
+          <ReimbursementList items={filteredRequests} onRowClick={handleRowClick} />
         )}
       </div>
 
-      {/* Detail Sheet (Replaces the large sheet section from your original component) */}
+      {/* Detail Sheet (remains unchanged) */}
       <Sheet open={!!selectedId} onOpenChange={(open) => !open && closeDetail()}>
         <SheetContent className="sm:max-w-xl w-full flex flex-col h-full">
-          <SheetHeader>
+          <SheetHeader className="mb-4">
             <SheetTitle>Claim Details</SheetTitle>
           </SheetHeader>
-          <div className="overflow-y-auto">
-            {selectedRequest && (
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {selectedRequest ? (
               <ReimbursementDetail
                 detailData={selectedRequest}
                 onClose={closeDetail}
-                // Mocking the user role for now
                 userRole="Employee"
               />
+            ) : (
+              <p className="p-4 text-center text-muted-foreground">
+                Please select an item to view details.
+              </p>
             )}
           </div>
         </SheetContent>
