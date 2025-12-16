@@ -1,12 +1,13 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useState, useMemo, useEffect } from 'react';
-import { FileClock } from 'lucide-react';
+import { FileClock, Loader2 } from 'lucide-react';
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 
 import ReimbursementList from '../components/ReimbursementList';
 import ReimbursementDetail from '../components/ReimbursementDetail.jsx';
 import getReimbursementMe from '@/api/reimbursement/getReimbursementMe';
+import getReimbursementById from '@/api/reimbursement/getReimbursementById';
 import { useAuth } from '@/hooks/AuthContext';
 
 export const Route = createLazyFileRoute('/history')({
@@ -19,6 +20,10 @@ function RouteComponent() {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedId, setSelectedId] = useState(null);
   const [data, setData] = useState(null);
+  
+  // Detail fetch state
+  const [detailData, setDetailData] = useState(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -35,6 +40,28 @@ function RouteComponent() {
 
     fetchRequests();
   }, [user?.tk]);
+
+  // Fetch full details when selectedId changes
+  useEffect(() => {
+    const fetchDetail = async () => {
+      if (!selectedId || !user?.tk) {
+        setDetailData(null);
+        return;
+      }
+
+      setIsDetailLoading(true);
+      try {
+        const detail = await getReimbursementById(selectedId, user.tk);
+        setDetailData(detail);
+      } catch (error) {
+        console.error("Failed to fetch details", error);
+      } finally {
+        setIsDetailLoading(false);
+      }
+    };
+
+    fetchDetail();
+  }, [selectedId, user?.tk]);
 
   const allRequests = data || [];
 
@@ -55,17 +82,13 @@ function RouteComponent() {
     }
   }, [activeTab, allRequests]); 
 
- 
-  const selectedRequest = useMemo(() => {
-    return allRequests.find((r) => r.id === selectedId);
-  }, [selectedId, allRequests]);
-
   const handleRowClick = (id) => {
     setSelectedId(id);
   };
 
   const closeDetail = () => {
     setSelectedId(null);
+    setDetailData(null); 
   };
 
   const tabs = [
@@ -128,7 +151,7 @@ function RouteComponent() {
         )}
       </div>
 
-      {/* Detail Sheet (remains unchanged) */}
+      {/* Detail Sheet */}
       <Sheet open={!!selectedId} onOpenChange={(open) => !open && closeDetail()}>
         <SheetContent className="sm:max-w-xl w-full flex flex-col h-full">
           <SheetHeader className="mb-4">
@@ -138,9 +161,13 @@ function RouteComponent() {
             </SheetDescription>
           </SheetHeader>
           <div className="flex-1 min-h-0 overflow-y-auto">
-            {selectedRequest ? (
+            {isDetailLoading ? (
+               <div className="flex items-center justify-center h-40">
+                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
+               </div>
+            ) : detailData ? (
               <ReimbursementDetail
-                detailData={selectedRequest}
+                detailData={detailData}
                 onClose={closeDetail}
                 userRole="Employee"
               />

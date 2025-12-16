@@ -181,7 +181,7 @@ function RouteComponent() {
             <div className="space-y-2">
               <Label>Participants</Label>
               <Select value={selectValue} onValueChange={handleSelectChange}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a participant to add" />
                 </SelectTrigger>
                 <SelectContent>
@@ -227,20 +227,23 @@ function RouteComponent() {
                 </SelectContent>
               </Select>
               
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-col gap-2 mt-2">
                 {formData.participantIds.map(id => {
                   const user = allParticipants.find(p => p.id === id)
                   return user ? (
-                    <Badge key={id} variant="secondary" className="flex items-center gap-1 pl-2 pr-1 py-1">
-                      {user.fullName}
+                    <div key={id} className="w-full flex justify-between items-center p-3 rounded-md border border-gray-200 bg-white shadow-sm">
+                      <div className="flex flex-col">
+                        <span className="font-medium text-sm text-gray-900">{user.fullName}</span>
+                        <span className="text-xs text-muted-foreground">{user.email}</span>
+                      </div>
                       <button 
                         type="button" 
                         onClick={() => removeParticipant(id)}
-                        className="ml-1 hover:bg-gray-200 rounded-full p-0.5 transition-colors"
+                        className="hover:bg-gray-100 rounded-full p-1 transition-colors text-gray-500"
                       >
-                        <X className="h-3 w-3 text-gray-500" />
+                        <X className="h-4 w-4" />
                       </button>
-                    </Badge>
+                    </div>
                   ) : null
                 })}
               </div>

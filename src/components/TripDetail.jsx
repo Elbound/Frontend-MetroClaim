@@ -1,34 +1,65 @@
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, User, Check, X, AlertCircle } from 'lucide-react';
 import getTripById from '@/api/trip/getTripById';
+import postTripPublish from '@/api/trip/postTripPublish';
+import putTripCancel from '@/api/trip/putTripCancel';
 import { useAuth } from '../hooks/AuthContext';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 
 export default function TripDetail({ tripId, onClose }) {
   const { user } = useAuth();
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmationAction, setConfirmationAction] = useState(null); // 'confirm' | 'cancel' | null
+
+  const fetchTrip = async () => {
+    if (!tripId || !user?.tk) return;
+    setLoading(true);
+    try {
+      const data = await getTripById(tripId, user.tk);
+      setTrip(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTrip = async () => {
-      if (!tripId || !user?.tk) return;
-      setLoading(true);
-      try {
-        const data = await getTripById(tripId, user.tk);
-        setTrip(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchTrip();
   }, [tripId, user?.tk]);
+
+  const requestAction = (action) => {
+    setConfirmationAction(action);
+  };
+
+  const executeAction = async () => {
+    if (!user?.tk || !confirmationAction) return;
+    setIsSubmitting(true);
+    try {
+      if (confirmationAction === 'confirm') {
+        await postTripPublish(tripId, user.tk);
+        toast.success("Trip confirmed successfully");
+      } else if (confirmationAction === 'cancel') {
+        await putTripCancel(tripId, user.tk);
+        toast.success("Trip cancelled successfully");
+      }
+      setConfirmationAction(null);
+      await fetchTrip();
+    } catch (err) {
+      toast.error(err.message || `Failed to ${confirmationAction} trip`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -51,7 +82,7 @@ export default function TripDetail({ tripId, onClose }) {
 
   return (
     <div className="flex flex-col h-full bg-white relative">
-      <div className="flex-1 space-y-6 pr-6 pb-6 pt-2">
+      <div className="flex-1 space-y-6 pr-6 pb-6 pt-2 overflow-y-auto">
         {/* Header Section */}
         <div className="space-y-1">
           <Badge variant="outline" className={`mb-2 ${getStatusColor(trip.status)}`}>
@@ -131,6 +162,57 @@ export default function TripDetail({ tripId, onClose }) {
           </div>
         </div>
       </div>
+
+      {trip.status === 'FinanceApproved' && (
+        <div className="border-t p-4 flex justify-end gap-3 bg-white mt-auto sticky bottom-0">
+          <Button 
+            variant="destructive" 
+            onClick={() => requestAction('cancel')}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <X className="w-4 h-4 mr-2" />}
+            Cancel
+          </Button>
+          <Button 
+            className="bg-green-600 hover:bg-green-700 text-white" 
+            onClick={() => requestAction('confirm')}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
+            Confirm
+          </Button>
+        </div>
+      )}
+
+      {/* Confirmation Dialog */}
+       <Dialog open={!!confirmationAction} onOpenChange={(open) => !open && !isSubmitting && setConfirmationAction(null)}>
+        <DialogContent className="sm:max-w-md z-[110]">
+          <DialogHeader>
+            <DialogTitle>
+              {confirmationAction === 'confirm' ? 'Confirm Trip?' : 'Cancel Trip?'}
+            </DialogTitle>
+            <DialogDescription>
+              {confirmationAction === 'confirm' 
+                ? 'Are you sure you want to publish this trip? This action cannot be undone.' 
+                : 'Are you sure you want to cancel this trip? This action cannot be undone.'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setConfirmationAction(null)} disabled={isSubmitting}>
+              Back
+            </Button>
+            <Button
+              variant={confirmationAction === 'cancel' ? 'destructive' : 'default'}
+              onClick={executeAction}
+              disabled={isSubmitting}
+              className={confirmationAction === 'confirm' ? 'bg-green-600 hover:bg-green-700' : ''}
+            >
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {confirmationAction === 'confirm' ? 'Yes, Confirm' : 'Yes, Cancel'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -122,7 +122,7 @@ export default function ActiveLimitsWidget({ onQuickClaim }) {
                 >
                   <UserLimit
                     name={limit.categoryName}
-                    current={limit.remainingBalance}
+                    current={limit.limitUsed}
                     max={limit.totalLimit}
                     Icon={Icon}
                   />

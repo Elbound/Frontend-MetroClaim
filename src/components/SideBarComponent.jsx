@@ -35,9 +35,9 @@ export default function SideBarComponent() {
               <Link to="/trip" className={linkClass}>
                 Trip
               </Link>
-              <Link to="/trip/create" className={linkClass}>
+              {/* <Link to="/trip/create" className={linkClass}>
                 Create Trip
-              </Link>
+              </Link> */}
               <hr className="border-white my-2" />
             </>
           )}
