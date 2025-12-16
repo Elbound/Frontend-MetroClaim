@@ -14,62 +14,66 @@ import {
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import TripDetail from '@/components/TripDetail';
+import { Sheet } from '@/components/ui/sheet';
+import getTripFinance from '@/api/trip/getTripFinance';
+import putTripFinanceReview from '@/api/trip/putTripFinanceReview';
 
 export const Route = createLazyFileRoute('/trip/finance')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { isFinance } = useAuth();
+  const { user, isFinance } = useAuth();
 
-  const [modalState, setModalState] = useState({ isOpen: false, type: null, requestId: null });
+   const [modalState, setModalState] = useState({ isOpen: false, type: null, requestId: null });
+  const [requests, setRequests] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeRequest, setActiveRequest] = useState(null);
 
   // --- 1. REVISED MOCK DATA STRUCTURE ---
-  const requests = [
-    {
-      id: 1,
-      employeeId: 'EMP001',
-      employeeName: 'John Doe',
-      title: 'Jakarta Sales Pitch',
-      description: 'Meeting with prospective clients in Central Jakarta.',
-      start_date: '2025-12-20',
-      end_date: '2025-12-23',
-      destination: 'Jakarta, Indonesia',
-      totalAmount: 500000,
-    },
-    {
-      id: 2,
-      employeeId: 'EMP002',
-      employeeName: 'Jane Smith',
-      title: 'Bandung Tech Conference',
-      description: 'Attending "Future of AI" conference and networking event.',
-      start_date: '2026-01-10',
-      end_date: '2026-01-12',
-      destination: 'Bandung, Indonesia',
-      totalAmount: 200000,
-    },
-    {
-      id: 3,
-      employeeId: 'EMP003',
-      employeeName: 'Bob Johnson',
-      title: 'Surabaya Office Audit',
-      description: 'Internal financial audit for the regional branch office.',
-      start_date: '2026-02-05',
-      end_date: '2026-02-05',
-      destination: 'Surabaya, Indonesia',
-      totalAmount: 300000,
-    },
-  ];
+  const fetchRequests = async () => {
+      if (!user?.tk) return;
+      try {
+          setIsLoading(true);
+          const data = await getTripFinance(user.tk);
+          setRequests(data);
+      } catch (error) {
+          console.error("Failed to fetch manager requests", error);
+          toast.error("Error", { description: "Failed to load approval list." });
+      } finally {
+          setIsLoading(false);
+      }
+    };
+  
+    useEffect(() => {
+        fetchRequests();
+      }, [user?.tk]);
   // ----------------------------------------
 
   const openAction = (id, type) => {
     setModalState({ isOpen: true, type, requestId: id });
   };
   
-  const handleConfirmAction = (requestId, actionType, cost, comment) => {
-    console.log(`Confirmed Action: Request ID ${requestId}, Type: ${actionType}, Cost: ${cost}, Comment: "${comment}"`);
-    setModalState({ isOpen: false, type: null, requestId: null });
+  const handleConfirmAction = async (requestId, cost) => {
+   
+    if (!user?.tk) return;
+        try {
+            setIsSubmitting(true);
+            await putTripFinanceReview(requestId, cost, user.tk);
+            toast.success("Success", { description: "Reimbursement status updated." });
+            setModalState({ isOpen: false, type: null, requestId: null });
+            setActiveRequest(null); // Close detail view
+            fetchRequests(); // Refresh list
+        } catch (error) {
+            console.error("Update failed", error);
+            toast.error("Failed", { description: error.message || "Could not update status." });
+        } finally {
+            setIsSubmitting(false);
+        }
   };
 
 
@@ -86,7 +90,7 @@ function RouteComponent() {
                 <TableHead>Dates</TableHead>
                 <TableHead>Destination</TableHead>
                 <TableHead>Requested Amount</TableHead>
-                <TableHead>Actions</TableHead>
+             
                 {/* ---------------------------------- */}
               </TableRow>
             </TableHeader>
@@ -118,20 +122,7 @@ function RouteComponent() {
                   </TableCell>
 
                   {/* Actions */}
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        size="sm"
-                        variant="default"
-                        className="h-8 p-2 bg-blue-600 hover:bg-blue-700"
-                        onClick={() => openAction(req.id, 0)}
-                        title="Set Approved Cost"
-                      >
-                        <DollarSign className="w-4 h-4 mr-1" />
-                        Set Cost
-                      </Button>
-                    </div>
-                  </TableCell>
+                 
                   {/* ---------------------------------- */}
                 </TableRow>
               ))}
@@ -147,7 +138,7 @@ function RouteComponent() {
           </Table>
         </CardContent>
       </Card>
-      
+
       <ActionModal
         isOpen={modalState.isOpen}
         actionType={modalState.type}
@@ -155,6 +146,31 @@ function RouteComponent() {
         onClose={() => setModalState({ ...modalState, isOpen: false })}
         onConfirm={handleConfirmAction}
       />
+
+      <Sheet open={!!activeRequest} onOpenChange={(open) => !open && setActiveRequest(null)}>
+        <SheetContent className="sm:max-w-xl w-full flex flex-col h-full">
+          <SheetHeader className="mb-4">
+            <SheetTitle>Claim Details</SheetTitle>
+            <SheetDescription>
+              View the details of the reimbursement request.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {activeRequest ? (
+              <TripDetail
+                detailData={activeRequest}
+                onClose={() => setActiveRequest(null)}
+                userRole="Manager"
+                onAction={(actionType) => openAction(activeRequest.id, actionType)}
+              />
+            ) : (
+              <p className="p-4 text-center text-muted-foreground">
+                Please select an item to view details.
+              </p>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
@@ -182,9 +198,9 @@ const ActionModal = ({ isOpen, onClose, actionType, requestId, onConfirm }) => {
   const handleConfirmation = () => {
     if (actionType === 0) {
       const finalCost = parseFloat(cost) || 0;
-      onConfirm(requestId, actionType, finalCost, comment);
+      onConfirm(requestId, finalCost );
     } else {
-      onConfirm(requestId, actionType, null, comment); 
+      onConfirm(requestId,  null); 
     }
   }
 

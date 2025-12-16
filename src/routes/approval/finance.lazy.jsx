@@ -2,7 +2,7 @@ import { createLazyFileRoute } from '@tanstack/react-router';
 import { useAuth } from '../../hooks/AuthContext';
 import { router } from '../../router';
 import ReimbursementList from '../../components/ReimbursementList';
-import { Check, RotateCcw, X } from 'lucide-react';
+import { Check, Loader2, RotateCcw, X } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Table,

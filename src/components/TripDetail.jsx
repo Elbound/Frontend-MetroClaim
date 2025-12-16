@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function TripDetail({ tripId, onClose }) {
-  const { user } = useAuth();
+  const { user, isFinance } = useAuth();
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -64,33 +64,54 @@ export default function TripDetail({ tripId, onClose }) {
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm">
-           <div>
+          <div>
             <p className="text-gray-500 text-xs">Destination</p>
             <p className="font-medium text-gray-900">{trip.destination}</p>
           </div>
-           <div>
+          <div>
             <p className="text-gray-500 text-xs">Cost</p>
             <p className="font-medium text-gray-900">
-              {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(trip.cost)}
+              {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
+                trip.cost
+              )}
             </p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Start Date</p>
-            <p className="font-medium text-gray-900">{format(new Date(trip.startDate), 'dd MMM yyyy')}</p>
+            <p className="font-medium text-gray-900">
+              {format(new Date(trip.startDate), 'dd MMM yyyy')}
+            </p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">End Date</p>
-            <p className="font-medium text-gray-900">{format(new Date(trip.endDate), 'dd MMM yyyy')}</p>
+            <p className="font-medium text-gray-900">
+              {format(new Date(trip.endDate), 'dd MMM yyyy')}
+            </p>
           </div>
-             <div>
+          <div>
             <p className="text-gray-500 text-xs">Manager</p>
             <p className="font-medium text-gray-900">{trip.managerName}</p>
           </div>
         </div>
 
+        {isFinance && (
+          <div className="flex items-center space-x-2">
+            <Button
+              size="sm"
+              variant="default"
+              className="h-8 p-2 bg-blue-600 hover:bg-blue-700"
+              onClick={() => openAction(req.id, 0)}
+              title="Set Approved Cost"
+            >
+              <DollarSign className="w-4 h-4 mr-1" />
+              Set Cost
+            </Button>
+          </div>
+        )}
+
         <Separator />
 
-         <div>
+        <div>
           <p className="text-gray-500 text-xs mb-1">Description</p>
           <div className="bg-gray-50 p-3 rounded-md text-sm text-gray-700 whitespace-pre-wrap">
             {trip.description || 'No description provided.'}
@@ -101,33 +122,36 @@ export default function TripDetail({ tripId, onClose }) {
 
         <div>
           <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-             <User className="w-4 h-4 mr-2" /> Participants
+            <User className="w-4 h-4 mr-2" /> Participants
           </h3>
           <div className="border rounded-md overflow-hidden">
-             <table className="w-full text-sm text-left">
-                <thead className="bg-gray-50 text-gray-500 font-medium">
-                    <tr>
-                        <th className="p-3">Name</th>
-                        <th className="p-3">Status</th>
-                        <th className="p-3 text-right">Amount</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y">
-                    {trip.participants.map((p) => (
-                        <tr key={p.userId}>
-                            <td className="p-3 font-medium text-gray-900">{p.fullName}</td>
-                            <td className="p-3">
-                                <Badge variant="secondary" className="text-xs font-normal">
-                                    {p.reimbursementStatus}
-                                </Badge>
-                            </td>
-                            <td className="p-3 text-right text-gray-700">
-                                {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(p.currentAmount)}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-             </table>
+            <table className="w-full text-sm text-left">
+              <thead className="bg-gray-50 text-gray-500 font-medium">
+                <tr>
+                  <th className="p-3">Name</th>
+                  <th className="p-3">Status</th>
+                  <th className="p-3 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {trip.participants.map((p) => (
+                  <tr key={p.userId}>
+                    <td className="p-3 font-medium text-gray-900">{p.fullName}</td>
+                    <td className="p-3">
+                      <Badge variant="secondary" className="text-xs font-normal">
+                        {p.reimbursementStatus}
+                      </Badge>
+                    </td>
+                    <td className="p-3 text-right text-gray-700">
+                      {new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                      }).format(p.currentAmount)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -137,9 +161,13 @@ export default function TripDetail({ tripId, onClose }) {
 
 function getStatusColor(status) {
   switch (status?.toLowerCase()) {
-    case 'ongoing': return 'bg-blue-50 text-blue-700 border-blue-200';
-    case 'completed': return 'bg-green-50 text-green-700 border-green-200';
-    case 'planned': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-    default: return 'bg-gray-50 text-gray-700 border-gray-200';
+    case 'ongoing':
+      return 'bg-blue-50 text-blue-700 border-blue-200';
+    case 'completed':
+      return 'bg-green-50 text-green-700 border-green-200';
+    case 'planned':
+      return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+    default:
+      return 'bg-gray-50 text-gray-700 border-gray-200';
   }
 }
