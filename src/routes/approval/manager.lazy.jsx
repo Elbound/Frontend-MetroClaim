@@ -2,7 +2,10 @@ import { createLazyFileRoute } from '@tanstack/react-router';
 import { useAuth } from '../../hooks/AuthContext';
 import { router } from '../../router';
 import ReimbursementList from '../../components/ReimbursementList';
-import { Check, RotateCcw, X } from 'lucide-react';
+import ReimbursementDetail from '../../components/ReimbursementDetail.jsx';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Check, RotateCcw, X, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Table,
@@ -13,47 +16,62 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
+
+import getReimbursementManager from '@/api/reimbursement/getReimbursementManager';
+import patchReimbursementStatus from '@/api/reimbursement/patchReimbursementStatus';
+import { toast } from 'sonner';
 
 export const Route = createLazyFileRoute('/approval/manager')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { isManager } = useAuth();
-
+  const { isManager, user } = useAuth();
   const [modalState, setModalState] = useState({ isOpen: false, type: null, requestId: null });
+  const [requests, setRequests] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeRequest, setActiveRequest] = useState(null);
 
-  // Mock data \
-  const requests = [
-    {
-      id: 1,
-      employeeId: 'EMP001',
-      employeeName: 'John Doe',
-      title: 'Travel Expense',
-      description: 'Business trip to Jakarta',
-      totalAmount: 500,
-    },
-    {
-      id: 2,
-      employeeId: 'EMP002',
-      employeeName: 'Jane Smith',
-      title: 'Office Supplies',
-      description: 'Purchased stationery and office materials',
-      totalAmount: 200,
-    },
-    {
-      id: 3,
-      employeeId: 'EMP003',
-      employeeName: 'Bob Johnson',
-      title: 'Conference Fee',
-      description: 'Registration for tech conference',
-      totalAmount: 300,
-    },
-  ];
+  const fetchRequests = async () => {
+    if (!user?.tk) return;
+    try {
+        setIsLoading(true);
+        const data = await getReimbursementManager(user.tk);
+        setRequests(data);
+    } catch (error) {
+        console.error("Failed to fetch manager requests", error);
+        toast.error("Error", { description: "Failed to load approval list." });
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRequests();
+  }, [user?.tk]);
 
   const openAction = (id, type) => {
     setModalState({ isOpen: true, type, requestId: id });
+  };
+
+  const handleConfirmAction = async (id, action, comment) => {
+    if (!user?.tk) return;
+    try {
+        setIsSubmitting(true);
+        await patchReimbursementStatus(id, action, comment, user.tk);
+        toast.success("Success", { description: "Reimbursement status updated." });
+        setModalState({ isOpen: false, type: null, requestId: null });
+        setActiveRequest(null); // Close detail view
+        fetchRequests(); // Refresh list
+    } catch (error) {
+        console.error("Update failed", error);
+        toast.error("Failed", { description: error.message || "Could not update status." });
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -61,70 +79,50 @@ function RouteComponent() {
       <h2 className="text-3xl font-bold tracking-tight">Pending Approvals</h2>
       <Card>
         <CardContent className="p-0">
+          {isLoading ? (
+             <div className="p-8 text-center text-muted-foreground">Loading requests...</div>
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
+                <TableHead>Reference ID</TableHead>
                 <TableHead>Title</TableHead>
+                <TableHead>Name</TableHead>
                 <TableHead>Amount</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {requests?.map((req) => (
-                <TableRow key={req.id}>
-                  <TableCell className="font-medium">
-                    {req.employeeName || req.employeeId}
-                  </TableCell>
+                <TableRow 
+                    key={req.id} 
+                    className="cursor-pointer hover:bg-muted/50" 
+                    onClick={() => setActiveRequest(req)}
+                >
+                  <TableCell className="font-medium">{req.id ? req.id.substring(0, 8) + '...' : '-'}</TableCell>
                   <TableCell>
-                    <div>{req.title}</div>
-                    <div className="text-xs text-gray-500 truncate w-48">{req.description}</div>
+                    <div className="font-semibold">{req.title}</div>
                   </TableCell>
+                  <TableCell>{req.userFullName || req.userEmployeeId}</TableCell>
                   <TableCell>
                     {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
                       req.totalAmount || 0
                     )}
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        size="sm"
-                        variant="default"
-                        className="h-8 w-8 p-0 bg-green-600 hover:bg-green-700"
-                        onClick={() => openAction(req.id, 0)}
-                      >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-8 w-8 p-0 text-yellow-600 border-yellow-200 hover:bg-yellow-50"
-                        onClick={() => openAction(req.id, 2)}
-                      >
-                        <RotateCcw className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="h-8 w-8 p-0"
-                        onClick={() => openAction(req.id, 1)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+                  <TableCell>{req.updatedAt ? format(new Date(req.updatedAt), 'dd MMM yyyy HH:mm') : '-'}</TableCell>
                 </TableRow>
               ))}
               {!requests ||
                 (requests.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center h-32 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center h-32 text-muted-foreground">
                       All caught up! No pending approvals.
                     </TableCell>
                   </TableRow>
                 ))}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
       <ActionModal
@@ -132,53 +130,89 @@ function RouteComponent() {
         actionType={modalState.type}
         requestId={modalState.requestId}
         onClose={() => setModalState({ ...modalState, isOpen: false })}
-        // onConfirm={(id, action, comment) => processMutation.mutate({ id, action, comment })}
+        onConfirm={handleConfirmAction}
+        isSubmitting={isSubmitting}
       />
+
+       {/* Detail Sheet */}
+       <Sheet open={!!activeRequest} onOpenChange={(open) => !open && setActiveRequest(null)}>
+        <SheetContent className="sm:max-w-xl w-full flex flex-col h-full">
+          <SheetHeader className="mb-4">
+            <SheetTitle>Claim Details</SheetTitle>
+            <SheetDescription>
+              View the details of the reimbursement request.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {activeRequest ? (
+              <ReimbursementDetail
+                detailData={activeRequest}
+                onClose={() => setActiveRequest(null)}
+                userRole="Manager"
+                onAction={(actionType) => openAction(activeRequest.id, actionType)}
+              />
+            ) : (
+              <p className="p-4 text-center text-muted-foreground">
+                Please select an item to view details.
+              </p>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
 
-const ActionModal = ({ isOpen, onClose, actionType, requestId, onConfirm }) => {
+const ActionModal = ({ isOpen, onClose, actionType, requestId, onConfirm, isSubmitting }) => {
   const [comment, setComment] = useState('');
-  if (!isOpen) return null;
+  
+  // Reset comment when opening
+  useEffect(() => {
+    if (isOpen) setComment('');
+  }, [isOpen]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg animate-in fade-in zoom-in-95">
-        <h3 className="text-lg font-semibold mb-2">
-          {actionType === 0
-            ? 'Approve Request?'
-            : actionType === 1
-              ? 'Reject Request'
-              : 'Request Revision'}
-        </h3>
-        <p className="text-sm text-gray-500 mb-4">
-          {actionType === 0
-            ? 'Are you sure you want to approve this request?'
-            : 'Please provide a reason.'}
-        </p>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !isSubmitting && onClose()}>
+      <DialogContent className="sm:max-w-md z-[110]">
+        <DialogHeader>
+          <DialogTitle>
+            {actionType === 0
+              ? 'Approve Request?'
+              : actionType === 1
+                ? 'Reject Request'
+                : 'Request Revision'}
+          </DialogTitle>
+          <DialogDescription>
+             {actionType === 0
+              ? 'Are you sure you want to approve this request?'
+              : 'Please provide a reason.'}
+          </DialogDescription>
+        </DialogHeader>
 
         {(actionType === 1 || actionType === 2) && (
           <textarea
             className="w-full border rounded-md p-2 text-sm mb-4"
+            disabled={isSubmitting}
             placeholder="Add a comment..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           />
         )}
 
-        <div className="flex justify-end space-x-2">
-          <Button variant="outline" onClick={onClose}>
+        <DialogFooter className="flex justify-end space-x-2">
+          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button
             variant={actionType === 1 ? 'destructive' : 'default'}
             onClick={() => onConfirm(requestId, actionType, comment)}
+            disabled={isSubmitting}
           >
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Confirm
           </Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };

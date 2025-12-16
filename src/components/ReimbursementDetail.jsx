@@ -24,7 +24,7 @@ const getStatusVariant = (status) => {
     }
 };
 
-export default function ReimbursementDetail({ detailData, onClose, userRole }) {
+export default function ReimbursementDetail({ detailData, onClose, userRole, onAction }) {
     const navigate = useNavigate();
     const [selectedReceipt, setSelectedReceipt] = useState(null);
 
@@ -79,10 +79,39 @@ export default function ReimbursementDetail({ detailData, onClose, userRole }) {
 
                     {/* Actions */}
                     {(() => {
+                        // Manager Actions
+                        if (userRole === 'Manager') {
+                            return (
+                                <div className="flex justify-end space-x-2 pt-2">
+                                     <Button 
+                                        variant="default" 
+                                        className="bg-green-600 hover:bg-green-700" 
+                                        onClick={() => onAction && onAction(0)}
+                                    >
+                                        Approve
+                                    </Button>
+                                    <Button 
+                                        variant="outline" 
+                                        className="text-yellow-600 border-yellow-200 hover:bg-yellow-50"
+                                        onClick={() => onAction && onAction(2)}
+                                    >
+                                        Revision
+                                    </Button>
+                                    <Button 
+                                        variant="destructive" 
+                                        onClick={() => onAction && onAction(1)}
+                                    >
+                                        Reject
+                                    </Button>
+                                </div>
+                            );
+                        }
+
+                        // Employee Actions (Update)
                         const sortedLogs = detailData.logs ? [...detailData.logs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) : [];
                         const latestAction = sortedLogs.length > 0 ? sortedLogs[0].action : detailData.status;
                         
-                        if (latestAction === 'Draft' || latestAction === 'ManagerRevision') {
+                        if (latestAction === 'Drafted' || latestAction === 'ManagerRevision') {
                              return (
                                 <div className="flex justify-end pt-2">
                                     <Button 
@@ -151,7 +180,7 @@ export default function ReimbursementDetail({ detailData, onClose, userRole }) {
             </ScrollArea>
 
             <Dialog open={!!selectedReceipt} onOpenChange={(open) => !open && setSelectedReceipt(null)}>
-                <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col" aria-describedby={undefined}>
                     <DialogHeader>
                         <DialogTitle>Receipt View</DialogTitle>
                     </DialogHeader>
