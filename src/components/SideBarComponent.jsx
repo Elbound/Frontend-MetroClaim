@@ -12,15 +12,15 @@ export default function SideBarComponent() {
         <div>
           <img src={MetroLogo} alt="Metrodata" className='w-20 h-auto rounded-full' />
         </div>
-        <div>Your role is: {isManager ? 'Manager' : isFinance ? 'Finance' : 'Employee'}</div>
-        <div>Your role is: {user? user.tk : ''}</div>
+        <div>Your role is: {user?.role}</div>
+        <div>Your token is: {user? user.tk : ''}</div>
         <div className="flex flex-col">
           <Link to="/dashboard" className={linkClass}>
             Dashboard
           </Link>
-          <Link to="/reimbursement" className={linkClass}>
+          {/* <Link to="/reimbursement" className={linkClass}>
             Reimbursement
-          </Link>
+          </Link> */}
           <Link to="/history" className={linkClass}>
             History
           </Link>

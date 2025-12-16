@@ -1,7 +1,6 @@
-import { createLazyFileRoute } from '@tanstack/react-router';
+import { createLazyFileRoute, useLocation } from '@tanstack/react-router';
 
 import { useEffect, useState } from 'react';
-
 
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,6 +22,8 @@ import { Description } from '@radix-ui/react-dialog';
 import { useAuth } from '@/hooks/AuthContext';
 import ReciptList from '@/components/ReciptList';
 import useImageConverter from '@/hooks/useImageConverter';
+import postReimbursementCreate from '@/api/reimbursement/postReimbursementCreate';
+import { router } from '@/router';
 
 export const Route = createLazyFileRoute('/reimbursement/')({
   component: RouteComponent,
@@ -36,8 +37,14 @@ const formatCurrency = (amount) =>
   }).format(amount || 0);
 
 export default function RouteComponent() {
-  const { user, isManager, isFinance } = useAuth();
+  const location = useLocation();
+  const navigationState = location.state;
+  const intiialCategory = navigationState?.categoryId || '';
+  console.log(intiialCategory);
+
+  const { user } = useAuth();
   const { convertFile } = useImageConverter();
+
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [image, setImage] = useState(null);
@@ -59,12 +66,20 @@ export default function RouteComponent() {
     fetching();
   }, []);
 
+  useEffect(() => {
+    if (category) {
+      console.log('Category pre-selected from Dashboard:', category);
+    }
+  }, [category]);
+
+  
+
   //submit reimbursement item
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const allowedTypes = ['image/png', 'image/jpeg', 'image/gif'];
-      const maxSize = 1 * 1024 * 1024; 
+      const maxSize = 1 * 1024 * 1024;
       if (!allowedTypes.includes(file.type)) {
         toast.error('File Error', { description: 'Please select a PNG, JPG, or GIF file.' });
         return;
@@ -87,10 +102,8 @@ export default function RouteComponent() {
       return;
     }
 
-
-    
     const convertedImage = await convertFile(image);
-    console.log(convertedImage)
+    console.log(convertedImage);
 
     const newItem = {
       recipt: convertedImage,
@@ -100,7 +113,7 @@ export default function RouteComponent() {
 
     setItems([...items, newItem]);
     setImage(null);
-    setAmount(''); 
+    setAmount('');
     setItemDate('');
     toast.success('Item Added', {
       description: `Added ${formatCurrency(newItem.amount)} to the list.`,
@@ -114,7 +127,7 @@ export default function RouteComponent() {
   };
 
   //submit reimburesement
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !category || items.length === 0) {
       toast.error('Submission Failed', {
@@ -126,25 +139,16 @@ export default function RouteComponent() {
     const totalammount = items.reduce((total, i) => total + i.amount, 0);
 
     setReimbursement({
-      Title: title,
-      Description: desc,
-      CategoryId: category,
-      Items: items,
-    });
-
-    // console.log(JSON.stringify(reimbursement));
-
-    console.log('SUBMITTED:', {
-      totalAmount: totalammount,
       title: title,
       description: desc,
-      category: category,
-      items: items.map((i) => ({
-        recipt: i.recipt,
-        amount: i.amount,
-        dateOfExpense: i.dateOfExpense,
-      })),
+      categoryId: category,
+      items: items,
     });
+
+    console.log(reimbursement);
+    // console.log(JSON.stringify(reimbursement));
+
+    const postResponse = await postReimbursementCreate(reimbursement, user.tk);
 
     toast.success('Reimbursement Submitted!', {
       description: `Claim for ${formatCurrency(totalammount)} has been submitted.`,

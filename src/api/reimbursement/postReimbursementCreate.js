@@ -1,10 +1,11 @@
-export default async function postReimbursementCreate(item) {
+export default async function postReimbursementCreate(item, token) {
   const response = await fetch("/api/reimbursement", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
-    body: JSON.stringify({item }),
+    body: JSON.stringify(item),
   });
 
   const res = await response.json();
