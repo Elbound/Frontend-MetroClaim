@@ -26,7 +26,7 @@ export default function ReimbursementDetail({ detailData, onClose, userRole }) {
     };
 
     return (
-        <ScrollArea className="flex-1 pr-4 -mr-4 px-1 mt-4">
+        <ScrollArea className="flex-1 px-4 mt-4 w-full [&>[data-slot=scroll-area-viewport]]:overflow-x-hidden">
             <div className="space-y-6 pb-6">
                 
                 {/* Header Info */}
@@ -38,7 +38,7 @@ export default function ReimbursementDetail({ detailData, onClose, userRole }) {
                     <div>
                         <label className="text-xs font-medium text-muted-foreground">Total Amount</label>
                         <p className="font-bold text-xl text-primary">
-                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(detailData.amount)}
+                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(detailData.totalAmount)}
                         </p>
                     </div>
                     <div>
@@ -47,7 +47,7 @@ export default function ReimbursementDetail({ detailData, onClose, userRole }) {
                     </div>
                     <div>
                         <label className="text-xs font-medium text-muted-foreground">Category</label>
-                        <p>{detailData.category}</p>
+                        <p>{detailData.categoryName}</p>
                     </div>
                     <div className="col-span-2">
                         <label className="text-xs font-medium text-muted-foreground">Description</label>
@@ -56,7 +56,7 @@ export default function ReimbursementDetail({ detailData, onClose, userRole }) {
                     {/* Simplified employee info, assuming this view is for all users */}
                     <div className="col-span-2">
                         <label className="text-xs font-medium text-muted-foreground">Submitted By</label>
-                        <p className="text-sm font-medium">{detailData.requestorName}</p>
+                        <p className="text-sm font-medium">{detailData.userFullName}</p>
                     </div>
                 </div>
 
