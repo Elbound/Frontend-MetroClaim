@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { FileText, PlusCircle, LayoutList } from 'lucide-react';
+import { FileText, PlusCircle, LayoutList, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import getCategory from '@/api/getCategory';
 import { Description } from '@radix-ui/react-dialog';
@@ -145,18 +145,20 @@ export default function RouteComponent() {
 
     const totalammount = items.reduce((total, i) => total + i.amount, 0);
 
-    setReimbursement({
+    const submitedData = {
       title: title,
       description: desc,
       categoryId: selectedCategoryId,
       items: items,
-    });
+    };
+
+    setReimbursement(submitedData)
 
     console.log(reimbursement);
     // console.log(JSON.stringify(reimbursement));
 
     setIsLoading(true)
-    const postResponse = await postReimbursementCreate(reimbursement, user.tk);
+    const postResponse = await postReimbursementCreate(submitedData, user.tk);
     setIsLoading(false)
     toast.success('Reimbursement Submitted!', {
       description: `Claim for ${formatCurrency(totalammount)} has been submitted.`,
