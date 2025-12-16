@@ -1,5 +1,5 @@
-export default async function getReimbursementMe(token) {
-  const response = await fetch("/api/reimbursement/me", {
+export default async function getCategory(token) {
+  const response = await fetch("/api/category", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

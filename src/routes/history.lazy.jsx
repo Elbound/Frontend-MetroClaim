@@ -2,11 +2,10 @@ import { createLazyFileRoute } from '@tanstack/react-router';
 import { useState, useMemo, useEffect } from 'react';
 import { FileClock } from 'lucide-react';
 
-
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
-import ReimbursementList from '../components/ReimbursementList'; 
-import ReimbursementDetail from '../components/ReimbursementDetail.jsx'; 
+import ReimbursementList from '../components/ReimbursementList';
+import ReimbursementDetail from '../components/ReimbursementDetail.jsx';
 import getReimbursementMe from '@/api/reimbursement/getReimbursementMe';
 import { useAuth } from '@/hooks/AuthContext';
 
@@ -14,40 +13,31 @@ export const Route = createLazyFileRoute('/history')({
   component: RouteComponent,
 });
 
-
 function RouteComponent() {
-  const { user } = useAuth(); 
+  const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState('all');
   const [selectedId, setSelectedId] = useState(null);
-  const [data, setData] = useState(null); 
+  const [data, setData] = useState(null);
 
   useEffect(() => {
-   
     const fetchRequests = async () => {
-      if (!user || !user.tk) {
-      
-         return; 
-      }
-      
+      if (!user || !user.tk) return;
+
       try {
         const response = await getReimbursementMe(user.tk);
-        
-        setData(response || []); 
+        setData(response || []);
       } catch (err) {
-        console.error("Error fetching data:", err);
-     
-        setData([]); 
+        console.error('Error fetching data:', err);
+        setData([]);
       }
     };
 
     fetchRequests();
+  }, [user?.tk]);
 
-  }, [user?.tk]); 
+  const allRequests = data || [];
 
-  
-  const allRequests = data || []; 
-  
   const filteredRequests = useMemo(() => {
     switch (activeTab) {
       case 'paid':
@@ -56,19 +46,18 @@ function RouteComponent() {
         return allRequests.filter((r) => r.status === 'Rejected');
       case 'pending':
         return allRequests.filter(
-          (r) => r.status === 'Submitted' || r.status === 'Pending' || r.status === 'ManagerApproved'
+          (r) =>
+            r.status === 'Submitted' || r.status === 'Pending' || r.status === 'ManagerApproved'
         );
       case 'all':
       default:
         return allRequests;
     }
-  }, [activeTab, allRequests]); // Dependencies are correct
+  }, [activeTab, allRequests]); 
 
-  
-  // --- DETAIL VIEW LOGIC ---
+ 
   const selectedRequest = useMemo(() => {
-    // Search the live 'allRequests' state
-    return allRequests.find((r) => r.id === selectedId); 
+    return allRequests.find((r) => r.id === selectedId);
   }, [selectedId, allRequests]);
 
   const handleRowClick = (id) => {
@@ -79,7 +68,6 @@ function RouteComponent() {
     setSelectedId(null);
   };
 
-  
   const tabs = [
     { key: 'all', label: `All (${allRequests.length})` },
     {
@@ -96,8 +84,8 @@ function RouteComponent() {
     },
   ];
 
-  // --- RENDERING ---
-  const isFetching = data === null; // Simple flag to handle the "initial null" state
+  
+  const isFetching = data === null; 
 
   return (
     <div className="p-6 pl-10 pr-10 bg-gray-50 min-h-screen">
@@ -111,7 +99,6 @@ function RouteComponent() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              // The counts in tabs will be 0 when data is null, which is the "silent loading" state
               className={`py-2 px-4 text-sm font-medium transition-colors border-b-2 ${
                 activeTab === tab.key
                   ? 'border-primary text-primary font-semibold'
@@ -131,8 +118,8 @@ function RouteComponent() {
           <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
             <FileClock className="h-12 w-12 mb-4 text-gray-300" />
             <p>
-              {isFetching 
-                ? 'Loading history...' // Display a subtle text indicator during initial fetch
+              {isFetching
+                ? 'Loading history...'
                 : `No requests found in the **${activeTab}** category.`}
             </p>
           </div>
@@ -152,10 +139,12 @@ function RouteComponent() {
               <ReimbursementDetail
                 detailData={selectedRequest}
                 onClose={closeDetail}
-                userRole="Employee" 
+                userRole="Employee"
               />
             ) : (
-                <p className="p-4 text-center text-muted-foreground">Please select an item to view details.</p>
+              <p className="p-4 text-center text-muted-foreground">
+                Please select an item to view details.
+              </p>
             )}
           </div>
         </SheetContent>

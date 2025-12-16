@@ -1,6 +1,6 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useAuth } from '../hooks/AuthContext';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReciptList from '../components/ReciptList'; // Keep your existing import
 
 // --- SHADCN/UI Imports ---
@@ -19,6 +19,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { FileText, PlusCircle, LayoutList } from 'lucide-react';
 import { toast } from 'sonner'; // Recommended for better feedback than 'alert'
+import getCategory from '@/api/getCategory';
 
 export const Route = createLazyFileRoute('/reimbursement')({
   component: RouteComponent,
@@ -39,7 +40,7 @@ const formatCurrency = (amount) =>
   }).format(amount || 0);
 
 export default function RouteComponent() {
-  const { isManager, isFinance } = useAuth(); // Initialize states as empty string or null for controlled components
+  const { user, isManager, isFinance } = useAuth(); // Initialize states as empty string or null for controlled components
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [image, setImage] = useState(null);
@@ -47,7 +48,17 @@ export default function RouteComponent() {
   const [category, setCategory] = useState('');
 
   const [items, setItems] = useState([]);
+  const [categroies, setCategories] = useState([]);
   const [reimbursement, setReimbursement] = useState(null);
+
+  useEffect(() => {
+    const fetching = async () => {
+      const response = await getCategory(user.tk);
+
+      setCategories(response);
+    };
+    fetching();
+  }, []);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -101,12 +112,13 @@ export default function RouteComponent() {
     const totalammount = items.reduce((total, i) => total + i.amount, 0);
 
     setReimbursement({
-      id: isManager ? 'manager' : isFinance ? 'finance' : 'employee',
       title: title,
       description: desc,
-      total: totalammount,
+      categoryId: category,
       reimbursementItem: items,
     });
+
+    console.log(JSON.stringify(reimbursement));
 
     console.log('SUBMITTED:', {
       totalAmount: totalammount,
@@ -148,7 +160,7 @@ export default function RouteComponent() {
                   <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {MOCK_CATEGORIES.map((cat) => (
+                  {categroies.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       {cat.name}
                     </SelectItem>
