@@ -5,21 +5,37 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Users, Loader2 } from 'lucide-react'
-import tripService from '@/services/tripService'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
+import TripDetail from '@/components/TripDetail'
+import { format } from 'date-fns'
+
+import { useAuth } from '@/hooks/AuthContext'
+import getTripManager from '@/api/trip/getTripManager'
 
 export const Route = createLazyFileRoute('/trip/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const { user } = useAuth()
   const [trips, setTrips] = useState([])
   const [loading, setLoading] = useState(true)
+  const [activeTripId, setActiveTripId] = useState(null)
 
   useEffect(() => {
     const fetchTrips = async () => {
+      if (!user?.tk) return
       try {
-        const data = await tripService.getTrips()
-        setTrips(data)
+        const data = await getTripManager(user.tk)
+        
+        // Transform data for table display
+        const formattedData = data.map(trip => ({
+          ...trip,
+          dates: `${format(new Date(trip.startDate), 'dd MMM')} - ${format(new Date(trip.endDate), 'dd MMM yyyy')}`,
+          participants: trip.participants ? trip.participants.length : 0
+        }))
+
+        setTrips(formattedData)
       } catch (error) {
         console.error("Failed to fetch trips", error)
       } finally {
@@ -27,7 +43,7 @@ function RouteComponent() {
       }
     }
     fetchTrips()
-  }, [])
+  }, [user?.tk])
 
   return (
     <div className="w-full p-6 min-h-screen bg-gray-50/50">
@@ -68,7 +84,11 @@ function RouteComponent() {
                 </TableRow>
               ) : trips.length > 0 ? (
                 trips.map((trip) => (
-                  <TableRow key={trip.id} className="hover:bg-gray-50 border-b border-gray-50 last:border-0">
+                  <TableRow 
+                    key={trip.id} 
+                    className="hover:bg-gray-50 border-b border-gray-50 last:border-0 cursor-pointer transition-colors"
+                    onClick={() => setActiveTripId(trip.id)}
+                  >
                     <TableCell className="py-4 pl-6 font-medium text-gray-900">{trip.title}</TableCell>
                     <TableCell className="py-4 text-gray-600">{trip.destination}</TableCell>
                     <TableCell className="py-4 text-gray-600 text-sm">{trip.dates}</TableCell>
@@ -96,6 +116,22 @@ function RouteComponent() {
           </Table>
         </CardContent>
       </Card>
+
+      <Sheet open={!!activeTripId} onOpenChange={(open) => !open && setActiveTripId(null)}>
+        <SheetContent className="sm:max-w-xl w-full flex flex-col h-full bg-white p-0 gap-0">
+          <SheetHeader className="px-6 py-4 border-b">
+            <SheetTitle>Trip Details</SheetTitle>
+            <SheetDescription>
+              View detailed information about this trip.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4">
+            {activeTripId && (
+               <TripDetail tripId={activeTripId} onClose={() => setActiveTripId(null)} />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }
