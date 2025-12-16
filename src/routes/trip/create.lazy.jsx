@@ -6,12 +6,14 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel, SelectSeparator } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Check, X, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import userService from '@/services/userService'
-import tripService from '@/services/tripService'
+import { useAuth } from '@/hooks/AuthContext'
+import postTrip from '@/api/trip/postTrip'
+import getUsers from '@/api/user/getUsers'
+import getSubordinates from '@/api/user/getSubordinates'
 
 export const Route = createLazyFileRoute('/trip/create')({
   component: RouteComponent,
@@ -19,8 +21,12 @@ export const Route = createLazyFileRoute('/trip/create')({
 
 function RouteComponent() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [loading, setLoading] = useState(false)
-  const [participants, setParticipants] = useState([])
+  const [subordinates, setSubordinates] = useState([])
+  const [otherUsers, setOtherUsers] = useState([])
+  const [allParticipants, setAllParticipants] = useState([]) // To lookup names for Badges
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -38,8 +44,27 @@ function RouteComponent() {
   }
 
   useEffect(() => {
-    userService.getAll().then(setParticipants).catch(console.error)
-  }, [])
+    const fetchData = async () => {
+      if (!user?.tk) return
+      try {
+        const [usersData, subordinatesData] = await Promise.all([
+          getUsers(user.tk),
+          getSubordinates(user.tk)
+        ])
+
+        const subIds = new Set(subordinatesData.map(s => s.id))
+        const others = usersData.filter(u => !subIds.has(u.id))
+
+        setSubordinates(subordinatesData)
+        setOtherUsers(others)
+        setAllParticipants([...subordinatesData, ...others])
+      } catch (error) {
+        console.error("Failed to fetch users", error)
+        // toast.error("Failed to load user list") // Optional
+      }
+    }
+    fetchData()
+  }, [user?.tk])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -58,6 +83,10 @@ function RouteComponent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!user?.tk) {
+      toast.error("You must be logged in to create a trip")
+      return
+    }
     setLoading(true)
     
     // Convert dates to ISO string format as per requirement
@@ -68,12 +97,12 @@ function RouteComponent() {
     }
 
     try {
-      await tripService.createTrip(payload)
+      await postTrip(payload, user.tk)
       toast.success("Trip created successfully")
       navigate({ to: '/trip' })
     } catch (error) {
         console.error(error)
-      toast.error("Failed to create trip")
+      toast.error(error.message || "Failed to create trip")
     } finally {
       setLoading(false)
     }
@@ -156,23 +185,54 @@ function RouteComponent() {
                   <SelectValue placeholder="Select a participant to add" />
                 </SelectTrigger>
                 <SelectContent>
-                  {participants.filter(p => !formData.participantIds.includes(p.id)).map(user => (
-                    <SelectItem key={user.id} value={user.id}>
-                      {user.name} ({user.email})
-                    </SelectItem>
-                  ))}
-                  {participants.filter(p => !formData.participantIds.includes(p.id)).length === 0 && (
-                      <div className="p-2 text-sm text-gray-500 text-center">No more users to add</div>
+                  {subordinates.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>Subordinates</SelectLabel>
+                      {subordinates
+                        .filter(p => !formData.participantIds.includes(p.id))
+                        .map(user => (
+                          <SelectItem key={user.id} value={user.id}>
+                            <div className="flex flex-col items-start text-left">
+                              <span className="font-medium">{user.fullName}</span>
+                              <span className="text-xs text-muted-foreground">{user.email}</span>
+                            </div>
+                          </SelectItem>
+                        ))
+                      }
+                    </SelectGroup>
+                  )}
+                  
+                  {subordinates.length > 0 && otherUsers.length > 0 && <SelectSeparator />}
+                  
+                  {otherUsers.length > 0 && (
+                    <SelectGroup>
+                       <SelectLabel>Other Users</SelectLabel>
+                       {otherUsers
+                        .filter(p => !formData.participantIds.includes(p.id))
+                        .map(user => (
+                          <SelectItem key={user.id} value={user.id}>
+                            <div className="flex flex-col items-start text-left">
+                              <span className="font-medium">{user.fullName}</span>
+                              <span className="text-xs text-muted-foreground">{user.email}</span>
+                            </div>
+                          </SelectItem>
+                        ))
+                      }
+                    </SelectGroup>
+                  )}
+                  
+                  {(subordinates.length === 0 && otherUsers.length === 0) && (
+                     <div className="p-2 text-sm text-center text-gray-500">No users found</div>
                   )}
                 </SelectContent>
               </Select>
               
               <div className="flex flex-wrap gap-2 mt-2">
                 {formData.participantIds.map(id => {
-                  const user = participants.find(p => p.id === id)
+                  const user = allParticipants.find(p => p.id === id)
                   return user ? (
                     <Badge key={id} variant="secondary" className="flex items-center gap-1 pl-2 pr-1 py-1">
-                      {user.name}
+                      {user.fullName}
                       <button 
                         type="button" 
                         onClick={() => removeParticipant(id)}
