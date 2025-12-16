@@ -27,6 +27,16 @@ import { router } from '@/router';
 
 export const Route = createLazyFileRoute('/reimbursement/')({
   component: RouteComponent,
+  validateSearch: (search) => {
+    return {
+      categoryId: search.categoryId,
+      categoryName: search.categoryName,
+    };
+  },
+
+  parseSearch: (searchStr) => {
+    return Object.fromEntries(new URLSearchParams(searchStr).entries());
+  },
 });
 
 const formatCurrency = (amount) =>
@@ -37,11 +47,14 @@ const formatCurrency = (amount) =>
   }).format(amount || 0);
 
 export default function RouteComponent() {
-  const location = useLocation();
-  const navigationState = location.state;
-  const intiialCategory = navigationState?.categoryId || '';
-  console.log(intiialCategory);
+  //get from dashboard
+  //   const location = useLocation();
+  //   const navigationState = location.state;
+  const search = Route.useSearch();
+  const selectedCategoryId = search.categoryId || '';
+  const selectedCategoryName = search.categoryName || '';
 
+  //states
   const { user } = useAuth();
   const { convertFile } = useImageConverter();
 
@@ -50,29 +63,21 @@ export default function RouteComponent() {
   const [image, setImage] = useState(null);
   const [amount, setAmount] = useState('');
   const [itemDate, setItemDate] = useState('');
-  const [category, setCategory] = useState('');
+  //   const [category, setCategory] = useState('');
 
   const [items, setItems] = useState([]);
-  const [categroies, setCategories] = useState([]);
+  //   const [categroies, setCategories] = useState([]);
   const [reimbursement, setReimbursement] = useState(null);
 
-  //get category
-  useEffect(() => {
-    const fetching = async () => {
-      const response = await getCategory(user.tk);
+  //   //get category
+  //   useEffect(() => {
+  //     const fetching = async () => {
+  //       const response = await getCategory(user.tk);
 
-      setCategories(response);
-    };
-    fetching();
-  }, []);
-
-  useEffect(() => {
-    if (category) {
-      console.log('Category pre-selected from Dashboard:', category);
-    }
-  }, [category]);
-
-  
+  //       setCategories(response);
+  //     };
+  //     fetching();
+  //   }, []);
 
   //submit reimbursement item
   const handleFileChange = (e) => {
@@ -129,7 +134,7 @@ export default function RouteComponent() {
   //submit reimburesement
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim() || !category || items.length === 0) {
+    if (!title.trim() || !selectedCategoryId || items.length === 0) {
       toast.error('Submission Failed', {
         description: 'Please fill in the Title, select a Category, and add at least one item.',
       });
@@ -141,7 +146,7 @@ export default function RouteComponent() {
     setReimbursement({
       title: title,
       description: desc,
-      categoryId: category,
+      categoryId: selectedCategoryId,
       items: items,
     });
 
@@ -178,7 +183,8 @@ export default function RouteComponent() {
             {/* Category Select */}
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <Select onValueChange={setCategory} value={category} required>
+              <div>{selectedCategoryName}</div>
+              {/* <Select onValueChange={setCategory} value={category} required>
                 <SelectTrigger id="category" className="w-[200px]">
                   <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
@@ -189,7 +195,7 @@ export default function RouteComponent() {
                     </SelectItem>
                   ))}
                 </SelectContent>
-              </Select>
+              </Select> */}
             </div>
 
             {/* Title Input */}

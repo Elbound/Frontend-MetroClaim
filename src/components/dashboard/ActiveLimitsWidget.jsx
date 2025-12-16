@@ -14,8 +14,9 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/AuthContext';
-import getLimit from '@/api/getLimit';
+import getLimit from '@/api/limit/getLimit';
 import getCategory from '@/api/getCategory';
+import postCategory from '@/api/limit/postLimit';
 
 const getIconForCategory = (name) => {
   const lower = name.toLowerCase();
@@ -34,7 +35,9 @@ export default function ActiveLimitsWidget({ onQuickClaim }) {
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [availableCategories, setAvailableCategories] = useState([]);
+
   const [selectedCategoryToAdd, setSelectedCategoryToAdd] = useState('');
+
   const [adding, setAdding] = useState(false);
   //============= FETCH DATA
   const fetchData = async () => {
@@ -51,14 +54,18 @@ export default function ActiveLimitsWidget({ onQuickClaim }) {
   };
 
   const fetchCategory = async () => {
+    setLoading(true);
     const response = await getCategory(user.tk);
 
     setCategories(response);
+    setLoading(false);
   };
   const fetchLimit = async () => {
+    setLoading(true);
     const response = await getLimit(user.tk);
 
-    setCategories(response);
+    setLimits(response);
+     setLoading(false);
   };
 
   useEffect(() => {
@@ -77,14 +84,17 @@ export default function ActiveLimitsWidget({ onQuickClaim }) {
     setAvailableCategories(filteredCategories);
     setIsAddModalOpen(true);
   };
+
   const handleCreateLimit = async () => {
     if (!selectedCategoryToAdd) return;
+    // console.log(selectedCategoryToAdd);
     setAdding(true);
     try {
-      await userLimitService.generateLimit(selectedCategoryToAdd);
+      const response = await postCategory(selectedCategoryToAdd, user.tk);
+      console.log(response);
       toast.success('Limit generated successfully!');
       setIsAddModalOpen(false);
-      fetchData(); // Refresh limits
+      fetchLimit() // Refresh limits
     } catch (e) {
       toast.error('Failed to generate limit');
     } finally {
