@@ -1,9 +1,8 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useAuth } from '../hooks/AuthContext';
 import { useEffect, useState } from 'react';
-import ReciptList from '../components/ReciptList'; // Keep your existing import
+import ReciptList from '../components/ReciptList';
 
-// --- SHADCN/UI Imports ---
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -18,10 +17,12 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { FileText, PlusCircle, LayoutList } from 'lucide-react';
-import { toast } from 'sonner'; // Recommended for better feedback than 'alert'
+import { toast } from 'sonner';
 import getCategory from '@/api/getCategory';
+import { Description } from '@radix-ui/react-dialog';
+import useImageConverter from '@/hooks/useImageConverter';
 
-export const Route = createLazyFileRoute('/reimbursement')({
+export const Route = createLazyFileRoute('/reimbursement/')({
   component: RouteComponent,
 });
 
@@ -31,7 +32,6 @@ const MOCK_CATEGORIES = [
   { id: 'supplies', name: 'Office Supplies' },
 ];
 
-// Helper to format currency for the summary (using IDR based on previous context)
 const formatCurrency = (amount) =>
   new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -39,12 +39,16 @@ const formatCurrency = (amount) =>
     minimumFractionDigits: 0,
   }).format(amount || 0);
 
+const MAX_SIZE_MB = 1 * 1024 * 1024;
+
 export default function RouteComponent() {
-  const { user, isManager, isFinance } = useAuth(); // Initialize states as empty string or null for controlled components
+  const { user, isManager, isFinance } = useAuth();
+  const { convertFile } = useImageConverter();
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [image, setImage] = useState(null);
   const [amount, setAmount] = useState('');
+  const [itemDate, setItemDate] = useState('');
   const [category, setCategory] = useState('');
 
   const [items, setItems] = useState([]);
@@ -78,18 +82,30 @@ export default function RouteComponent() {
   };
 
   const handleCreateRecipt = (e) => {
-    e.preventDefault(); // Use better validation
+    e.preventDefault();
     if (!image || parseFloat(amount) <= 0 || !amount) {
       toast.warning('Missing Data', {
         description: 'Please select an image and enter a valid amount.',
       });
       return;
     }
+    if (image.size > MAX_SIZE_MB) {
+      toast.warning('File Too Large', {
+        description: `The image size must be less than ${MAX_SIZE_MB}MB.`,
+      });
+      return;
+    }
 
-    const newItem = { image, amount: parseFloat(amount), date: new Date().toISOString() };
+    const newItem = {
+      recipt: convertedImage,
+      amount: parseFloat(amount),
+      dateOfExpense: new Date(itemDate).toISOString(),
+    };
+
     setItems([...items, newItem]);
     setImage(null);
     setAmount(''); // Reset to empty string
+    setItemDate('');
     toast.success('Item Added', {
       description: `Added ${formatCurrency(newItem.amount)} to the list.`,
     });
@@ -112,24 +128,28 @@ export default function RouteComponent() {
     const totalammount = items.reduce((total, i) => total + i.amount, 0);
 
     setReimbursement({
-      title: title,
-      description: desc,
-      categoryId: category,
-      reimbursementItem: items,
+      Title: title,
+      Description: desc,
+      CategoryId: category,
+      Items: items,
     });
 
-    console.log(JSON.stringify(reimbursement));
+    // console.log(JSON.stringify(reimbursement));
 
     console.log('SUBMITTED:', {
       totalAmount: totalammount,
       title: title,
       description: desc,
       category: category,
-      items: items.map((i) => ({ name: i.image.name, amount: i.amount })),
+      items: items.map((i) => ({
+        name: i.image,
+        amount: i.amount,
+        dateOfExpense: i.dateOfExpense,
+      })),
     });
     toast.success('Reimbursement Submitted!', {
       description: `Claim for ${formatCurrency(totalammount)} has been submitted.`,
-    }); // Reset form
+    });
 
     setTitle('');
     setDesc('');
@@ -230,20 +250,32 @@ export default function RouteComponent() {
                   </p>
                 </div>
               </div>
-
-              {/* Amount Input */}
-              <div className="space-y-2">
-                <Label htmlFor="amount">Amount</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="0"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Current Amount: {formatCurrency(amount)}
-                </p>
+              <div className="flex flex-col">
+                {/* Amount Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="amount">Amount</Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="0"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Current Amount: {formatCurrency(amount)}
+                  </p>
+                </div>
+                {/* Date of expense Input */}
+                <div>
+                  <Label htmlFor="date">Expense Date</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={itemDate}
+                    onChange={(e) => setItemDate(e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
               </div>
             </div>
 
@@ -281,12 +313,12 @@ export default function RouteComponent() {
             ) : (
               items.map((item, index) => (
                 // CRUCIAL: Pass required props to ReciptList
-                <ReciptList
+                (<ReciptList
                   key={item.image.name}
                   value={item}
                   index={index}
                   onRemove={handleRemoveItem}
-                />
+                />)
               ))
             )}
           </CardContent>
@@ -304,5 +336,5 @@ export default function RouteComponent() {
         </div>
       </form>
     </div>
-  );
+  )
 }
