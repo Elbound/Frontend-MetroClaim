@@ -1,5 +1,8 @@
 const ReciptList = ({ value }) => {
-  const { image, amount } = value;
+  const { recipt, amount } = value;
+
+  const srcString = `data:image/jpeg;base64,${recipt}`
+
   const formatCurrency = (amount) => 
     new Intl.NumberFormat('id-ID', { 
         style: 'currency', 
@@ -11,7 +14,7 @@ const ReciptList = ({ value }) => {
     <div className="flex items-start justify-between">
       <div className="flex items-center space-x-4">
         <img
-          src={URL.createObjectURL(image)}
+          src={srcString}
           alt="Receipt"
           className="w-16 h-16 object-cover rounded"
         />

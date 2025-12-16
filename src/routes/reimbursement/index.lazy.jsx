@@ -1,7 +1,7 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
-import { useAuth } from '../hooks/AuthContext';
+
 import { useEffect, useState } from 'react';
-import ReciptList from '../components/ReciptList';
+
 
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,17 +20,13 @@ import { FileText, PlusCircle, LayoutList } from 'lucide-react';
 import { toast } from 'sonner';
 import getCategory from '@/api/getCategory';
 import { Description } from '@radix-ui/react-dialog';
+import { useAuth } from '@/hooks/AuthContext';
+import ReciptList from '@/components/ReciptList';
 import useImageConverter from '@/hooks/useImageConverter';
 
 export const Route = createLazyFileRoute('/reimbursement/')({
   component: RouteComponent,
 });
-
-const MOCK_CATEGORIES = [
-  { id: 'travel', name: 'Travel' },
-  { id: 'software', name: 'Software License' },
-  { id: 'supplies', name: 'Office Supplies' },
-];
 
 const formatCurrency = (amount) =>
   new Intl.NumberFormat('id-ID', {
@@ -38,8 +34,6 @@ const formatCurrency = (amount) =>
     currency: 'IDR',
     minimumFractionDigits: 0,
   }).format(amount || 0);
-
-const MAX_SIZE_MB = 1 * 1024 * 1024;
 
 export default function RouteComponent() {
   const { user, isManager, isFinance } = useAuth();
@@ -55,6 +49,7 @@ export default function RouteComponent() {
   const [categroies, setCategories] = useState([]);
   const [reimbursement, setReimbursement] = useState(null);
 
+  //get category
   useEffect(() => {
     const fetching = async () => {
       const response = await getCategory(user.tk);
@@ -64,11 +59,12 @@ export default function RouteComponent() {
     fetching();
   }, []);
 
+  //submit reimbursement item
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const allowedTypes = ['image/png', 'image/jpeg', 'image/gif'];
-      const maxSize = 10 * 1024 * 1024; // 10MB
+      const maxSize = 1 * 1024 * 1024; 
       if (!allowedTypes.includes(file.type)) {
         toast.error('File Error', { description: 'Please select a PNG, JPG, or GIF file.' });
         return;
@@ -81,6 +77,7 @@ export default function RouteComponent() {
     }
   };
 
+  //create reimbursement item
   const handleCreateRecipt = (e) => {
     e.preventDefault();
     if (!image || parseFloat(amount) <= 0 || !amount) {
@@ -89,12 +86,8 @@ export default function RouteComponent() {
       });
       return;
     }
-    if (image.size > MAX_SIZE_MB) {
-      toast.warning('File Too Large', {
-        description: `The image size must be less than ${MAX_SIZE_MB}MB.`,
-      });
-      return;
-    }
+    
+    const convertedImage = convertFile(image);
 
     const newItem = {
       recipt: convertedImage,
@@ -104,18 +97,20 @@ export default function RouteComponent() {
 
     setItems([...items, newItem]);
     setImage(null);
-    setAmount(''); // Reset to empty string
+    setAmount(''); 
     setItemDate('');
     toast.success('Item Added', {
       description: `Added ${formatCurrency(newItem.amount)} to the list.`,
     });
   };
 
+  //remove reimbursement item
   const handleRemoveItem = (index) => {
     setItems(items.filter((_, i) => i !== index));
     toast.info('Item Removed');
   };
 
+  //submit reimburesement
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title.trim() || !category || items.length === 0) {
@@ -142,11 +137,12 @@ export default function RouteComponent() {
       description: desc,
       category: category,
       items: items.map((i) => ({
-        name: i.image,
+        recipt: i.recipt,
         amount: i.amount,
         dateOfExpense: i.dateOfExpense,
       })),
     });
+
     toast.success('Reimbursement Submitted!', {
       description: `Claim for ${formatCurrency(totalammount)} has been submitted.`,
     });
@@ -313,12 +309,12 @@ export default function RouteComponent() {
             ) : (
               items.map((item, index) => (
                 // CRUCIAL: Pass required props to ReciptList
-                (<ReciptList
-                  key={item.image.name}
+                <ReciptList
+                  key={item.recipt}
                   value={item}
                   index={index}
                   onRemove={handleRemoveItem}
-                />)
+                />
               ))
             )}
           </CardContent>
@@ -336,5 +332,5 @@ export default function RouteComponent() {
         </div>
       </form>
     </div>
-  )
+  );
 }
