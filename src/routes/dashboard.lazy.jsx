@@ -1,21 +1,25 @@
-import { createLazyFileRoute, Outlet } from '@tanstack/react-router'
+import { createLazyFileRoute, Outlet } from '@tanstack/react-router';
+import { useState } from 'react';
+import UserLimit from '../components/UserLimit';
+import SummaryWidget from '../components/dashboard/SummaryWidget';
+import ActiveLimitsWidget from '../components/dashboard/ActiveLimitsWidget';
 
 export const Route = createLazyFileRoute('/dashboard')({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
+  const [limits, setLimits] = useState([]);
+
+
   return (
-    <div 
-      className="min-w-screen min-h-screen p-8 bg-white rounded-xl shadow-lg border-l-4 border-blue-500 transition-all duration-300 hover:shadow-xl"
-    >
-      <h1 className="text-3xl font-bold text-blue-700 mb-2">
-        Hello "/dashboard/"!
-      </h1>
-      <p className="text-lg text-gray-600">
-        This is the main dashboard overview content, rendered inside the sidebar layout.
-      </p>
-      <Outlet/>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <div className="mt-6">
+        <SummaryWidget />
+      </div>
+      <div className="mt-8">
+        <ActiveLimitsWidget onQuickClaim={(categoryName) => console.log(`Quick claim for: ${categoryName}`)} />
+      </div>
     </div>
-  )
+  );
 }
