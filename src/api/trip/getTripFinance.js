@@ -13,5 +13,6 @@ export default async function getTripFinance(token) {
   }
 
   const result = await response.json();
+    console.log(result.data);
   return result.data || [];
 }
