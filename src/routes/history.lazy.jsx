@@ -2,7 +2,7 @@ import { createLazyFileRoute } from '@tanstack/react-router';
 import { useState, useMemo, useEffect } from 'react';
 import { FileClock } from 'lucide-react';
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 
 import ReimbursementList from '../components/ReimbursementList';
 import ReimbursementDetail from '../components/ReimbursementDetail.jsx';
@@ -133,6 +133,9 @@ function RouteComponent() {
         <SheetContent className="sm:max-w-xl w-full flex flex-col h-full">
           <SheetHeader className="mb-4">
             <SheetTitle>Claim Details</SheetTitle>
+            <SheetDescription>
+              View the details of your reimbursement request.
+            </SheetDescription>
           </SheetHeader>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {selectedRequest ? (

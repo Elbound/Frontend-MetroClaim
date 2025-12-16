@@ -1,8 +1,14 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { format } from 'date-fns';
-import { ArrowRight } from 'lucide-react';
 
 const formatCurrency = (amount) =>
   new Intl.NumberFormat('id-ID', {
@@ -11,72 +17,86 @@ const formatCurrency = (amount) =>
     minimumFractionDigits: 0, 
   }).format(amount);
 
-
 const getStatusVariant = (status) => {
   switch (status) {
-
     case 'Approved':
-    case 'ManagerApproved':
     case 'FinanceApproved':
+    case 'ManagerApproved':
+    case 'paid':
       return 'default'; // Blue/Primary
     case 'Rejected':
     case 'Revise':
+    case 'ManagerRevision':
+    case 'rejected':
       return 'destructive'; // Red
     case 'Pending':
     case 'Submitted':
-      return 'secondary'; // Gray
-    case 'paid':
-      return 'default'; // Use 'default' for paid
-    case 'rejected':
-      return 'destructive'; // Use 'destructive' for rejected
     case 'pending':
-      return 'secondary'; // Use 'secondary' for pending
+      return 'secondary'; // Gray
     default:
       return 'outline';
   }
 };
 
+const getLatestAction = (request) => {
+    if (request.logs && request.logs.length > 0) {
+        // Sort by createdAt descending to ensure we get the absolute latest
+        const sortedLogs = [...request.logs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        return sortedLogs[0].action;
+    }
+    return request.status;
+}
 
 export default function ReimbursementList({ items, onRowClick }) {
-  return (
-    <div className="space-y-3 p-4">
-      {items.length === 0 ? (
+  if (items.length === 0) {
+    return (
         <div className="text-center py-8 text-gray-500">
           <p>No requests found</p>
         </div>
-      ) : (
-        items.map((request) => (
-          <Card
-            key={request.id}
-            className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-primary/50"
-            onClick={() => onRowClick(request.id)}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                {/* Left Section: Title, Requestor, Date */}
-                <div className="min-w-0 pr-4 flex-1">
-                  <p className="font-semibold text-gray-900 truncate">{request.title}</p>
-                  <p className="text-gray-600 text-sm mt-0.5">
-                    {request.requestorName} • ID: {request.id}
-                  </p>
-                  <p className="text-gray-500 text-xs mt-1">
-                    {request.date ? format(new Date(request.date), 'dd MMM yyyy') : '-'}
-                  </p>
-                </div>
+    );
+  }
 
-                {/* Right Section: Amount and Status */}
-                <div className="flex flex-col items-end space-y-2 min-w-[150px]">
-                  <p className="font-bold text-lg text-primary">{formatCurrency(request.amount)}</p>
-                  <Badge variant={getStatusVariant(request.status)}>{request.status}</Badge>
-                </div>
-
-                {/* Click Indicator */}
-                <ArrowRight className="h-5 w-5 ml-4 text-muted-foreground hidden sm:block" />
-              </div>
-            </CardContent>
-          </Card>
-        ))
-      )}
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">Reference ID</TableHead>
+            <TableHead>Title</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Amount</TableHead>
+            <TableHead>Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {items.map((request) => {
+            const actionStatus = getLatestAction(request);
+            return (
+                <TableRow 
+                    key={request.id} 
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => onRowClick(request.id)}
+                >
+                  <TableCell className="font-medium truncate max-w-[150px] py-4" title={request.id}>
+                    {request.id.substring(0, 8)}...
+                  </TableCell>
+                  <TableCell className="font-medium py-4">
+                      {request.title}
+                  </TableCell>
+                  <TableCell className="py-4">
+                    {request.updatedAt ? format(new Date(request.updatedAt), 'dd MMM yyyy HH:mm') : '-'}
+                  </TableCell>
+                  <TableCell className="py-4">
+                    {formatCurrency(request.totalAmount)}
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Badge variant={getStatusVariant(actionStatus)}>{actionStatus}</Badge>
+                  </TableCell>
+                </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 }
