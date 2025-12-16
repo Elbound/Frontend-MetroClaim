@@ -40,6 +40,10 @@ export function AuthProvider({ children }) {
 
     const login = (token) => {
         const userTK = decodeAndStructureUser(token);
+        
+        // if(userTK.role!='Employee'){
+        //   userTK.role = [...userTK.role, ' Employee']
+        // }
 
         if (userTK) {
             // ADDED: Save token to persistence layer (localStorage)

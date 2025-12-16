@@ -14,15 +14,20 @@ function RouteComponent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
-    const response = await postLogin(email, password);
-    const token = response.data.token;
+    try {
+      const response = await postLogin(email, password);
 
-    login(token);
+      const token = response.data.token;
 
-    router.navigate({ to: '/dashboard' });
+      login(token);
+      router.navigate({ to: '/dashboard' });
+    } catch (msg){
+      console.log(msg)
+      setError("Account doesnt exist / Incorrect input");
+    }
   };
 
   return (
@@ -56,7 +61,7 @@ function RouteComponent() {
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 />
               </div>
-              {error == '' ? error : <p className="text-red-500 text-sm mt-1">{error}</p>}
+              
             </div>
 
             <div>
@@ -82,7 +87,7 @@ function RouteComponent() {
                 />
               </div>
             </div>
-
+            {error == ''? error : <p className="text-red-500 text-sm mt-1">{error}</p>}
             <div>
               <button
                 type="submit"

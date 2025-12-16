@@ -58,6 +58,8 @@ export default function RouteComponent() {
   const { user } = useAuth();
   const { convertFile } = useImageConverter();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [image, setImage] = useState(null);
@@ -153,17 +155,19 @@ export default function RouteComponent() {
     console.log(reimbursement);
     // console.log(JSON.stringify(reimbursement));
 
+    setIsLoading(true)
     const postResponse = await postReimbursementCreate(reimbursement, user.tk);
-
+    setIsLoading(false)
     toast.success('Reimbursement Submitted!', {
       description: `Claim for ${formatCurrency(totalammount)} has been submitted.`,
     });
 
     setTitle('');
     setDesc('');
-    setCategory('');
     setItems([]);
     setReimbursement(null);
+    
+    router.navigate({ to: '/dashboard' });
   };
 
   const totalClaimAmount = items.reduce((total, i) => total + i.amount, 0);
@@ -171,20 +175,25 @@ export default function RouteComponent() {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
       <h1 className="text-3xl font-extrabold text-gray-900">New Reimbursement Request</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* General Info Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center">
-              <FileText className="w-5 h-5 mr-2 text-primary" /> Claim Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Category Select */}
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <div>{selectedCategoryName}</div>
-              {/* <Select onValueChange={setCategory} value={category} required>
+      {isLoading ? (
+        <div className="w-full flex justify-center p-8">
+          <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* General Info Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center">
+                <FileText className="w-5 h-5 mr-2 text-primary" /> Claim Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Category Select */}
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <div>{selectedCategoryName}</div>
+                {/* <Select onValueChange={setCategory} value={category} required>
                 <SelectTrigger id="category" className="w-[200px]">
                   <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
@@ -196,154 +205,151 @@ export default function RouteComponent() {
                   ))}
                 </SelectContent>
               </Select> */}
-            </div>
+              </div>
 
-            {/* Title Input */}
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., Q1 Travel Expense"
-                required
-              />
-            </div>
-
-            {/* Description Textarea */}
-            <div className="space-y-2">
-              <Label htmlFor="description">Description (Optional)</Label>
-              <Textarea
-                id="description"
-                value={desc}
-                onChange={(e) => setDesc(e.target.value)}
-                rows={3}
-                placeholder="Write a few sentences about the purpose of the reimbursement."
-              />
-              <p className="text-sm text-muted-foreground">Provide details for the reviewer.</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Separator />
-
-        {/* Add Receipt Item Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center">
-              <PlusCircle className="w-5 h-5 mr-2 text-primary" /> Add New Expense
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* File Upload Area (Preserving file logic with better UI) */}
+              {/* Title Input */}
               <div className="space-y-2">
-                <Label htmlFor="file-upload-input">Receipt Photo</Label>
-                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 p-6 bg-gray-50">
-                  <FileText className="w-8 h-8 text-muted-foreground mb-2" />
-                  <Label
-                    htmlFor="file-upload"
-                    className="cursor-pointer text-sm font-semibold text-primary hover:text-primary/80"
-                  >
-                    Click to upload
-                  </Label>
-                  <Input
-                    id="file-upload"
-                    type="file"
-                    className="sr-only"
-                    onChange={handleFileChange}
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {image ? `Selected: ${image.name}` : 'PNG, JPG, GIF up to 10MB'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-col">
-                {/* Amount Input */}
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Amount</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Current Amount: {formatCurrency(amount)}
-                  </p>
-                </div>
-                {/* Date of expense Input */}
-                <div>
-                  <Label htmlFor="date">Expense Date</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={itemDate}
-                    onChange={(e) => setItemDate(e.target.value)}
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Add Item Button */}
-            <div className="flex justify-end pt-2">
-              <Button
-                type="button"
-                onClick={handleCreateRecipt}
-                disabled={!image || parseFloat(amount) <= 0}
-              >
-                <PlusCircle className="w-4 h-4 mr-2" />
-                Add Item
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Separator />
-
-        {/* Item List (Using your original structure but cleaner) */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-xl flex items-center">
-              <LayoutList className="w-5 h-5 mr-2 text-primary" /> Added Items ({items.length})
-            </CardTitle>
-            <span className="font-bold text-xl text-primary">
-              Total Claim: {formatCurrency(totalClaimAmount)}
-            </span>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {items.length === 0 ? (
-              <div className="text-center py-4 text-muted-foreground">
-                <p>No receipt items added yet.</p>
-              </div>
-            ) : (
-              items.map((item, index) => (
-                // CRUCIAL: Pass required props to ReciptList
-                <ReciptList
-                  key={item.recipt}
-                  value={item}
-                  index={index}
-                  onRemove={handleRemoveItem}
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g., Q1 Travel Expense"
+                  required
                 />
-              ))
-            )}
-          </CardContent>
-        </Card>
+              </div>
 
-        {/* Final Submission Button */}
-        <div className="flex justify-end pt-4">
-          <Button
-            type="submit"
-            size="lg"
-            disabled={items.length === 0 || !title.trim() || !category}
-          >
-            Submit Request
-          </Button>
-        </div>
-      </form>
+              {/* Description Textarea */}
+              <div className="space-y-2">
+                <Label htmlFor="description">Description (Optional)</Label>
+                <Textarea
+                  id="description"
+                  value={desc}
+                  onChange={(e) => setDesc(e.target.value)}
+                  rows={3}
+                  placeholder="Write a few sentences about the purpose of the reimbursement."
+                />
+                <p className="text-sm text-muted-foreground">Provide details for the reviewer.</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Separator />
+
+          {/* Add Receipt Item Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center">
+                <PlusCircle className="w-5 h-5 mr-2 text-primary" /> Add New Expense
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* File Upload Area (Preserving file logic with better UI) */}
+                <div className="space-y-2">
+                  <Label htmlFor="file-upload-input">Receipt Photo</Label>
+                  <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 p-6 bg-gray-50">
+                    <FileText className="w-8 h-8 text-muted-foreground mb-2" />
+                    <Label
+                      htmlFor="file-upload"
+                      className="cursor-pointer text-sm font-semibold text-primary hover:text-primary/80"
+                    >
+                      Click to upload
+                    </Label>
+                    <Input
+                      id="file-upload"
+                      type="file"
+                      className="sr-only"
+                      onChange={handleFileChange}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {image ? `Selected: ${image.name}` : 'PNG, JPG, GIF up to 10MB'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  {/* Amount Input */}
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">Amount</Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="0"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Current Amount: {formatCurrency(amount)}
+                    </p>
+                  </div>
+                  {/* Date of expense Input */}
+                  <div>
+                    <Label htmlFor="date">Expense Date</Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      value={itemDate}
+                      onChange={(e) => setItemDate(e.target.value)}
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Add Item Button */}
+              <div className="flex justify-end pt-2">
+                <Button
+                  type="button"
+                  onClick={handleCreateRecipt}
+                  disabled={!image || parseFloat(amount) <= 0}
+                >
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Add Item
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Separator />
+
+          {/* Item List (Using your original structure but cleaner) */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-xl flex items-center">
+                <LayoutList className="w-5 h-5 mr-2 text-primary" /> Added Items ({items.length})
+              </CardTitle>
+              <span className="font-bold text-xl text-primary">
+                Total Claim: {formatCurrency(totalClaimAmount)}
+              </span>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {items.length === 0 ? (
+                <div className="text-center py-4 text-muted-foreground">
+                  <p>No receipt items added yet.</p>
+                </div>
+              ) : (
+                items.map((item, index) => (
+                  // CRUCIAL: Pass required props to ReciptList
+                  <ReciptList
+                    key={item.recipt}
+                    value={item}
+                    index={index}
+                    onRemove={handleRemoveItem}
+                  />
+                ))
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Final Submission Button */}
+          <div className="flex justify-end pt-4">
+            <Button type="submit" size="lg" disabled={items.length === 0 || !title.trim()}>
+              Submit Request
+            </Button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }
