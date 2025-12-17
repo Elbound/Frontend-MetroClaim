@@ -6,37 +6,32 @@ export default async function getReimbursementFinance(token) {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
     });
-  } catch (networkError) {
-    // 🛑 This runs if the fetch fails instantly (e.g., Server is DEAD or DB disconnect caused a timeout)
+  } catch{
+    console.error('<<<<<<<<Error fetching data:', response.status);
     throw {
       status: 503,
-      message: 'Service Unavailable: Could not connect to the server.'
+      message: 'Service Unavailable: Could not connect to the server.',
     };
   }
 
-  // --- Now 'response' is safe to use ---
-  
-  // If the server is alive but returned an error (401, 404, 500)
+  console.log(response.status);
+  console.log(response.statusText);
+
   if (!response.ok) {
-    let errorMessage = response.statusText || 'Error fetching data';
-    
+    let errorMessage = response.statusText;
     try {
-      // Try to get a better message from the JSON body if it exists
-      const errorData = await response.json();
-      errorMessage = errorData.message || errorMessage;
-    } catch {
-      // If body is empty (common in 401s), we just keep the statusText
-    }
+      const text = await response.text();
+      if (text) {
+        const json = JSON.parse(text);
+        errorMessage = json.message || errorMessage;
+      }
+    } catch (e) {}
 
-    throw {
-      status: response.status,
-      message: errorMessage
-    };
+    throw { status: response.status, message: errorMessage };
   }
 
-  const result = await response.json();
-  return result.data; 
+  return (await response.json()).data;
 }

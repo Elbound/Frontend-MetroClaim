@@ -34,17 +34,17 @@ function RouteComponent() {
         const response = await getReimbursementMe(user.tk);
         setData(response || []);
       } catch (err) {
-        console.error('Error fetching data:', err);
-        
-        // 🛑 Manual Redirect to Error Page
+        console.error('>>>>>>>Error fetching data:', err.status);
+
         router.navigate({
           to: '/error',
-          replace: true, // Overwrites history so "Back" doesn't loop
+          replace: true,
           search: { 
             status: err.status || 500, 
             msg: err.message || "An unexpected error occurred" 
           }
         });
+
       }
     };
 
