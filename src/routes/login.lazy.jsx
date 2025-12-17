@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { router } from '../router';
 import { useAuth } from '../hooks/AuthContext';
 import postLogin from '@/api/postLogin';
-import { Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import MetroLogo from '../assets/metrodata-electronics--600.png';
 
 export const Route = createLazyFileRoute('/login')({
@@ -15,6 +15,7 @@ function RouteComponent() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const [error, setError] = useState('');
@@ -23,7 +24,6 @@ function RouteComponent() {
     e.preventDefault();
     setIsLoading(true);
     try {
-     
       const response = await postLogin(email, password);
       setIsLoading(false);
       const token = response.data.token;
@@ -71,27 +71,39 @@ function RouteComponent() {
             />
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
-                Password
-              </label>
-              <div className="text-sm">
-                <a href="#" className="font-semibold text-[#003366] hover:text-blue-800 transition-colors">
-                  Forgot password?
-                </a>
-              </div>
+          <div className="flex items-center justify-between mb-2">
+            <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
+              Password
+            </label>
+            <div className="text-sm">
+              <a
+                href="#"
+                className="font-semibold text-[#003366] hover:text-blue-800 transition-colors"
+              >
+                Forgot password?
+              </a>
             </div>
+          </div>
+
+          <div className="relative">
             <input
               id="password"
               name="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               required
               autoComplete="current-password"
               placeholder="••••••••"
               onChange={(e) => setPassword(e.target.value)}
-              className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-[#003366] focus:border-transparent outline-none transition-all duration-200 sm:text-sm"
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 pr-11 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-[#003366] focus:border-transparent outline-none transition-all duration-200 sm:text-sm"
             />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-[#003366] transition-colors"
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
           </div>
 
           {error && (
@@ -118,7 +130,10 @@ function RouteComponent() {
 
         <p className="mt-8 text-center text-xs text-gray-500">
           Don't have an account? Contact Admin at{' '}
-          <a href="mailto:admin@mii.co.id" className="font-semibold text-[#003366] hover:text-blue-800 transition-colors">
+          <a
+            href="mailto:admin@mii.co.id"
+            className="font-semibold text-[#003366] hover:text-blue-800 transition-colors"
+          >
             admin@mii.co.id
           </a>
         </p>
