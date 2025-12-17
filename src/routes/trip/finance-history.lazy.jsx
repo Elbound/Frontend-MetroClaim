@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { router } from '@/router';
 
 export const Route = createLazyFileRoute('/trip/finance-history')({
   component: RouteComponent,

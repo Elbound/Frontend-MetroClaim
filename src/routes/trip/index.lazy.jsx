@@ -24,6 +24,7 @@ import { format } from 'date-fns';
 
 import { useAuth } from '@/hooks/AuthContext';
 import getTripManager from '@/api/trip/getTripManager';
+import { router } from '@/router';
 
 export const Route = createLazyFileRoute('/trip/')({
   component: RouteComponent,

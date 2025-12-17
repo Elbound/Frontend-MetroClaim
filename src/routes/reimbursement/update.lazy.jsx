@@ -65,25 +65,21 @@ function RouteComponent() {
 
       try {
         setIsLoading(true);
-        // Parallel fetch for categories and reimbursement details
-        // Fetch reimbursement details only
+
         const detail = await getReimbursementById(reimbursementId, user.tk);
          console.log(detail)
 
-        // setCategories(cats); // Removed
-
-        // Populate form with existing data
         setTitle(detail.title || '');
         setDesc(detail.description || '');
         setTitle(detail.title || '');
         setDesc(detail.description || '');
         setCategory(detail.categoryName || 'Uncategorized'); // Use Name instead of ID
 
-        // Transform existing items if needed
+       
         if (detail.items && Array.isArray(detail.items)) {
           setItems(
             detail.items.map((i) => ({
-              recipt: i.receipt, // Note: API usually returns 'receipt', internal state uses 'recipt' based on create page
+              recipt: i.receipt, 
               amount: i.amount,
               dateOfExpense: i.dateOfExpense,
             }))
@@ -91,8 +87,15 @@ function RouteComponent() {
         }
         console.log(detail)
       } catch (error) {
-        
-      } finally {
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
+    } finally {
         setIsLoading(false);
       }
     };
