@@ -72,15 +72,10 @@ function RouteComponent() {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2">
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
                 Password
               </label>
-              <div className="text-sm">
-                <a href="#" className="font-semibold text-[#003366] hover:text-blue-800 transition-colors">
-                  Forgot password?
-                </a>
-              </div>
             </div>
             <input
               id="password"
@@ -92,6 +87,11 @@ function RouteComponent() {
               onChange={(e) => setPassword(e.target.value)}
               className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-[#003366] focus:border-transparent outline-none transition-all duration-200 sm:text-sm"
             />
+            <div className="text-xs text-right mt-2">
+              <a href="#" className="font-semibold text-[#003366] hover:text-blue-800 transition-colors">
+                Forgot password?
+              </a>
+            </div>
           </div>
 
           {error && (

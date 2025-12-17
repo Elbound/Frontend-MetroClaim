@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, PlaneTakeoff, ChevronRight } from 'lucide-react';
 import { useRouter } from '@tanstack/react-router';
 import { useAuth } from '@/hooks/AuthContext';
@@ -75,11 +74,9 @@ export default function OngoingTripWidget() {
 
   if (loading) {
     return (
-      <Card className="w-full">
-        <CardContent className="py-6 flex justify-center">
-          <Loader2 className="animate-spin text-gray-400" />
-        </CardContent>
-      </Card>
+      <div className="w-full bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex justify-center">
+        <Loader2 className="animate-spin text-gray-400" />
+      </div>
     );
   }
 
@@ -87,38 +84,37 @@ export default function OngoingTripWidget() {
 
   return (
     <div className="flex flex-col gap-3">
+      <h2 className="text-xl font-bold mb-1 ml-1">Ongoing Trips</h2>
       {trips.map((trip) => (
         <div 
           key={trip.id} 
-          className="transition-transform active:scale-[0.98]"
+          className="transition-transform active:scale-[0.99]"
           onClick={() => handleUpdate(trip.id)} // Pass ID on click
         >
-          <Card className="w-full border-l-4 border-l-indigo-500 hover:bg-slate-50 transition-colors cursor-pointer">
-            <CardContent className="p-4 flex items-center justify-between">
+          <div className="w-full bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer p-4 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-indigo-100 rounded-full">
-                  <PlaneTakeoff className="h-5 w-5 text-indigo-600" />
+                <div className="p-3 bg-blue-50 rounded-full shrink-0">
+                  <PlaneTakeoff className="h-5 w-5 text-[#003366]" />
                 </div>
 
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-indigo-500">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-blue-800 opacity-70">
                     Ongoing Trip
                   </span>
-                  <h3 className="text-lg font-bold text-slate-900 leading-tight">
+                  <h3 className="text-base font-bold text-gray-800 leading-tight">
                     {trip.title || 'Untitled Trip'}
                   </h3>
-                  <p className="text-sm font-medium text-slate-500">
-                    Budget: <span className="text-slate-700">{formatCurrency(trip.cost || 0)}</span>
+                  <p className="text-xs font-medium text-gray-500 mt-0.5">
+                    Budget coverage: <span className="text-gray-700">{formatCurrency(trip.cost || 0)}</span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-slate-400">
-                <span className="text-xs font-medium">Update Expenses</span>
-                <ChevronRight className="h-5 w-5" />
+              <div className="flex items-center gap-2 text-gray-400 group">
+                <span className="text-xs font-medium hidden sm:block group-hover:text-[#003366] transition-colors">update your spent</span>
+                <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
-            </CardContent>
-          </Card>
+          </div>
         </div>
       ))}
     </div>

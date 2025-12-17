@@ -28,11 +28,11 @@ function RouteComponent() {
       <div className="mt-6">
         <SummaryWidget />
       </div>
-      <div className='mt-6'>
-        <OngoingTripWidget />
-      </div>
       <div className="mt-8">
         <ActiveLimitsWidget onQuickClaim={handleCategoryClick} />
+      </div>
+      <div className='mt-6'>
+        <OngoingTripWidget />
       </div>
     </div>
   );
