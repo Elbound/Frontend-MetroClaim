@@ -9,6 +9,7 @@ import ReimbursementDetail from '../components/ReimbursementDetail.jsx';
 import getReimbursementMe from '@/api/reimbursement/getReimbursementMe';
 import getReimbursementById from '@/api/reimbursement/getReimbursementById';
 import { useAuth } from '@/hooks/AuthContext';
+import { router } from '@/router';
 
 export const Route = createLazyFileRoute('/history')({
   component: RouteComponent,
@@ -25,7 +26,7 @@ function RouteComponent() {
   const [detailData, setDetailData] = useState(null);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchRequests = async () => {
       if (!user || !user.tk) return;
 
@@ -34,12 +35,21 @@ function RouteComponent() {
         setData(response || []);
       } catch (err) {
         console.error('Error fetching data:', err);
-        setData([]);
+        
+        // 🛑 Manual Redirect to Error Page
+        router.navigate({
+          to: '/error',
+          replace: true, // Overwrites history so "Back" doesn't loop
+          search: { 
+            status: err.status || 500, 
+            msg: err.message || "An unexpected error occurred" 
+          }
+        });
       }
     };
 
     fetchRequests();
-  }, [user?.tk]);
+  }, [user?.tk, router]); // Added router to dependency array
 
   // Fetch full details when selectedId changes
   useEffect(() => {

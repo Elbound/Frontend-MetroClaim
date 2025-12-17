@@ -11,6 +11,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ErrorRouteImport } from './routes/error'
 
 const TestLazyRouteImport = createFileRoute('/test')()
 const LoginLazyRouteImport = createFileRoute('/login')()
@@ -53,6 +54,11 @@ const DashboardLazyRoute = DashboardLazyRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/dashboard.lazy').then((d) => d.Route))
+const ErrorRoute = ErrorRouteImport.update({
+  id: '/error',
+  path: '/error',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/error.lazy').then((d) => d.Route))
 const IndexLazyRoute = IndexLazyRouteImport.update({
   id: '/',
   path: '/',
@@ -119,6 +125,7 @@ const ApprovalFinanceLazyRoute = ApprovalFinanceLazyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/error': typeof ErrorRoute
   '/dashboard': typeof DashboardLazyRoute
   '/history': typeof HistoryLazyRoute
   '/login': typeof LoginLazyRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/error': typeof ErrorRoute
   '/dashboard': typeof DashboardLazyRoute
   '/history': typeof HistoryLazyRoute
   '/login': typeof LoginLazyRoute
@@ -152,6 +160,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexLazyRoute
+  '/error': typeof ErrorRoute
   '/dashboard': typeof DashboardLazyRoute
   '/history': typeof HistoryLazyRoute
   '/login': typeof LoginLazyRoute
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/error'
     | '/dashboard'
     | '/history'
     | '/login'
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/error'
     | '/dashboard'
     | '/history'
     | '/login'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/error'
     | '/dashboard'
     | '/history'
     | '/login'
@@ -219,6 +231,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  ErrorRoute: typeof ErrorRoute
   DashboardLazyRoute: typeof DashboardLazyRoute
   HistoryLazyRoute: typeof HistoryLazyRoute
   LoginLazyRoute: typeof LoginLazyRoute
@@ -262,6 +275,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/error': {
+      id: '/error'
+      path: '/error'
+      fullPath: '/error'
+      preLoaderRoute: typeof ErrorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -339,6 +359,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  ErrorRoute: ErrorRoute,
   DashboardLazyRoute: DashboardLazyRoute,
   HistoryLazyRoute: HistoryLazyRoute,
   LoginLazyRoute: LoginLazyRoute,

@@ -86,7 +86,7 @@ function RouteComponent() {
       allocatedCost: cost,
       rejectionReason: 'string',
     };
-    
+
     try {
       setIsSubmitting(true);
       console.log(submitedData)

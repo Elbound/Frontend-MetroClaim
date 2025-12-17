@@ -12,7 +12,11 @@ export default async function getReimbursementMe(token) {
   console.log(res.data);
 
   if (!response.ok) {
-    throw new Error(res.Message || "Data not Recieved");
+    const errorData = {
+      status: res.status || response.status,
+      message: res.message || "Data not Received",
+    };
+    throw errorData;
   }
 
   return res.data;
