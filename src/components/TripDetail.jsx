@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 
-export default function TripDetail({ tripId, onClose, onAction }) {
+export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
   const { user, isFinance } = useAuth();
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -127,7 +127,7 @@ export default function TripDetail({ tripId, onClose, onAction }) {
           </div>
         </div>
 
-        {isFinance && (
+        {!readOnly && isFinance && (
           <div className="flex items-center space-x-2">
             <Button
               size="sm"
@@ -189,7 +189,7 @@ export default function TripDetail({ tripId, onClose, onAction }) {
         </div>
       </div>
 
-      {trip.status === 'FinanceApproved' && (
+      {!readOnly && trip.status === 'FinanceApproved' && (
         <div className="border-t p-4 flex justify-end gap-3 bg-white mt-auto sticky bottom-0">
           <Button 
             variant="destructive" 

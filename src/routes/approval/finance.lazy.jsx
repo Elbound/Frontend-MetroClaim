@@ -37,7 +37,6 @@ function RouteComponent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeRequest, setActiveRequest] = useState(null);
 
-  // Mock data \
   const fetchRequests = async () => {
     if (!user?.tk) return;
     try {
