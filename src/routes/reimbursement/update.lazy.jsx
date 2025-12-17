@@ -21,9 +21,13 @@ import ReciptList from '@/components/ReciptList';
 import useImageConverter from '@/hooks/useImageConverter';
 import putReimbursementUpdate from '@/api/reimbursement/putReimbursementUpdate';
 import getReimbursementById from '@/api/reimbursement/getReimbursementById';
+import { router } from '@/router';
 
 export const Route = createLazyFileRoute('/reimbursement/update')({
   component: RouteComponent,
+  validateSearch: (search) => ({
+    id: search?.id
+  }),
 });
 
 const formatCurrency = (amount) =>
@@ -64,6 +68,7 @@ function RouteComponent() {
         // Parallel fetch for categories and reimbursement details
         // Fetch reimbursement details only
         const detail = await getReimbursementById(reimbursementId, user.tk);
+         console.log(detail)
 
         // setCategories(cats); // Removed
 
@@ -84,15 +89,9 @@ function RouteComponent() {
             }))
           );
         }
+        console.log(detail)
       } catch (error) {
-        router.navigate({
-          to: '/error',
-          replace: true,
-          search: {
-            status: error.status || 500,
-            msg: error.message || 'An unexpected error occurred.',
-          },
-        });
+        
       } finally {
         setIsLoading(false);
       }

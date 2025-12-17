@@ -156,7 +156,7 @@ function RouteComponent() {
                   <TableCell className="py-4">
                     <div className="flex items-center text-gray-600">
                       <Users className="h-4 w-4 mr-2 text-gray-400" />
-                      testest
+                      {req.participants.length}
                     </div>
                   </TableCell>
                   <TableCell className="py-4">

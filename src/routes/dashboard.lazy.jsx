@@ -4,6 +4,7 @@ import UserLimit from '../components/UserLimit';
 import SummaryWidget from '../components/dashboard/SummaryWidget';
 import ActiveLimitsWidget from '../components/dashboard/ActiveLimitsWidget';
 import { router } from '@/router';
+import OngoingTripWidget from '@/components/dashboard/OngoingTripWidget';
 
 export const Route = createLazyFileRoute('/dashboard')({
   component: RouteComponent,
@@ -26,6 +27,9 @@ function RouteComponent() {
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="mt-6">
         <SummaryWidget />
+      </div>
+      <div className='mt-6'>
+        <OngoingTripWidget />
       </div>
       <div className="mt-8">
         <ActiveLimitsWidget onQuickClaim={handleCategoryClick} />
