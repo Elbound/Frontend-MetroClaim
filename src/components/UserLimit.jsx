@@ -2,7 +2,7 @@ const UserLimit = ({ name = 'User Limit', current = 50, max = 100, Icon }) => {
   const percentage = Math.min((current / max) * 100, 100);
 
   return (
-    <div className="bg-white p-4 w-80 h-28 border border-gray-100 rounded-lg shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+    <div className="bg-white p-4 w-full h-28 border border-gray-100 rounded-lg shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
       {Icon && (
         <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
             <Icon className="h-5 w-5 text-blue-600" />

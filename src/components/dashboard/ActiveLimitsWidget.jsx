@@ -105,7 +105,7 @@ export default function ActiveLimitsWidget({ onQuickClaim }) {
   return (
     <div className="w-full">
       <h2 className="text-xl font-bold mb-4">Your Active Limits</h2>
-      <div className="flex flex-wrap gap-4">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
         {loading ? (
           <div className="w-full flex justify-center p-8">
             <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
@@ -133,7 +133,7 @@ export default function ActiveLimitsWidget({ onQuickClaim }) {
             {/* Add New Limit Card */}
             <div
               onClick={handleOpenAddModal}
-              className="bg-gray-50 border-2 border-dashed border-gray-300 w-80 h-28 p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors rounded-lg shadow-sm"
+              className="bg-gray-50 border-2 border-dashed border-gray-300 h-28 p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors rounded-lg shadow-sm"
             >
               <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center mb-2">
                 <Plus className="h-6 w-6 text-gray-500" />
