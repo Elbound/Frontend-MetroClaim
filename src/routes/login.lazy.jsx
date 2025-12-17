@@ -39,11 +39,6 @@ function RouteComponent() {
   return (
     <>
       <div className="flex min-w-screen min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-        {isLoading ? (
-          <div className="w-full flex justify-center p-8">
-            <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
-          </div>
-        ) : (
           <>
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
               <img
@@ -102,9 +97,17 @@ function RouteComponent() {
                 <div>
                   <button
                     type="submit"
-                    className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    disabled={isLoading}
+                    className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed items-center"
                   >
-                    Sign in
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                        Signing in...
+                      </>
+                    ) : (
+                      'Sign in'
+                    )}
                   </button>
                 </div>
               </form>
@@ -117,7 +120,6 @@ function RouteComponent() {
               </p>
             </div>
           </>
-        )}
       </div>
     </>
   );
