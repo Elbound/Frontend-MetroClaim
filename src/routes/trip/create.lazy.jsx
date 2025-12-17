@@ -15,6 +15,15 @@ import {
   SelectLabel,
   SelectSeparator,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Check, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -22,6 +31,7 @@ import { useAuth } from '@/hooks/AuthContext';
 import postTrip from '@/api/trip/postTrip';
 import getUsers from '@/api/user/getUsers';
 import getSubordinates from '@/api/user/getSubordinates';
+import { router } from '@/router';
 
 export const Route = createLazyFileRoute('/trip/create')({
   component: RouteComponent,
@@ -34,6 +44,9 @@ function RouteComponent() {
   const [subordinates, setSubordinates] = useState([]);
   const [otherUsers, setOtherUsers] = useState([]);
   const [allParticipants, setAllParticipants] = useState([]); // To lookup names for Badges
+
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorDialogMsg, setErrorDialogMsg] = useState('');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -119,7 +132,13 @@ function RouteComponent() {
       navigate({ to: '/trip' });
     } catch (error) {
       console.error(error);
-      toast.error(error.message || 'Failed to create trip');
+
+      if (error.status === 400) {
+        setErrorDialogMsg(error.message || 'The selected dates overlap with an existing trip.');
+        setErrorDialogOpen(true);
+      } else {
+        toast.error(error.message || 'Failed to create trip');
+      }
     } finally {
       setLoading(false);
     }
@@ -277,6 +296,27 @@ function RouteComponent() {
           </CardFooter>
         </form>
       </Card>
+
+      <Dialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <div className="flex items-center gap-2 text-red-600 mb-2">
+              <AlertCircle className="h-5 w-5" />
+              <DialogTitle>Trip Schedule Conflict</DialogTitle>
+            </div>
+            <DialogDescription className="text-gray-600 py-2">{errorDialogMsg}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              onClick={() => setErrorDialogOpen(false)}
+              className="bg-slate-900 text-white hover:bg-slate-800"
+            >
+              Understood, I'll fix it
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
