@@ -34,7 +34,7 @@ function RouteComponent() {
 
   const [reimbursements, setReimbursements] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [selectedId, setSelectedId] = useState(null);
   const [detailData, setDetailData] = useState(null);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
@@ -46,8 +46,15 @@ function RouteComponent() {
       const data = await getReimbursementFinanceHistory(user.tk);
       setReimbursements(data);
     } catch (error) {
-      console.error('Failed to fetch finance history', error);
       toast.error('Error', { description: 'Failed to load history list.' });
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
     } finally {
       setIsLoading(false);
     }
@@ -69,8 +76,14 @@ function RouteComponent() {
         const detail = await getReimbursementById(selectedId, user.tk);
         setDetailData(detail);
       } catch (error) {
-        console.error("Failed to fetch details", error);
-        toast.error("Error", { description: "Failed to load details." });
+        router.navigate({
+          to: '/error',
+          replace: true,
+          search: {
+            status: error.status || 500,
+            msg: error.message || 'An unexpected error occurred.',
+          },
+        });
       } finally {
         setIsDetailLoading(false);
       }
@@ -114,46 +127,50 @@ function RouteComponent() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                 <TableRow>
+                <TableRow>
                   <TableCell colSpan={6} className="text-center h-32">
                     <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
                   </TableCell>
                 </TableRow>
-              ) : reimbursements?.map((item) => (
-                <TableRow
-                  key={item.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => setSelectedId(item.id)}
-                >
-                  <TableCell className="py-4 pl-6 font-medium text-gray-900">{item.title}</TableCell>
-                  <TableCell className="py-4 text-gray-600">{item.userFullName}</TableCell>
-                  <TableCell className="py-4 text-gray-600">{item.categoryName}</TableCell>
-                  <TableCell className="py-4 font-medium">
-                     {new Intl.NumberFormat('id-ID', {
+              ) : (
+                reimbursements?.map((item) => (
+                  <TableRow
+                    key={item.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => setSelectedId(item.id)}
+                  >
+                    <TableCell className="py-4 pl-6 font-medium text-gray-900">
+                      {item.title}
+                    </TableCell>
+                    <TableCell className="py-4 text-gray-600">{item.userFullName}</TableCell>
+                    <TableCell className="py-4 text-gray-600">{item.categoryName}</TableCell>
+                    <TableCell className="py-4 font-medium">
+                      {new Intl.NumberFormat('id-ID', {
                         style: 'currency',
                         currency: 'IDR',
                       }).format(item.totalAmount)}
-                  </TableCell>
-                  <TableCell className="py-4">
-                    <Badge
-                      variant="secondary"
-                      className="bg-gray-100 text-gray-600 hover:bg-gray-200 font-normal rounded-full px-3"
-                    >
-                      {item.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="py-4 text-gray-600 text-sm">
-                    {format(new Date(item.createdAt), 'dd MMM yyyy, HH:mm')}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {!isLoading && (!reimbursements || reimbursements.length === 0) && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center h-32 text-muted-foreground">
-                      No history found.
+                    </TableCell>
+                    <TableCell className="py-4">
+                      <Badge
+                        variant="secondary"
+                        className="bg-gray-100 text-gray-600 hover:bg-gray-200 font-normal rounded-full px-3"
+                      >
+                        {item.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="py-4 text-gray-600 text-sm">
+                      {format(new Date(item.createdAt), 'dd MMM yyyy, HH:mm')}
                     </TableCell>
                   </TableRow>
-                )}
+                ))
+              )}
+              {!isLoading && (!reimbursements || reimbursements.length === 0) && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center h-32 text-muted-foreground">
+                    No history found.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -167,15 +184,15 @@ function RouteComponent() {
           </SheetHeader>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {isDetailLoading ? (
-               <div className="flex items-center justify-center h-40">
-                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
-               </div>
+              <div className="flex items-center justify-center h-40">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
             ) : detailData ? (
               <ReimbursementDetail
                 detailData={detailData}
                 onClose={closeDetail}
                 readOnly={true}
-                userRole="Finance" 
+                userRole="Finance"
               />
             ) : (
               <p className="p-4 text-center text-muted-foreground">

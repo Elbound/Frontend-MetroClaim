@@ -16,20 +16,30 @@ import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import getReimbursementFinance from '@/api/reimbursement/getReimbursementFinance';
 import patchReimbursementStatus from '@/api/reimbursement/patchReimbursementStatus';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import ReimbursementDetail from '@/components/ReimbursementDetail';
-
-
 
 export const Route = createLazyFileRoute('/approval/finance')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { isFinance, user} = useAuth();
-
+  const { isFinance, user } = useAuth();
 
   const [modalState, setModalState] = useState({ isOpen: false, type: null, requestId: null });
   const [requests, setRequests] = useState([]);
@@ -40,39 +50,51 @@ function RouteComponent() {
   const fetchRequests = async () => {
     if (!user?.tk) return;
     try {
-        setIsLoading(true);
-        const data = await getReimbursementFinance(user.tk);
-        setRequests(data);
+      setIsLoading(true);
+      const data = await getReimbursementFinance(user.tk);
+      setRequests(data);
     } catch (error) {
-        console.error("Failed to fetch manager requests", error);
-        toast.error("Error", { description: "Failed to load approval list." });
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-      fetchRequests();
-    }, [user?.tk]);
+    fetchRequests();
+  }, [user?.tk]);
 
-const openAction = (id, type) => {
+  const openAction = (id, type) => {
     setModalState({ isOpen: true, type, requestId: id });
   };
 
   const handleConfirmAction = async (id, action, comment) => {
     if (!user?.tk) return;
     try {
-        setIsSubmitting(true);
-        await patchReimbursementStatus(id, action, comment, user.tk);
-        toast.success("Success", { description: "Reimbursement status updated." });
-        setModalState({ isOpen: false, type: null, requestId: null });
-        setActiveRequest(null); // Close detail view
-        fetchRequests(); // Refresh list
+      setIsSubmitting(true);
+      await patchReimbursementStatus(id, action, comment, user.tk);
+      toast.success('Success', { description: 'Reimbursement status updated.' });
+      setModalState({ isOpen: false, type: null, requestId: null });
+      setActiveRequest(null); // Close detail view
+      fetchRequests(); // Refresh list
     } catch (error) {
-        console.error("Update failed", error);
-        toast.error("Failed", { description: error.message || "Could not update status." });
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -82,48 +104,53 @@ const openAction = (id, type) => {
       <Card>
         <CardContent className="p-0">
           {isLoading ? (
-             <div className="p-8 text-center text-muted-foreground">Loading requests...</div>
+            <div className="p-8 text-center text-muted-foreground">Loading requests...</div>
           ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Reference ID</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {requests?.map((req) => (
-                <TableRow 
-                    key={req.id} 
-                    className="cursor-pointer hover:bg-muted/50" 
-                    onClick={() => setActiveRequest(req)}
-                >
-                  <TableCell className="font-medium">{req.id ? req.id.substring(0, 8) + '...' : '-'}</TableCell>
-                  <TableCell>
-                    <div className="font-semibold">{req.title}</div>
-                  </TableCell>
-                  <TableCell>{req.userFullName || req.userEmployeeId}</TableCell>
-                  <TableCell>
-                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
-                      req.totalAmount || 0
-                    )}
-                  </TableCell>
-                  <TableCell>{req.updatedAt ? format(new Date(req.updatedAt), 'dd MMM yyyy HH:mm') : '-'}</TableCell>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Reference ID</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Date</TableHead>
                 </TableRow>
-              ))}
-              {!requests ||
-                (requests.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center h-32 text-muted-foreground">
-                      All caught up! No pending approvals.
+              </TableHeader>
+              <TableBody>
+                {requests?.map((req) => (
+                  <TableRow
+                    key={req.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => setActiveRequest(req)}
+                  >
+                    <TableCell className="font-medium">
+                      {req.id ? req.id.substring(0, 8) + '...' : '-'}
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-semibold">{req.title}</div>
+                    </TableCell>
+                    <TableCell>{req.userFullName || req.userEmployeeId}</TableCell>
+                    <TableCell>
+                      {new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                      }).format(req.totalAmount || 0)}
+                    </TableCell>
+                    <TableCell>
+                      {req.updatedAt ? format(new Date(req.updatedAt), 'dd MMM yyyy HH:mm') : '-'}
                     </TableCell>
                   </TableRow>
                 ))}
-            </TableBody>
-          </Table>
+                {!requests ||
+                  (requests.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center h-32 text-muted-foreground">
+                        All caught up! No pending approvals.
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
@@ -136,14 +163,12 @@ const openAction = (id, type) => {
         isSubmitting={isSubmitting}
       />
 
-       {/* Detail Sheet */}
-       <Sheet open={!!activeRequest} onOpenChange={(open) => !open && setActiveRequest(null)}>
+      {/* Detail Sheet */}
+      <Sheet open={!!activeRequest} onOpenChange={(open) => !open && setActiveRequest(null)}>
         <SheetContent className="sm:max-w-xl w-full flex flex-col h-full">
           <SheetHeader className="mb-4">
             <SheetTitle>Claim Details</SheetTitle>
-            <SheetDescription>
-              View the details of the reimbursement request.
-            </SheetDescription>
+            <SheetDescription>View the details of the reimbursement request.</SheetDescription>
           </SheetHeader>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {activeRequest ? (
@@ -167,7 +192,7 @@ const openAction = (id, type) => {
 
 const ActionModal = ({ isOpen, onClose, actionType, requestId, onConfirm, isSubmitting }) => {
   const [comment, setComment] = useState('');
-  
+
   // Reset comment when opening
   useEffect(() => {
     if (isOpen) setComment('');
@@ -185,7 +210,7 @@ const ActionModal = ({ isOpen, onClose, actionType, requestId, onConfirm, isSubm
                 : 'Request Revision'}
           </DialogTitle>
           <DialogDescription>
-             {actionType === 0
+            {actionType === 0
               ? 'Are you sure you want to approve this request?'
               : 'Please provide a reason.'}
           </DialogDescription>

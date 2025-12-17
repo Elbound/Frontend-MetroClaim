@@ -42,8 +42,14 @@ function RouteComponent() {
       const data = await getTripFinanceHistory(user.tk);
       setTrips(data);
     } catch (error) {
-      console.error('Failed to fetch finance history', error);
-      toast.error('Error', { description: 'Failed to load history list.' });
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
     } finally {
       setIsLoading(false);
     }
@@ -80,46 +86,50 @@ function RouteComponent() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                 <TableRow>
+                <TableRow>
                   <TableCell colSpan={5} className="text-center h-32">
                     <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
                   </TableCell>
                 </TableRow>
-              ) : trips?.map((trip) => (
-                <TableRow
-                  key={trip.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => setActiveTrip(trip.id)}
-                >
-                  <TableCell className="py-4 pl-6 font-medium text-gray-900">{trip.title}</TableCell>
-                  <TableCell className="py-4 text-gray-600">{trip.destination}</TableCell>
-                  <TableCell className="py-4 text-gray-600 text-sm">
-                    {format(new Date(trip.startDate), 'dd MMM yyyy')} -{' '}
-                    {format(new Date(trip.endDate), 'dd MMM yyyy')}
-                  </TableCell>
-                  <TableCell className="py-4 font-medium">
-                     {new Intl.NumberFormat('id-ID', {
+              ) : (
+                trips?.map((trip) => (
+                  <TableRow
+                    key={trip.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => setActiveTrip(trip.id)}
+                  >
+                    <TableCell className="py-4 pl-6 font-medium text-gray-900">
+                      {trip.title}
+                    </TableCell>
+                    <TableCell className="py-4 text-gray-600">{trip.destination}</TableCell>
+                    <TableCell className="py-4 text-gray-600 text-sm">
+                      {format(new Date(trip.startDate), 'dd MMM yyyy')} -{' '}
+                      {format(new Date(trip.endDate), 'dd MMM yyyy')}
+                    </TableCell>
+                    <TableCell className="py-4 font-medium">
+                      {new Intl.NumberFormat('id-ID', {
                         style: 'currency',
                         currency: 'IDR',
                       }).format(trip.cost)}
-                  </TableCell>
-                  <TableCell className="py-4">
-                    <Badge
-                      variant="secondary"
-                      className="bg-gray-100 text-gray-600 hover:bg-gray-200 font-normal rounded-full px-3"
-                    >
-                      {trip.status}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {!isLoading && (!trips || trips.length === 0) && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center h-32 text-muted-foreground">
-                      No history found.
+                    </TableCell>
+                    <TableCell className="py-4">
+                      <Badge
+                        variant="secondary"
+                        className="bg-gray-100 text-gray-600 hover:bg-gray-200 font-normal rounded-full px-3"
+                      >
+                        {trip.status}
+                      </Badge>
                     </TableCell>
                   </TableRow>
-                )}
+                ))
+              )}
+              {!isLoading && (!trips || trips.length === 0) && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center h-32 text-muted-foreground">
+                    No history found.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -133,11 +143,7 @@ function RouteComponent() {
           </SheetHeader>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {activeTrip ? (
-              <TripDetail
-                tripId={activeTrip}
-                onClose={() => setActiveTrip(null)}
-                readOnly={true}
-              />
+              <TripDetail tripId={activeTrip} onClose={() => setActiveTrip(null)} readOnly={true} />
             ) : (
               <p className="p-4 text-center text-muted-foreground">
                 Please select an item to view details.

@@ -10,7 +10,14 @@ import { useAuth } from '../hooks/AuthContext';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
   const { user, isFinance } = useAuth();
@@ -49,15 +56,22 @@ export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
     try {
       if (confirmationAction === 'confirm') {
         await postTripPublish(tripId, user.tk);
-        toast.success("Trip confirmed successfully");
+        toast.success('Trip confirmed successfully');
       } else if (confirmationAction === 'cancel') {
         await putTripCancel(tripId, user.tk);
-        toast.success("Trip cancelled successfully");
+        toast.success('Trip cancelled successfully');
       }
       setConfirmationAction(null);
       await fetchTrip();
-    } catch (err) {
-      toast.error(err.message || `Failed to ${confirmationAction} trip`);
+    } catch (error) {
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -191,40 +205,55 @@ export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
 
       {!readOnly && trip.status === 'FinanceApproved' && (
         <div className="border-t p-4 flex justify-end gap-3 bg-white mt-auto sticky bottom-0">
-          <Button 
-            variant="destructive" 
+          <Button
+            variant="destructive"
             onClick={() => requestAction('cancel')}
             disabled={isSubmitting}
           >
-            {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <X className="w-4 h-4 mr-2" />}
+            {isSubmitting ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <X className="w-4 h-4 mr-2" />
+            )}
             Cancel
           </Button>
-          <Button 
-            className="bg-green-600 hover:bg-green-700 text-white" 
+          <Button
+            className="bg-green-600 hover:bg-green-700 text-white"
             onClick={() => requestAction('confirm')}
             disabled={isSubmitting}
           >
-            {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
+            {isSubmitting ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Check className="w-4 h-4 mr-2" />
+            )}
             Confirm
           </Button>
         </div>
       )}
 
       {/* Confirmation Dialog */}
-       <Dialog open={!!confirmationAction} onOpenChange={(open) => !open && !isSubmitting && setConfirmationAction(null)}>
+      <Dialog
+        open={!!confirmationAction}
+        onOpenChange={(open) => !open && !isSubmitting && setConfirmationAction(null)}
+      >
         <DialogContent className="sm:max-w-md z-[110]">
           <DialogHeader>
             <DialogTitle>
               {confirmationAction === 'confirm' ? 'Confirm Trip?' : 'Cancel Trip?'}
             </DialogTitle>
             <DialogDescription>
-              {confirmationAction === 'confirm' 
-                ? 'Are you sure you want to publish this trip? This action cannot be undone.' 
+              {confirmationAction === 'confirm'
+                ? 'Are you sure you want to publish this trip? This action cannot be undone.'
                 : 'Are you sure you want to cancel this trip? This action cannot be undone.'}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setConfirmationAction(null)} disabled={isSubmitting}>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmationAction(null)}
+              disabled={isSubmitting}
+            >
               Back
             </Button>
             <Button

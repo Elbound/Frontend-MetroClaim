@@ -46,8 +46,14 @@ export default function ActiveLimitsWidget({ onQuickClaim }) {
       const myLimits = await userLimitService.getMyLimits();
       setLimits(myLimits);
     } catch (error) {
-      console.error(error);
-      toast.error('Failed to fetch limits');
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
     } finally {
       setLoading(false);
     }
@@ -65,7 +71,7 @@ export default function ActiveLimitsWidget({ onQuickClaim }) {
     const response = await getLimit(user.tk);
 
     setLimits(response);
-     setLoading(false);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -94,9 +100,16 @@ export default function ActiveLimitsWidget({ onQuickClaim }) {
       console.log(response);
       toast.success('Limit generated successfully!');
       setIsAddModalOpen(false);
-      fetchLimit() // Refresh limits
-    } catch (e) {
-      toast.error('Failed to generate limit');
+      fetchLimit(); // Refresh limits
+    } catch (error) {
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
     } finally {
       setAdding(false);
     }

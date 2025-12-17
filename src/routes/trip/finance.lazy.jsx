@@ -58,8 +58,14 @@ function RouteComponent() {
       const data = await getTripFinance(user.tk);
       setRequests(data);
     } catch (error) {
-      console.error('Failed to fetch manager requests', error);
-      toast.error('Error', { description: 'Failed to load approval list.' });
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
     } finally {
       setIsLoading(false);
     }
@@ -89,15 +95,21 @@ function RouteComponent() {
 
     try {
       setIsSubmitting(true);
-      console.log(submitedData)
+      console.log(submitedData);
       await putTripFinanceReview(requestId, submitedData, user.tk);
       toast.success('Success', { description: 'Reimbursement status updated.' });
       setModalState({ isOpen: false, type: null, requestId: null });
       setActiveRequest(null); // Close detail view
       fetchRequests(); // Refresh list
     } catch (error) {
-      console.error('Update failed', error);
-      toast.error('Failed', { description: error.message || 'Could not update status.' });
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
     } finally {
       setIsSubmitting(false);
     }
