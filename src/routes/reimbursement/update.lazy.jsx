@@ -12,6 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { AlertCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { FileText, PlusCircle, LayoutList, Save, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -26,7 +35,7 @@ import { router } from '@/router';
 export const Route = createLazyFileRoute('/reimbursement/update')({
   component: RouteComponent,
   validateSearch: (search) => ({
-    id: search?.id
+    id: search?.id,
   }),
 });
 
@@ -58,6 +67,9 @@ function RouteComponent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorDialogMsg, setErrorDialogMsg] = useState('');
+
   // Initial Data Fetching
   useEffect(() => {
     const fetchData = async () => {
@@ -67,7 +79,7 @@ function RouteComponent() {
         setIsLoading(true);
 
         const detail = await getReimbursementById(reimbursementId, user.tk);
-         console.log(detail)
+        console.log(detail);
 
         setTitle(detail.title || '');
         setDesc(detail.description || '');
@@ -75,27 +87,26 @@ function RouteComponent() {
         setDesc(detail.description || '');
         setCategory(detail.categoryName || 'Uncategorized'); // Use Name instead of ID
 
-       
         if (detail.items && Array.isArray(detail.items)) {
           setItems(
             detail.items.map((i) => ({
-              recipt: i.receipt, 
+              recipt: i.receipt,
               amount: i.amount,
               dateOfExpense: i.dateOfExpense,
             }))
           );
         }
-        console.log(detail)
+        console.log(detail);
       } catch (error) {
-      router.navigate({
-        to: '/error',
-        replace: true,
-        search: {
-          status: error.status || 500,
-          msg: error.message || 'An unexpected error occurred.',
-        },
-      });
-    } finally {
+        router.navigate({
+          to: '/error',
+          replace: true,
+          search: {
+            status: error.status || 500,
+            msg: error.message || 'An unexpected error occurred.',
+          },
+        });
+      } finally {
         setIsLoading(false);
       }
     };
@@ -181,14 +192,14 @@ function RouteComponent() {
 
       navigate({ to: '/history' });
     } catch (error) {
-      router.navigate({
-        to: '/error',
-        replace: true,
-        search: {
-          status: error.status || 500,
-          msg: error.message || 'An unexpected error occurred.',
-        },
-      });
+      console.error(error);
+
+      if (error.status === 400) {
+        setErrorDialogMsg(error.message || 'The selected dates overlap with an existing trip.');
+        setErrorDialogOpen(true);
+      } else {
+        toast.error(error.message || 'Failed to create trip');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -388,6 +399,27 @@ function RouteComponent() {
           </Button>
         </div>
       </form>
+
+      <Dialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <div className="flex items-center gap-2 text-red-600 mb-2">
+              <AlertCircle className="h-5 w-5" />
+              <DialogTitle>Trip Schedule Conflict</DialogTitle>
+            </div>
+            <DialogDescription className="text-gray-600 py-2">{errorDialogMsg}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              onClick={() => setErrorDialogOpen(false)}
+              className="bg-slate-900 text-white hover:bg-slate-800"
+            >
+              Understood, I'll fix it
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

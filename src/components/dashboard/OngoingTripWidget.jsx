@@ -33,7 +33,7 @@ export default function OngoingTripWidget() {
           ongoingOnly.map(async (trip) => {
             const rId = await getTripAssignedReimbursement(trip.id, user.tk);
             const reimb = await getReimbursementById(rId, user.tk);
-            const latestStatus = reimb.logs?.at(-1)?.action || 'No Status';
+            const latestStatus = reimb.logs[0].action || 'No Status';
             
             return { ...trip, reimbursementId: rId, reimbursementStatus: latestStatus };
           })
