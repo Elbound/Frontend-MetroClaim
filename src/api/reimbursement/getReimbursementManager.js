@@ -1,16 +1,26 @@
 export default async function getReimbursementManager(token) {
-  const response = await fetch('/api/reimbursement/manager', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch manager reimbursements');
+  let response;
+  try {
+    response = await fetch('/api/reimbursement/manager', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (e) {
+    throw { status: 503, message: 'Server unreachable' };
   }
 
-  const result = await response.json();
-  return result.data; // Assuming structure { status, message, data: [...] }
+  if (!response.ok) {
+    let msg = response.statusText;
+    try {
+      const res = await response.json();
+      msg = res.message || res.Message || msg;
+    } catch (e) {}
+    throw { status: response.status, message: msg };
+  }
+
+  const res = await response.json();
+  return res.data;
 }

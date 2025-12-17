@@ -10,7 +10,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/AuthContext';
 
-// Helper function from your original code
+//  badge config
 const getStatusVariant = (status) => {
   switch (status) {
     case 'Approved':
@@ -39,7 +39,7 @@ export default function ReimbursementDetail({ detailData, onClose, userRole, onA
   }
 
   const handleViewReceipt = (receiptBase64) => {
-    // Construct the full Base64 string if it's just the raw data
+   
     const imgSrc = receiptBase64.startsWith('data:image')
       ? receiptBase64
       : `data:image/jpeg;base64,${receiptBase64}`;

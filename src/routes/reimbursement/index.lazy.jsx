@@ -47,14 +47,10 @@ const formatCurrency = (amount) =>
   }).format(amount || 0);
 
 export default function RouteComponent() {
-  //get from dashboard
-  //   const location = useLocation();
-  //   const navigationState = location.state;
   const search = Route.useSearch();
   const selectedCategoryId = search.categoryId || '';
   const selectedCategoryName = search.categoryName || '';
 
-  //states
   const { user } = useAuth();
   const { convertFile } = useImageConverter();
 
@@ -65,23 +61,11 @@ export default function RouteComponent() {
   const [image, setImage] = useState(null);
   const [amount, setAmount] = useState('');
   const [itemDate, setItemDate] = useState('');
-  //   const [category, setCategory] = useState('');
 
   const [items, setItems] = useState([]);
-  //   const [categroies, setCategories] = useState([]);
+
   const [reimbursement, setReimbursement] = useState(null);
 
-  //   //get category
-  //   useEffect(() => {
-  //     const fetching = async () => {
-  //       const response = await getCategory(user.tk);
-
-  //       setCategories(response);
-  //     };
-  //     fetching();
-  //   }, []);
-
-  //submit reimbursement item
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -152,23 +136,36 @@ export default function RouteComponent() {
       items: items,
     };
 
-    setReimbursement(submitedData)
+    setReimbursement(submitedData);
 
     console.log(reimbursement);
     // console.log(JSON.stringify(reimbursement));
 
-    setIsLoading(true)
-    const postResponse = await postReimbursementCreate(submitedData, user.tk);
-    setIsLoading(false)
-    toast.success('Reimbursement Submitted!', {
-      description: `Claim for ${formatCurrency(totalammount)} has been submitted.`,
-    });
+    try {
+      setIsLoading(true);
+      const postResponse = await postReimbursementCreate(submitedData, user.tk);
+      setIsLoading(false);
+      toast.success('Reimbursement Submitted!', {
+        description: `Claim for ${formatCurrency(totalammount)} has been submitted.`,
+      });
+    } catch (error) {
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
+    } finally {
+      setIsLoading(false);
+    }
 
     setTitle('');
     setDesc('');
     setItems([]);
     setReimbursement(null);
-    
+
     router.navigate({ to: '/dashboard' });
   };
 

@@ -2,7 +2,13 @@ import { createLazyFileRoute } from '@tanstack/react-router';
 import { useState, useMemo, useEffect } from 'react';
 import { FileClock, Loader2 } from 'lucide-react';
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
 
 import ReimbursementList from '../components/ReimbursementList';
 import ReimbursementDetail from '../components/ReimbursementDetail.jsx';
@@ -21,37 +27,32 @@ function RouteComponent() {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedId, setSelectedId] = useState(null);
   const [data, setData] = useState(null);
-  
-  // Detail fetch state
+
   const [detailData, setDetailData] = useState(null);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
 
- useEffect(() => {
+  useEffect(() => {
     const fetchRequests = async () => {
       if (!user || !user.tk) return;
 
       try {
         const response = await getReimbursementMe(user.tk);
         setData(response || []);
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        
-        // 🛑 Manual Redirect to Error Page
+      } catch (error) {
         router.navigate({
           to: '/error',
-          replace: true, // Overwrites history so "Back" doesn't loop
-          search: { 
-            status: err.status || 500, 
-            msg: err.message || "An unexpected error occurred" 
-          }
+          replace: true,
+          search: {
+            status: error.status || 500,
+            msg: error.message || 'An unexpected error occurred.',
+          },
         });
       }
     };
 
     fetchRequests();
-  }, [user?.tk, router]); // Added router to dependency array
+  }, [user?.tk, router]); 
 
-  // Fetch full details when selectedId changes
   useEffect(() => {
     const fetchDetail = async () => {
       if (!selectedId || !user?.tk) {
@@ -64,7 +65,7 @@ function RouteComponent() {
         const detail = await getReimbursementById(selectedId, user.tk);
         setDetailData(detail);
       } catch (error) {
-        console.error("Failed to fetch details", error);
+        console.error('Failed to fetch details', error);
       } finally {
         setIsDetailLoading(false);
       }
@@ -90,7 +91,7 @@ function RouteComponent() {
       default:
         return allRequests;
     }
-  }, [activeTab, allRequests]); 
+  }, [activeTab, allRequests]);
 
   const handleRowClick = (id) => {
     setSelectedId(id);
@@ -98,7 +99,7 @@ function RouteComponent() {
 
   const closeDetail = () => {
     setSelectedId(null);
-    setDetailData(null); 
+    setDetailData(null);
   };
 
   const tabs = [
@@ -117,8 +118,7 @@ function RouteComponent() {
     },
   ];
 
-  
-  const isFetching = data === null; 
+  const isFetching = data === null;
 
   return (
     <div className="p-6 pl-10 pr-10 bg-gray-50 min-h-screen">
@@ -166,15 +166,13 @@ function RouteComponent() {
         <SheetContent className="sm:max-w-xl w-full flex flex-col h-full">
           <SheetHeader className="mb-4">
             <SheetTitle>Claim Details</SheetTitle>
-            <SheetDescription>
-              View the details of your reimbursement request.
-            </SheetDescription>
+            <SheetDescription>View the details of your reimbursement request.</SheetDescription>
           </SheetHeader>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {isDetailLoading ? (
-               <div className="flex items-center justify-center h-40">
-                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
-               </div>
+              <div className="flex items-center justify-center h-40">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
             ) : detailData ? (
               <ReimbursementDetail
                 detailData={detailData}
