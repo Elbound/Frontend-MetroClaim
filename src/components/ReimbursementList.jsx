@@ -38,7 +38,7 @@ const getStatusVariant = (status) => {
   }
 };
 
-const getLatestAction = (request) => {
+export const getLatestAction = (request) => {
     if (request.logs && request.logs.length > 0) {
         // Sort by createdAt descending to ensure we get the absolute latest
         const sortedLogs = [...request.logs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -57,15 +57,15 @@ export default function ReimbursementList({ items, onRowClick }) {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">Reference ID</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>Action</TableHead>
+        <TableHeader className="bg-slate-100/60 border-b border-gray-100">
+          <TableRow className="border-none hover:bg-transparent">
+            <TableHead className="w-[15%] uppercase text-[11px] font-bold text-gray-500 tracking-wider h-12 pl-6">Reference ID</TableHead>
+            <TableHead className="w-[35%] uppercase text-[11px] font-bold text-gray-500 tracking-wider h-12">Title</TableHead>
+            <TableHead className="w-[20%] uppercase text-[11px] font-bold text-gray-500 tracking-wider h-12">Date</TableHead>
+            <TableHead className="w-[15%] uppercase text-[11px] font-bold text-gray-500 tracking-wider h-12">Amount</TableHead>
+            <TableHead className="w-[15%] uppercase text-[11px] font-bold text-gray-500 tracking-wider h-12 pr-6">Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -74,23 +74,33 @@ export default function ReimbursementList({ items, onRowClick }) {
             return (
                 <TableRow 
                     key={request.id} 
-                    className="cursor-pointer hover:bg-muted/50"
+                    className="cursor-pointer hover:bg-blue-50/50 border-b border-gray-50 last:border-none transition-colors"
                     onClick={() => onRowClick(request.id)}
                 >
-                  <TableCell className="font-medium truncate max-w-[150px] py-4" title={request.id}>
-                    {request.id.substring(0, 8)}...
-                  </TableCell>
-                  <TableCell className="font-medium py-4">
-                      {request.title}
-                  </TableCell>
-                  <TableCell className="py-4">
-                    {request.updatedAt ? format(new Date(request.updatedAt), 'dd MMM yyyy HH:mm') : '-'}
+                  <TableCell className="py-4 pl-6">
+                    <span className="font-mono text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      {request.id.substring(0, 8)}
+                    </span>
                   </TableCell>
                   <TableCell className="py-4">
-                    {formatCurrency(request.totalAmount)}
+                      <span className="font-semibold text-gray-700 block max-w-[250px] truncate">
+                        {request.title}
+                      </span>
                   </TableCell>
                   <TableCell className="py-4">
-                    <Badge variant={getStatusVariant(actionStatus)}>{actionStatus}</Badge>
+                    <span className="text-sm text-gray-500">
+                      {request.updatedAt ? format(new Date(request.updatedAt), 'dd MMM yyyy HH:mm') : '-'}
+                    </span>
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <span className="font-medium text-gray-900">
+                      {formatCurrency(request.totalAmount)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="py-4 pr-6">
+                    <Badge variant={getStatusVariant(actionStatus)} className="rounded-full shadow-none font-medium px-3 uppercase text-[10px] tracking-wide">
+                      {actionStatus}
+                    </Badge>
                   </TableCell>
                 </TableRow>
             );

@@ -71,18 +71,10 @@ function RouteComponent() {
             />
           </div>
 
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2">
             <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
               Password
             </label>
-            <div className="text-sm">
-              <a
-                href="#"
-                className="font-semibold text-[#003366] hover:text-blue-800 transition-colors"
-              >
-                Forgot password?
-              </a>
-            </div>
           </div>
 
           <div className="relative">
@@ -104,6 +96,14 @@ function RouteComponent() {
             >
               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
+          </div>
+          <div className="text-xs text-right mt-1">
+            <a
+              href="#"
+              className="font-semibold text-[#003366] hover:text-blue-800 transition-colors"
+            >
+              Forgot password?
+            </a>
           </div>
 
           {error && (
@@ -134,7 +134,7 @@ function RouteComponent() {
             href="mailto:admin@mii.co.id"
             className="font-semibold text-[#003366] hover:text-blue-800 transition-colors"
           >
-            admin@mii.co.id
+            admin@metroclaim.com
           </a>
         </p>
       </div>
