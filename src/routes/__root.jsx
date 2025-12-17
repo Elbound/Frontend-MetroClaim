@@ -1,7 +1,7 @@
 import { createFileRoute, createRootRoute, Outlet, useRouterState } from '@tanstack/react-router';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+
 import SideBarComponent from '../components/SideBarComponent';
+import HeaderComponent from '../components/HeaderComponent';
 import { AuthProvider } from '../hooks/AuthContext';
 
 export const Route = createRootRoute({
@@ -17,18 +17,25 @@ function RootComponent() {
   return (
     <>
       <AuthProvider>
-        <div className="flex flex-row min-h-screen w-screen bg-gray-50">
+        <div className="flex flex-row min-h-screen w-full bg-gray-50 overflow-hidden">
           <div className={`${showSideBar ? 'w-auto' : 'w-0 hidden'} transition-all duration-300 ease-in-out shrink-0`}>
             <SideBarComponent />
           </div>
 
-          <div className={showSideBar ? 'flex-1 overflow-x-hidden' : 'w-full'}>
-            <Outlet />
-          </div>
+          {showSideBar ? (
+            <div className="flex-1 flex flex-col h-screen overflow-hidden">
+               <HeaderComponent />
+               <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-gray-300">
+                  <Outlet />
+               </div>
+            </div>
+          ) : (
+            <div className="w-full h-screen overflow-auto">
+               <Outlet />
+            </div>
+          )}
         </div>
       </AuthProvider>
-      <TanStackRouterDevtools />
-      <ReactQueryDevtools />
     </>
   );
 }
