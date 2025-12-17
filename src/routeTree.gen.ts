@@ -19,10 +19,16 @@ const DashboardLazyRouteImport = createFileRoute('/dashboard')()
 const IndexLazyRouteImport = createFileRoute('/')()
 const TripIndexLazyRouteImport = createFileRoute('/trip/')()
 const ReimbursementIndexLazyRouteImport = createFileRoute('/reimbursement/')()
+const TripFinanceHistoryLazyRouteImport = createFileRoute(
+  '/trip/finance-history',
+)()
 const TripFinanceLazyRouteImport = createFileRoute('/trip/finance')()
 const TripCreateLazyRouteImport = createFileRoute('/trip/create')()
 const ReimbursementUpdateLazyRouteImport = createFileRoute(
   '/reimbursement/update',
+)()
+const ReimbursementFinanceHistoryLazyRouteImport = createFileRoute(
+  '/reimbursement/finance-history',
 )()
 const ApprovalManagerLazyRouteImport = createFileRoute('/approval/manager')()
 const ApprovalFinanceLazyRouteImport = createFileRoute('/approval/finance')()
@@ -64,6 +70,13 @@ const ReimbursementIndexLazyRoute = ReimbursementIndexLazyRouteImport.update({
 } as any).lazy(() =>
   import('./routes/reimbursement/index.lazy').then((d) => d.Route),
 )
+const TripFinanceHistoryLazyRoute = TripFinanceHistoryLazyRouteImport.update({
+  id: '/trip/finance-history',
+  path: '/trip/finance-history',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/trip/finance-history.lazy').then((d) => d.Route),
+)
 const TripFinanceLazyRoute = TripFinanceLazyRouteImport.update({
   id: '/trip/finance',
   path: '/trip/finance',
@@ -81,6 +94,14 @@ const ReimbursementUpdateLazyRoute = ReimbursementUpdateLazyRouteImport.update({
 } as any).lazy(() =>
   import('./routes/reimbursement/update.lazy').then((d) => d.Route),
 )
+const ReimbursementFinanceHistoryLazyRoute =
+  ReimbursementFinanceHistoryLazyRouteImport.update({
+    id: '/reimbursement/finance-history',
+    path: '/reimbursement/finance-history',
+    getParentRoute: () => rootRouteImport,
+  } as any).lazy(() =>
+    import('./routes/reimbursement/finance-history.lazy').then((d) => d.Route),
+  )
 const ApprovalManagerLazyRoute = ApprovalManagerLazyRouteImport.update({
   id: '/approval/manager',
   path: '/approval/manager',
@@ -104,9 +125,11 @@ export interface FileRoutesByFullPath {
   '/test': typeof TestLazyRoute
   '/approval/finance': typeof ApprovalFinanceLazyRoute
   '/approval/manager': typeof ApprovalManagerLazyRoute
+  '/reimbursement/finance-history': typeof ReimbursementFinanceHistoryLazyRoute
   '/reimbursement/update': typeof ReimbursementUpdateLazyRoute
   '/trip/create': typeof TripCreateLazyRoute
   '/trip/finance': typeof TripFinanceLazyRoute
+  '/trip/finance-history': typeof TripFinanceHistoryLazyRoute
   '/reimbursement': typeof ReimbursementIndexLazyRoute
   '/trip': typeof TripIndexLazyRoute
 }
@@ -118,9 +141,11 @@ export interface FileRoutesByTo {
   '/test': typeof TestLazyRoute
   '/approval/finance': typeof ApprovalFinanceLazyRoute
   '/approval/manager': typeof ApprovalManagerLazyRoute
+  '/reimbursement/finance-history': typeof ReimbursementFinanceHistoryLazyRoute
   '/reimbursement/update': typeof ReimbursementUpdateLazyRoute
   '/trip/create': typeof TripCreateLazyRoute
   '/trip/finance': typeof TripFinanceLazyRoute
+  '/trip/finance-history': typeof TripFinanceHistoryLazyRoute
   '/reimbursement': typeof ReimbursementIndexLazyRoute
   '/trip': typeof TripIndexLazyRoute
 }
@@ -133,9 +158,11 @@ export interface FileRoutesById {
   '/test': typeof TestLazyRoute
   '/approval/finance': typeof ApprovalFinanceLazyRoute
   '/approval/manager': typeof ApprovalManagerLazyRoute
+  '/reimbursement/finance-history': typeof ReimbursementFinanceHistoryLazyRoute
   '/reimbursement/update': typeof ReimbursementUpdateLazyRoute
   '/trip/create': typeof TripCreateLazyRoute
   '/trip/finance': typeof TripFinanceLazyRoute
+  '/trip/finance-history': typeof TripFinanceHistoryLazyRoute
   '/reimbursement/': typeof ReimbursementIndexLazyRoute
   '/trip/': typeof TripIndexLazyRoute
 }
@@ -149,9 +176,11 @@ export interface FileRouteTypes {
     | '/test'
     | '/approval/finance'
     | '/approval/manager'
+    | '/reimbursement/finance-history'
     | '/reimbursement/update'
     | '/trip/create'
     | '/trip/finance'
+    | '/trip/finance-history'
     | '/reimbursement'
     | '/trip'
   fileRoutesByTo: FileRoutesByTo
@@ -163,9 +192,11 @@ export interface FileRouteTypes {
     | '/test'
     | '/approval/finance'
     | '/approval/manager'
+    | '/reimbursement/finance-history'
     | '/reimbursement/update'
     | '/trip/create'
     | '/trip/finance'
+    | '/trip/finance-history'
     | '/reimbursement'
     | '/trip'
   id:
@@ -177,9 +208,11 @@ export interface FileRouteTypes {
     | '/test'
     | '/approval/finance'
     | '/approval/manager'
+    | '/reimbursement/finance-history'
     | '/reimbursement/update'
     | '/trip/create'
     | '/trip/finance'
+    | '/trip/finance-history'
     | '/reimbursement/'
     | '/trip/'
   fileRoutesById: FileRoutesById
@@ -192,9 +225,11 @@ export interface RootRouteChildren {
   TestLazyRoute: typeof TestLazyRoute
   ApprovalFinanceLazyRoute: typeof ApprovalFinanceLazyRoute
   ApprovalManagerLazyRoute: typeof ApprovalManagerLazyRoute
+  ReimbursementFinanceHistoryLazyRoute: typeof ReimbursementFinanceHistoryLazyRoute
   ReimbursementUpdateLazyRoute: typeof ReimbursementUpdateLazyRoute
   TripCreateLazyRoute: typeof TripCreateLazyRoute
   TripFinanceLazyRoute: typeof TripFinanceLazyRoute
+  TripFinanceHistoryLazyRoute: typeof TripFinanceHistoryLazyRoute
   ReimbursementIndexLazyRoute: typeof ReimbursementIndexLazyRoute
   TripIndexLazyRoute: typeof TripIndexLazyRoute
 }
@@ -250,6 +285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReimbursementIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/trip/finance-history': {
+      id: '/trip/finance-history'
+      path: '/trip/finance-history'
+      fullPath: '/trip/finance-history'
+      preLoaderRoute: typeof TripFinanceHistoryLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trip/finance': {
       id: '/trip/finance'
       path: '/trip/finance'
@@ -269,6 +311,13 @@ declare module '@tanstack/react-router' {
       path: '/reimbursement/update'
       fullPath: '/reimbursement/update'
       preLoaderRoute: typeof ReimbursementUpdateLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reimbursement/finance-history': {
+      id: '/reimbursement/finance-history'
+      path: '/reimbursement/finance-history'
+      fullPath: '/reimbursement/finance-history'
+      preLoaderRoute: typeof ReimbursementFinanceHistoryLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/approval/manager': {
@@ -296,9 +345,11 @@ const rootRouteChildren: RootRouteChildren = {
   TestLazyRoute: TestLazyRoute,
   ApprovalFinanceLazyRoute: ApprovalFinanceLazyRoute,
   ApprovalManagerLazyRoute: ApprovalManagerLazyRoute,
+  ReimbursementFinanceHistoryLazyRoute: ReimbursementFinanceHistoryLazyRoute,
   ReimbursementUpdateLazyRoute: ReimbursementUpdateLazyRoute,
   TripCreateLazyRoute: TripCreateLazyRoute,
   TripFinanceLazyRoute: TripFinanceLazyRoute,
+  TripFinanceHistoryLazyRoute: TripFinanceHistoryLazyRoute,
   ReimbursementIndexLazyRoute: ReimbursementIndexLazyRoute,
   TripIndexLazyRoute: TripIndexLazyRoute,
 }

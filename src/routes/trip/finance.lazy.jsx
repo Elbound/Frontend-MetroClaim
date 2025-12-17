@@ -190,7 +190,7 @@ function RouteComponent() {
                 tripId={activeRequest}
                 onClose={() => setActiveRequest(null)}
                 userRole="Manager"
-                onAction={(actionType) => openAction(activeRequest.id, actionType)}
+                onAction={(actionType) => openAction(activeRequest, actionType)}
               />
             ) : (
               <p className="p-4 text-center text-muted-foreground">

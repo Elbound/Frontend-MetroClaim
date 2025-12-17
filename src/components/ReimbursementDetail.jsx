@@ -28,7 +28,7 @@ const getStatusVariant = (status) => {
   }
 };
 
-export default function ReimbursementDetail({ detailData, onClose, userRole, onAction }) {
+export default function ReimbursementDetail({ detailData, onClose, userRole, onAction, readOnly }) {
   const navigate = useNavigate();
   const [selectedReceipt, setSelectedReceipt] = useState(null);
 
@@ -90,6 +90,8 @@ export default function ReimbursementDetail({ detailData, onClose, userRole, onA
 
           {/* Actions */}
           {(() => {
+            if (readOnly) return null;
+
             // Manager Actions
             if (userRole === 'Manager') {
               return (

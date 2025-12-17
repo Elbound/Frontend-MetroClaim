@@ -51,6 +51,12 @@ export default function SideBarComponent() {
               <Link to="/trip/finance" className={linkClass}>
                 Trip Cost Distribution
               </Link>
+              <Link to="/reimbursement/finance-history" className={linkClass}>
+                Reimbursement History
+              </Link>
+              <Link to="/trip/finance-history" className={linkClass}>
+                Trip History
+              </Link>
               <hr className="border-white my-2" />
             </>
           )}
