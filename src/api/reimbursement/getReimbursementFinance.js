@@ -1,6 +1,5 @@
 export default async function getReimbursementFinance(token) {
   let response;
-
   try {
     response = await fetch('/api/reimbursement/finance', {
       method: 'GET',
@@ -9,29 +8,19 @@ export default async function getReimbursementFinance(token) {
         Authorization: `Bearer ${token}`,
       },
     });
-  } catch{
-    console.error('<<<<<<<<Error fetching data:', response.status);
-    throw {
-      status: 503,
-      message: 'Service Unavailable: Could not connect to the server.',
-    };
+  } catch (e) {
+    throw { status: 503, message: 'Server unreachable' };
   }
-
-  console.log(response.status);
-  console.log(response.statusText);
 
   if (!response.ok) {
-    let errorMessage = response.statusText;
+    let msg = response.statusText;
     try {
-      const text = await response.text();
-      if (text) {
-        const json = JSON.parse(text);
-        errorMessage = json.message || errorMessage;
-      }
+      const res = await response.json();
+      msg = res.message || res.Message || msg;
     } catch (e) {}
-
-    throw { status: response.status, message: errorMessage };
+    throw { status: response.status, message: msg };
   }
 
-  return (await response.json()).data;
+  const res = await response.json();
+  return res.data;
 }

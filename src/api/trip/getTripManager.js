@@ -1,17 +1,26 @@
 export default async function getTripManager(token) {
-  const response = await fetch('/api/trips/manager', {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Failed to fetch manager trips');
+  let response;
+  try {
+    response = await fetch('/api/trips/manager', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (e) {
+    throw { status: 503, message: 'Server unreachable' };
   }
 
-  const result = await response.json();
-  return result.data || [];
+  if (!response.ok) {
+    let msg = response.statusText;
+    try {
+      const res = await response.json();
+      msg = res.message || res.Message || msg;
+    } catch (e) {}
+    throw { status: response.status, message: msg };
+  }
+
+  const res = await response.json();
+  return res.data || [];
 }

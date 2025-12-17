@@ -1,6 +1,5 @@
 export default async function getReimbursementMe(token) {
   let response;
-
   try {
     response = await fetch("/api/reimbursement/me", {
       method: "GET",
@@ -9,27 +8,19 @@ export default async function getReimbursementMe(token) {
         "Authorization": `Bearer ${token}`
       },
     });
-  } catch (networkError) {
-    throw { status: 503, message: "Service Unavailable: Server is offline" };
+  } catch (e) {
+    throw { status: 503, message: "Server unreachable" };
   }
 
   if (!response.ok) {
-    let errorMessage = "Data not Received";
-    
+    let msg = response.statusText;
     try {
-      const errorData = await response.json();
-      errorMessage = errorData.message || errorMessage;
-    } catch (parseError) {
-      errorMessage = response.statusText || errorMessage;
-    }
-
-    throw {
-      status: response.status,
-      message: errorMessage,
-    };
+      const res = await response.json();
+      msg = res.message || msg;
+    } catch (e) {}
+    throw { status: response.status, message: msg };
   }
 
   const res = await response.json();
-  console.log("Fetched Data:", res.data);
   return res.data;
 }

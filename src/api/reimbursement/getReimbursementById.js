@@ -7,7 +7,7 @@ export default async function getReimbursementById(id, token) {
     },
   });
 
-  const res = await response.json();
+  // const res = await response.json();
 
   if (!response.ok) {
     throw new Error(res.Message || "Failed to fetch reimbursement details");
