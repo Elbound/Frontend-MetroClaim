@@ -12,10 +12,23 @@ import {
 } from '../ui/chart';
 import { PieChart, Pie } from 'recharts';
 
+const formatCurrency = (amount) =>
+  new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+  }).format(amount);
+
 export default function LimitChartWidget() {
   const { user } = useAuth();
   const [limits, setLimits] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  //   const [totalUsed, setTotalUsed] = useState(0);
+
+  const totalUsed = useMemo(() => {
+    return limits.reduce((sum, item) => sum + item.limitUsed, 0);
+  }, [limits]);
 
   const fetchLimit = async () => {
     try {
@@ -44,7 +57,6 @@ export default function LimitChartWidget() {
     return limits.map((item, index) => ({
       category: item.categoryName,
       used: item.limitUsed,
-      // Using var() for Tailwind v4 OKLCH support
       fill: `var(--chart-${(index % 5) + 1})`,
     }));
   }, [limits]);
@@ -70,13 +82,14 @@ export default function LimitChartWidget() {
     );
   }
 
-  if (!loading && limits.length === 0) {
+  if (!loading && totalUsed <= 0) {
     return (
       <Card className="flex flex-col h-[350px] items-center justify-center border-dashed">
         <p className="text-muted-foreground text-sm">No limit data available.</p>
       </Card>
     );
   }
+
   return (
     <Card className="flex flex-col border-none shadow-none bg-transparent">
       <CardHeader className="items-center pb-2">
@@ -86,7 +99,15 @@ export default function LimitChartWidget() {
       <CardContent className="flex-1 pb-0">
         <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[250px]">
           <PieChart>
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <ChartTooltip
+              cursor={false}
+              content={
+                <ChartTooltipContent
+                  hideLabel
+                  formatter={(value) => (value !== undefined ? formatCurrency(value) : '')}
+                />
+              }
+            />
             <Pie
               data={chartData}
               dataKey="used"
@@ -96,9 +117,29 @@ export default function LimitChartWidget() {
               paddingAngle={3}
               strokeWidth={0}
             />
-            <ChartLegend content={<ChartLegendContent />} className="mt-4 flex-wrap gap-2" />
+            <ChartLegend
+              content={
+                <ChartLegendContent
+                  formatter={(value, entry) => {
+                    const amount = entry?.payload?.used;
+                    return (
+                      <span className="text-xs font-medium">
+                        {value}{' '}
+                        <span className="text-muted-foreground ml-1">
+                          ({formatCurrency(amount)})
+                        </span>
+                      </span>
+                    );
+                  }}
+                />
+              }
+              className="mt-4 flex-wrap gap-2"
+            />
           </PieChart>
         </ChartContainer>
+      <div>
+        Total Limit used: {formatCurrency(totalUsed)}
+      </div>
       </CardContent>
     </Card>
   );
