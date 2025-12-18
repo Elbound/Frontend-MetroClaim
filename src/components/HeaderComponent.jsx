@@ -18,6 +18,7 @@ export default function HeaderComponent({ onMobileMenuToggle }) {
     if (path === '/trip/finance') return 'Trip Cost Distribution';
     if (path === '/reimbursement/finance-history') return 'Reimbursement History';
     if (path === '/trip/finance-history') return 'Trip History';
+    if (path === '/salary') return 'Salary';
     return 'Dashboard'; // Fallback
   };
 

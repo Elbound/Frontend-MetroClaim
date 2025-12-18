@@ -19,6 +19,7 @@ const HistoryLazyRouteImport = createFileRoute('/history')()
 const DashboardLazyRouteImport = createFileRoute('/dashboard')()
 const IndexLazyRouteImport = createFileRoute('/')()
 const TripIndexLazyRouteImport = createFileRoute('/trip/')()
+const SalaryIndexLazyRouteImport = createFileRoute('/salary/')()
 const ReimbursementIndexLazyRouteImport = createFileRoute('/reimbursement/')()
 const TripFinanceHistoryLazyRouteImport = createFileRoute(
   '/trip/finance-history',
@@ -72,6 +73,11 @@ const TripIndexLazyRoute = TripIndexLazyRouteImport.update({
   path: '/trip/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/trip/index.lazy').then((d) => d.Route))
+const SalaryIndexLazyRoute = SalaryIndexLazyRouteImport.update({
+  id: '/salary/',
+  path: '/salary/',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/salary/index.lazy').then((d) => d.Route))
 const ReimbursementIndexLazyRoute = ReimbursementIndexLazyRouteImport.update({
   id: '/reimbursement/',
   path: '/reimbursement/',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/trip/finance': typeof TripFinanceLazyRoute
   '/trip/finance-history': typeof TripFinanceHistoryLazyRoute
   '/reimbursement': typeof ReimbursementIndexLazyRoute
+  '/salary': typeof SalaryIndexLazyRoute
   '/trip': typeof TripIndexLazyRoute
 }
 export interface FileRoutesByTo {
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/trip/finance': typeof TripFinanceLazyRoute
   '/trip/finance-history': typeof TripFinanceHistoryLazyRoute
   '/reimbursement': typeof ReimbursementIndexLazyRoute
+  '/salary': typeof SalaryIndexLazyRoute
   '/trip': typeof TripIndexLazyRoute
 }
 export interface FileRoutesById {
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/trip/finance': typeof TripFinanceLazyRoute
   '/trip/finance-history': typeof TripFinanceHistoryLazyRoute
   '/reimbursement/': typeof ReimbursementIndexLazyRoute
+  '/salary/': typeof SalaryIndexLazyRoute
   '/trip/': typeof TripIndexLazyRoute
 }
 export interface FileRouteTypes {
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/trip/finance'
     | '/trip/finance-history'
     | '/reimbursement'
+    | '/salary'
     | '/trip'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
     | '/trip/finance'
     | '/trip/finance-history'
     | '/reimbursement'
+    | '/salary'
     | '/trip'
   id:
     | '__root__'
@@ -243,6 +254,7 @@ export interface FileRouteTypes {
     | '/trip/finance'
     | '/trip/finance-history'
     | '/reimbursement/'
+    | '/salary/'
     | '/trip/'
   fileRoutesById: FileRoutesById
 }
@@ -262,6 +274,7 @@ export interface RootRouteChildren {
   TripFinanceLazyRoute: typeof TripFinanceLazyRoute
   TripFinanceHistoryLazyRoute: typeof TripFinanceHistoryLazyRoute
   ReimbursementIndexLazyRoute: typeof ReimbursementIndexLazyRoute
+  SalaryIndexLazyRoute: typeof SalaryIndexLazyRoute
   TripIndexLazyRoute: typeof TripIndexLazyRoute
 }
 
@@ -314,6 +327,13 @@ declare module '@tanstack/react-router' {
       path: '/trip'
       fullPath: '/trip'
       preLoaderRoute: typeof TripIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/salary/': {
+      id: '/salary/'
+      path: '/salary'
+      fullPath: '/salary'
+      preLoaderRoute: typeof SalaryIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reimbursement/': {
@@ -398,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   TripFinanceLazyRoute: TripFinanceLazyRoute,
   TripFinanceHistoryLazyRoute: TripFinanceHistoryLazyRoute,
   ReimbursementIndexLazyRoute: ReimbursementIndexLazyRoute,
+  SalaryIndexLazyRoute: SalaryIndexLazyRoute,
   TripIndexLazyRoute: TripIndexLazyRoute,
 }
 export const routeTree = rootRouteImport

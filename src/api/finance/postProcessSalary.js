@@ -1,8 +1,8 @@
-export default async function getUsers(token) {
+export default async function postProcessSalary(token) {
   let response;
   try {
-    response = await fetch('/api/user', {
-      method: 'GET',
+    response = await fetch('/api/finance/process-salary', {
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -22,6 +22,5 @@ export default async function getUsers(token) {
   }
 
   const res = await response.json();
-  console.log(res);
-  return res.data || [];
+  return res.data;
 }
