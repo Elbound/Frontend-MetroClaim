@@ -96,11 +96,11 @@ export default function SideBarComponent({ mobileMode = false, mobileOpen = fals
           <div className="flex flex-col flex-1">
             <Link to="/dashboard" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
               <LayoutDashboard className="w-4 h-4 shrink-0" />
-              {!collapsed && <span>Dashboard</span>}
+              {!collapsed && <span className="truncate">Dashboard</span>}
             </Link>
             <Link to="/history" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
               <Clock className="w-4 h-4 shrink-0" />
-              {!collapsed && <span>History</span>}
+              {!collapsed && <span className="truncate">History</span>}
             </Link>
             
             {isManager && (
@@ -110,15 +110,15 @@ export default function SideBarComponent({ mobileMode = false, mobileOpen = fals
                 
                 <Link to="/approval/manager" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
                   <UserCheck className="w-4 h-4 shrink-0" />
-                  {!collapsed && <span>Manager Approval</span>}
+                  {!collapsed && <span className="truncate">Manager Approval</span>}
                 </Link>
                 <Link to="/reimbursement/manager-history" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
                   <Receipt className="w-4 h-4 shrink-0" />
-                  {!collapsed && <span>Reimbursement History</span>}
+                  {!collapsed && <span className="truncate">Reimbursement History</span>}
                 </Link>
                 <Link to="/trip" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
                   <Plane className="w-4 h-4 shrink-0" />
-                  {!collapsed && <span>Trip</span>}
+                  {!collapsed && <span className="truncate">Trip</span>}
                 </Link>
               </>
             )}
@@ -130,23 +130,23 @@ export default function SideBarComponent({ mobileMode = false, mobileOpen = fals
 
                 <Link to="/approval/finance" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
                   <BadgeDollarSign className="w-4 h-4 shrink-0" />
-                  {!collapsed && <span>Finance Approval</span>}
+                  {!collapsed && <span className="truncate">Finance Approval</span>}
                 </Link>
                 <Link to="/trip/finance" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
                   <PieChart className="w-4 h-4 shrink-0" />
-                  {!collapsed && <span>Trip Cost Distribution</span>}
+                  {!collapsed && <span className="truncate">Trip Cost Distribution</span>}
                 </Link>
                 <Link to="/reimbursement/finance-history" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
                   <Receipt className="w-4 h-4 shrink-0" />
-                  {!collapsed && <span>Reimbursement History</span>}
+                  {!collapsed && <span className="truncate">Reimbursement History</span>}
                 </Link>
                 <Link to="/trip/finance-history" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
                   <FileClock className="w-4 h-4 shrink-0" />
-                  {!collapsed && <span>Trip History</span>}
+                  {!collapsed && <span className="truncate">Trip History</span>}
                 </Link>
                 <Link to="/salary" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
                   <FileClock className="w-4 h-4 shrink-0" />
-                  {!collapsed && <span>Salary</span>}
+                  {!collapsed && <span className="truncate">Salary</span>}
                 </Link>
               </>
             )}
@@ -154,7 +154,7 @@ export default function SideBarComponent({ mobileMode = false, mobileOpen = fals
             <div className="mt-auto pt-4 border-t border-white/10">
               <button onClick={logout} className={`${linkClass} w-full text-left text-red-300 hover:bg-red-500/20`}>
                 <LogOut className="w-4 h-4 shrink-0" />
-                {!collapsed && <span>Logout</span>}
+                {!collapsed && <span className="truncate">Logout</span>}
               </button>
             </div>
           </div>
