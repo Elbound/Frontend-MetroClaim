@@ -144,6 +144,10 @@ export default function SideBarComponent({ mobileMode = false, mobileOpen = fals
                   <FileClock className="w-4 h-4 shrink-0" />
                   {!collapsed && <span>Trip History</span>}
                 </Link>
+                <Link to="/salary" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
+                  <FileClock className="w-4 h-4 shrink-0" />
+                  {!collapsed && <span>Salary</span>}
+                </Link>
               </>
             )}
 

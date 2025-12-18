@@ -6,10 +6,12 @@ import { Loader2, User, Check, X, AlertCircle, DollarSign } from 'lucide-react';
 import getTripById from '@/api/trip/getTripById';
 import postTripPublish from '@/api/trip/postTripPublish';
 import putTripCancel from '@/api/trip/putTripCancel';
+import putTripClose from '@/api/trip/putTripClose';
 import { useAuth } from '../hooks/AuthContext';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
+import { router } from '@/router';
 import {
   Dialog,
   DialogContent,
@@ -25,7 +27,7 @@ export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [confirmationAction, setConfirmationAction] = useState(null); // 'confirm' | 'cancel' | null
+  const [confirmationAction, setConfirmationAction] = useState(null); // 'confirm' | 'cancel' | 'close' | null
 
   // console.log(tripId)
 
@@ -60,6 +62,9 @@ export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
       } else if (confirmationAction === 'cancel') {
         await putTripCancel(tripId, user.tk);
         toast.success('Trip cancelled successfully');
+      } else if (confirmationAction === 'close') {
+        await putTripClose(tripId, user.tk);
+        toast.success('Trip closed successfully');
       }
       setConfirmationAction(null);
       await fetchTrip();
@@ -95,6 +100,17 @@ export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
   }
 
   if (!trip) return null;
+
+  const getConfirmationText = () => {
+      switch(confirmationAction) {
+          case 'confirm': return { title: 'Confirm Trip?', desc: 'Are you sure you want to publish this trip? This action cannot be undone.', btn: 'Yes, Confirm' };
+          case 'cancel': return { title: 'Cancel Trip?', desc: 'Are you sure you want to cancel this trip? This action cannot be undone.', btn: 'Yes, Cancel' };
+          case 'close': return { title: 'Close Trip?', desc: 'Are you sure you want to close this trip? This indicates the trip is finished.', btn: 'Yes, Close' };
+          default: return { title: 'Confirm?', desc: 'Are you sure?', btn: 'Yes' };
+      }
+  }
+
+  const confirmUI = getConfirmationText();
 
   return (
     <div className="flex flex-col h-full bg-white relative">
@@ -203,6 +219,7 @@ export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
         </div>
       </div>
 
+      {/* Buttons for FinanceApproved */}
       {!readOnly && trip.status === 'FinanceApproved' && (
         <div className="border-t p-4 flex justify-end gap-3 bg-white mt-auto sticky bottom-0">
           <Button
@@ -232,6 +249,24 @@ export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
         </div>
       )}
 
+      {/* Buttons for Ongoing */}
+      {!readOnly && trip.status === 'Ongoing' && (
+        <div className="border-t p-4 flex justify-end gap-3 bg-white mt-auto sticky bottom-0">
+          <Button
+            className="bg-slate-900 hover:bg-slate-800 text-white"
+            onClick={() => requestAction('close')}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Check className="w-4 h-4 mr-2" />
+            )}
+            Close Trip
+          </Button>
+        </div>
+      )}
+
       {/* Confirmation Dialog */}
       <Dialog
         open={!!confirmationAction}
@@ -240,12 +275,10 @@ export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
         <DialogContent className="sm:max-w-md z-[110]">
           <DialogHeader>
             <DialogTitle>
-              {confirmationAction === 'confirm' ? 'Confirm Trip?' : 'Cancel Trip?'}
+              {confirmUI.title}
             </DialogTitle>
             <DialogDescription>
-              {confirmationAction === 'confirm'
-                ? 'Are you sure you want to publish this trip? This action cannot be undone.'
-                : 'Are you sure you want to cancel this trip? This action cannot be undone.'}
+              {confirmUI.desc}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex justify-end space-x-2">
@@ -263,7 +296,7 @@ export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
               className={confirmationAction === 'confirm' ? 'bg-green-600 hover:bg-green-700' : ''}
             >
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {confirmationAction === 'confirm' ? 'Yes, Confirm' : 'Yes, Cancel'}
+              {confirmUI.btn}
             </Button>
           </DialogFooter>
         </DialogContent>
