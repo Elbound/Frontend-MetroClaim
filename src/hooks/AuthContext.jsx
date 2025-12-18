@@ -6,78 +6,72 @@ const AuthContext = createContext(null);
 
 export const useAuth = () => useContext(AuthContext);
 
-// Extracted function for clean reuse during login and hydration
 const decodeAndStructureUser = (token) => {
-    if (!token) return null;
-    
-    try {
-        const raw = jwtDecode(token);
-        
-        return {
-            id: raw['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
-            name: raw['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
-            email: raw['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
-            role: raw['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
-            tk: token,
-        };
-    } catch (error) {
-        console.error("Failed to decode token:", error);
-        return null; 
-    }
+  if (!token) return null;
+
+  try {
+    const raw = jwtDecode(token);
+
+    return {
+      id: raw['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
+      name: raw['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
+      email: raw['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
+      role: raw['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
+      tk: token,
+    };
+  } catch (error) {
+    console.error('Failed to decode token:', error);
+    return null;
+  }
 };
 
 export function AuthProvider({ children }) {
-    const router = useRouter();
+  const router = useRouter();
 
-    // NEW: Function to read state from localStorage for initial hydration
-    const getInitialUser = () => {
-        const token = localStorage.getItem('authToken');
-        return decodeAndStructureUser(token);
-    };
-    
-    // CHANGED: useState now initializes with the token/user from localStorage
-    const [user, setUser] = useState(getInitialUser); 
+  const getInitialUser = () => {
+    const token = localStorage.getItem('authToken');
+    return decodeAndStructureUser(token);
+  };
 
-    const login = (token) => {
-        const userTK = decodeAndStructureUser(token);
-        
-        // if(userTK.role!='Employee'){
-        //   userTK.role = [...userTK.role, ' Employee']
-        // }
+  const [user, setUser] = useState(getInitialUser);
 
-        if (userTK) {
-            // ADDED: Save token to persistence layer (localStorage)
-            localStorage.setItem('authToken', token);
-            localStorage.setItem('user', JSON.stringify(userTK));
+  const login = (token) => {
+    const userTK = decodeAndStructureUser(token);
 
-            setUser(userTK);
-        } else {
-            console.error("Login failed: Token could not be decoded.");
-            // Optionally call logout here
-        }
-    };
+    // if(userTK.role!='Employee'){
+    //   userTK.role = [...userTK.role, ' Employee']
+    // }
 
-    const logout = () => {
-        // ADDED: Clear persistence layer
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
-        
-        setUser(null);
-        router.navigate({ to: '/login' });
-    };
+    if (userTK) {
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('user', JSON.stringify(userTK));
 
-    const isLoggedIn = !!user;
-    const isManager = user?.role.includes('Manager');
-    const isFinance = user?.role.includes('Finance');
+      setUser(userTK);
+    } else {
+      console.error('Login failed: Token could not be decoded.');
+    }
+  };
 
-    const value = {
-        user,
-        isLoggedIn,
-        isManager,
-        isFinance,
-        login,
-        logout,
-    };
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    setUser(null);
+    router.navigate({ to: '/login' });
+  };
+
+  const isLoggedIn = !!user;
+  const isManager = user?.role.includes('Manager');
+  const isFinance = user?.role.includes('Finance');
+
+  const value = {
+    user,
+    isLoggedIn,
+    isManager,
+    isFinance,
+    login,
+    logout,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

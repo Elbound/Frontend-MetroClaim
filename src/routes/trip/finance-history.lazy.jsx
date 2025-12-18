@@ -138,11 +138,11 @@ function RouteComponent() {
 
       <Sheet open={!!activeTrip} onOpenChange={(open) => !open && setActiveTrip(null)}>
         <SheetContent className="sm:max-w-xl w-full flex flex-col h-full">
-          <SheetHeader className="mb-4">
+          <SheetHeader className="px-6 py-4 border-b">
             <SheetTitle>Trip Details</SheetTitle>
             <SheetDescription>View past trip details.</SheetDescription>
           </SheetHeader>
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto  px-6 py-4">
             {activeTrip ? (
               <TripDetail tripId={activeTrip} onClose={() => setActiveTrip(null)} readOnly={true} />
             ) : (

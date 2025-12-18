@@ -112,6 +112,10 @@ export default function SideBarComponent({ mobileMode = false, mobileOpen = fals
                   <UserCheck className="w-4 h-4 shrink-0" />
                   {!collapsed && <span>Manager Approval</span>}
                 </Link>
+                <Link to="/reimbursement/manager-history" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
+                  <Receipt className="w-4 h-4 shrink-0" />
+                  {!collapsed && <span>Reimbursement History</span>}
+                </Link>
                 <Link to="/trip" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
                   <Plane className="w-4 h-4 shrink-0" />
                   {!collapsed && <span>Trip</span>}

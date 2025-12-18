@@ -1,7 +1,7 @@
-export default async function getReimbursementFinanceHistory(token) {
+export default async function getReimbursementManagerHistory(token) {
   let response;
   try {
-    response = await fetch('/api/reimbursement/finance/history', {
+    response = await fetch('/api/reimbursement/manager/history', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -22,6 +22,6 @@ export default async function getReimbursementFinanceHistory(token) {
   }
 
   const res = await response.json();
-  // console.log(res);
+//   console.log(res);
   return res.data;
 }

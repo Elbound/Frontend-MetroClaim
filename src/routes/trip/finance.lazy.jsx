@@ -190,7 +190,7 @@ function RouteComponent() {
         onConfirm={handleConfirmAction}
       />
 
-      <Sheet open={!!activeRequest} onOpenChange={(open) => !open && setActiveTripId(null)}>
+      <Sheet open={!!activeRequest} onOpenChange={(open) => !open && setActiveRequest(null)}>
         <SheetContent className="sm:max-w-xl w-full flex flex-col h-full bg-white p-0 gap-0">
           <SheetHeader className="px-6 py-4 border-b">
             <SheetTitle>Trip Details</SheetTitle>
