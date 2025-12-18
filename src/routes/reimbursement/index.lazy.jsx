@@ -14,6 +14,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { AlertCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { FileText, PlusCircle, LayoutList, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -65,6 +74,9 @@ export default function RouteComponent() {
   const [items, setItems] = useState([]);
 
   const [reimbursement, setReimbursement] = useState(null);
+
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorDialogMsg, setErrorDialogMsg] = useState('');
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -148,25 +160,23 @@ export default function RouteComponent() {
       toast.success('Reimbursement Submitted!', {
         description: `Claim for ${formatCurrency(totalammount)} has been submitted.`,
       });
+      setTitle('');
+      setDesc('');
+      setItems([]);
+      setReimbursement(null);
+
+      router.navigate({ to: '/dashboard' });
     } catch (error) {
-      router.navigate({
-        to: '/error',
-        replace: true,
-        search: {
-          status: error.status || 500,
-          msg: error.message || 'An unexpected error occurred.',
-        },
-      });
+      console.error(error);
+      if (error.status === 400) {
+        setErrorDialogMsg(error.message || 'Something wrong with input');
+        setErrorDialogOpen(true);
+      } else {
+        toast.error(error.message || 'Failed to create reimbursement');
+      }
     } finally {
       setIsLoading(false);
     }
-
-    setTitle('');
-    setDesc('');
-    setItems([]);
-    setReimbursement(null);
-
-    router.navigate({ to: '/dashboard' });
   };
 
   const totalClaimAmount = items.reduce((total, i) => total + i.amount, 0);
@@ -188,22 +198,10 @@ export default function RouteComponent() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Category Select */}
+              {/* Category */}
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
                 <div>{selectedCategoryName}</div>
-                {/* <Select onValueChange={setCategory} value={category} required>
-                <SelectTrigger id="category" className="w-[200px]">
-                  <SelectValue placeholder="Select Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categroies.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select> */}
               </div>
 
               {/* Title Input */}
@@ -349,6 +347,27 @@ export default function RouteComponent() {
           </div>
         </form>
       )}
+
+      <Dialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <div className="flex items-center gap-2 text-red-600 mb-2">
+              <AlertCircle className="h-5 w-5" />
+              <DialogTitle>Bad Request</DialogTitle>
+            </div>
+            <DialogDescription className="text-gray-600 py-2">{errorDialogMsg}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              onClick={() => setErrorDialogOpen(false)}
+              className="bg-slate-900 text-white hover:bg-slate-800"
+            >
+              Understood, I'll fix it
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
