@@ -109,7 +109,7 @@ export default function RouteComponent() {
     console.log(convertedImage);
 
     const newItem = {
-      recipt: convertedImage,
+      receipt: convertedImage,
       amount: parseFloat(amount),
       dateOfExpense: new Date(itemDate).toISOString(),
     };

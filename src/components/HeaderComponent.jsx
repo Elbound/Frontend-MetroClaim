@@ -19,6 +19,9 @@ export default function HeaderComponent({ onMobileMenuToggle }) {
     if (path === '/reimbursement/finance-history') return 'Reimbursement History';
     if (path === '/trip/finance-history') return 'Trip History';
     if (path === '/salary') return 'Salary';
+    if (path === '/admin/user') return 'User Management';
+    if (path === '/admin/role') return 'Role Management';
+    if (path === '/admin/category') return 'Category Management';
     return 'Dashboard'; // Fallback
   };
 

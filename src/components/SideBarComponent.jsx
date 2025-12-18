@@ -5,20 +5,26 @@ import { useAuth } from '../hooks/AuthContext';
 import { 
   LayoutDashboard, 
   Clock, 
-  UserCheck, 
+  UserCheck,
+  UserPlus,
   Plane, 
-  BadgeDollarSign, 
-  PieChart, 
+  TicketsPlane,
+  WalletCards, 
   Receipt, 
   FileClock, 
+  Landmark,
   LogOut,
   ChevronLeft,
   ChevronRight,
-  X
+  TicketCheck,
+  X,
+  Users,
+  ShieldCheck,
+  FolderTree
 } from 'lucide-react';
 
 export default function SideBarComponent({ mobileMode = false, mobileOpen = false, setMobileOpen }) {
-  const { user, isManager, isFinance, logout } = useAuth();
+  const { user, isManager, isFinance, isAdmin, logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // In mobile mode, always expanded (collapsed = false)
@@ -129,24 +135,44 @@ export default function SideBarComponent({ mobileMode = false, mobileOpen = fals
                  {collapsed && <div className="my-2 border-t border-white/10"></div>}
 
                 <Link to="/approval/finance" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
-                  <BadgeDollarSign className="w-4 h-4 shrink-0" />
+                  <UserPlus className="w-4 h-4 shrink-0" />
                   {!collapsed && <span className="truncate">Finance Approval</span>}
                 </Link>
                 <Link to="/trip/finance" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
-                  <PieChart className="w-4 h-4 shrink-0" />
+                  <TicketsPlane className="w-4 h-4 shrink-0" />
                   {!collapsed && <span className="truncate">Trip Cost Distribution</span>}
                 </Link>
                 <Link to="/reimbursement/finance-history" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
-                  <Receipt className="w-4 h-4 shrink-0" />
+                  <WalletCards className="w-4 h-4 shrink-0" />
                   {!collapsed && <span className="truncate">Reimbursement History</span>}
                 </Link>
                 <Link to="/trip/finance-history" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
-                  <FileClock className="w-4 h-4 shrink-0" />
+                  <TicketCheck className="w-4 h-4 shrink-0" />
                   {!collapsed && <span className="truncate">Trip History</span>}
                 </Link>
                 <Link to="/salary" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
-                  <FileClock className="w-4 h-4 shrink-0" />
+                  <Landmark className="w-4 h-4 shrink-0" />
                   {!collapsed && <span className="truncate">Salary</span>}
+                </Link>
+              </>
+            )}
+
+            {isAdmin && (
+              <>
+                {!collapsed && <div className="mt-4 mb-2 px-2 text-xs font-semibold text-blue-300 uppercase tracking-wider opacity-80 whitespace-nowrap">Admin</div>}
+                {collapsed && <div className="my-2 border-t border-white/10"></div>}
+
+                <Link to="/admin/user" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
+                  <Users className="w-4 h-4 shrink-0" />
+                  {!collapsed && <span className="truncate">Users</span>}
+                </Link>
+                <Link to="/admin/role" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
+                  <ShieldCheck className="w-4 h-4 shrink-0" />
+                  {!collapsed && <span className="truncate">Roles</span>}
+                </Link>
+                <Link to="/admin/category" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
+                  <FolderTree className="w-4 h-4 shrink-0" />
+                  {!collapsed && <span className="truncate">Categories</span>}
                 </Link>
               </>
             )}

@@ -63,12 +63,14 @@ export function AuthProvider({ children }) {
   const isLoggedIn = !!user;
   const isManager = user?.role.includes('Manager');
   const isFinance = user?.role.includes('Finance');
+  const isAdmin = user?.role.includes('Admin');
 
   const value = {
     user,
     isLoggedIn,
     isManager,
     isFinance,
+    isAdmin,
     login,
     logout,
   };

@@ -1,12 +1,13 @@
-export default async function getReimbursementById(id, token) {
+export default async function postCategory(token, categoryData) {
   let response;
   try {
-    response = await fetch(`/api/reimbursement/${id}`, {
-      method: 'GET',
+    response = await fetch('/api/category', {
+      method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify(categoryData),
     });
   } catch (e) {
     throw { status: 503, message: 'Server unreachable' };
@@ -22,6 +23,5 @@ export default async function getReimbursementById(id, token) {
   }
 
   const res = await response.json();
-  console.log(res.data);
   return res.data;
 }
