@@ -12,8 +12,6 @@ export const Route = createLazyFileRoute('/dashboard/')({
 });
 
 function RouteComponent() {
-  const [limits, setLimits] = useState([]);
-
   const handleCategoryClick = (limit) => {
     // console.log(limit.categoryName);
     router.navigate({
