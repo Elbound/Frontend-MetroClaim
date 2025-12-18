@@ -17,6 +17,7 @@ import { useAuth } from '@/hooks/AuthContext';
 import getLimit from '@/api/limit/getLimit';
 import getCategory from '@/api/getCategory';
 import postCategory from '@/api/limit/postLimit';
+import { router } from '@/router';
 
 const getIconForCategory = (name) => {
   const lower = name.toLowerCase();
@@ -40,11 +41,33 @@ export default function ActiveLimitsWidget({ onQuickClaim }) {
 
   const [adding, setAdding] = useState(false);
   //============= FETCH DATA
-  const fetchData = async () => {
-    setLoading(true);
+
+  const fetchCategory = async () => {
     try {
-      const myLimits = await userLimitService.getMyLimits();
-      setLimits(myLimits);
+      setLoading(true);
+      const response = await getCategory(user.tk);
+
+      setCategories(response);
+    } catch (error) {
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchLimit = async () => {
+    try {
+      setLoading(true);
+      const response = await getLimit(user.tk);
+
+      setLimits(response);
+      setLoading(false);
     } catch (error) {
       router.navigate({
         to: '/error',
@@ -59,25 +82,9 @@ export default function ActiveLimitsWidget({ onQuickClaim }) {
     }
   };
 
-  const fetchCategory = async () => {
-    setLoading(true);
-    const response = await getCategory(user.tk);
-
-    setCategories(response);
-    setLoading(false);
-  };
-  const fetchLimit = async () => {
-    setLoading(true);
-    const response = await getLimit(user.tk);
-
-    setLimits(response);
-    setLoading(false);
-  };
-
   useEffect(() => {
     fetchCategory();
     fetchLimit();
-    // fetchData();
   }, []);
 
   //==================================

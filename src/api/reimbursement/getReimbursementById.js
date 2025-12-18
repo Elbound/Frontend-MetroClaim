@@ -22,6 +22,6 @@ export default async function getReimbursementById(id, token) {
   }
 
   const res = await response.json();
-  console.log(res.data);
+  // console.log(res.data);
   return res.data;
 }
