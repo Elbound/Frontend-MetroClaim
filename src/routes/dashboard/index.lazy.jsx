@@ -1,13 +1,13 @@
 import { createLazyFileRoute, Outlet } from '@tanstack/react-router';
 import { useState } from 'react';
-import UserLimit from '../components/UserLimit';
-import SummaryWidget from '../components/dashboard/SummaryWidget';
-import ActiveLimitsWidget from '../components/dashboard/ActiveLimitsWidget';
+
+import SummaryWidget from '@/components/dashboard/SummaryWidget';
+import ActiveLimitsWidget from '@/components/dashboard/ActiveLimitsWidget';
 import { router } from '@/router';
 import OngoingTripWidget from '@/components/dashboard/OngoingTripWidget';
 import LimitChartWidget from '@/components/dashboard/LimitChartWidget';
 
-export const Route = createLazyFileRoute('/dashboard')({
+export const Route = createLazyFileRoute('/dashboard/')({
   component: RouteComponent,
 });
 
@@ -20,7 +20,7 @@ function RouteComponent() {
       to: '/reimbursement',
       search: {
         categoryId: limit.categoryId,
-        categoryName: limit.categoryName 
+        categoryName: limit.categoryName,
       },
     });
   };
@@ -32,7 +32,7 @@ function RouteComponent() {
       <div className="mt-8">
         <ActiveLimitsWidget onQuickClaim={handleCategoryClick} />
       </div>
-      <div className='mt-6'>
+      <div className="mt-6">
         <OngoingTripWidget />
       </div>
       <div className="mt-4">

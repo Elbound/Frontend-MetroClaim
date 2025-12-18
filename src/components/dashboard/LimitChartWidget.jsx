@@ -114,7 +114,7 @@ export default function LimitChartWidget() {
               nameKey="category"
               innerRadius={50}
               outerRadius={95}
-              paddingAngle={3}
+              paddingAngle={0}
               strokeWidth={0}
             />
             <ChartLegend

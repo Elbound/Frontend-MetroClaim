@@ -16,11 +16,12 @@ import { Route as ErrorRouteImport } from './routes/error'
 const TestLazyRouteImport = createFileRoute('/test')()
 const LoginLazyRouteImport = createFileRoute('/login')()
 const HistoryLazyRouteImport = createFileRoute('/history')()
-const DashboardLazyRouteImport = createFileRoute('/dashboard')()
 const IndexLazyRouteImport = createFileRoute('/')()
 const TripIndexLazyRouteImport = createFileRoute('/trip/')()
 const SalaryIndexLazyRouteImport = createFileRoute('/salary/')()
 const ReimbursementIndexLazyRouteImport = createFileRoute('/reimbursement/')()
+const DashboardIndexLazyRouteImport = createFileRoute('/dashboard/')()
+const AdminIndexLazyRouteImport = createFileRoute('/admin/')()
 const TripFinanceHistoryLazyRouteImport = createFileRoute(
   '/trip/finance-history',
 )()
@@ -35,8 +36,13 @@ const ReimbursementManagerHistoryLazyRouteImport = createFileRoute(
 const ReimbursementFinanceHistoryLazyRouteImport = createFileRoute(
   '/reimbursement/finance-history',
 )()
+const DashboardManagerLazyRouteImport = createFileRoute('/dashboard/manager')()
+const DashboardFinanceLazyRouteImport = createFileRoute('/dashboard/finance')()
 const ApprovalManagerLazyRouteImport = createFileRoute('/approval/manager')()
 const ApprovalFinanceLazyRouteImport = createFileRoute('/approval/finance')()
+const AdminUserLazyRouteImport = createFileRoute('/admin/user')()
+const AdminRoleLazyRouteImport = createFileRoute('/admin/role')()
+const AdminCategoryLazyRouteImport = createFileRoute('/admin/category')()
 
 const TestLazyRoute = TestLazyRouteImport.update({
   id: '/test',
@@ -53,11 +59,6 @@ const HistoryLazyRoute = HistoryLazyRouteImport.update({
   path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/history.lazy').then((d) => d.Route))
-const DashboardLazyRoute = DashboardLazyRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/dashboard.lazy').then((d) => d.Route))
 const ErrorRoute = ErrorRouteImport.update({
   id: '/error',
   path: '/error',
@@ -85,6 +86,18 @@ const ReimbursementIndexLazyRoute = ReimbursementIndexLazyRouteImport.update({
 } as any).lazy(() =>
   import('./routes/reimbursement/index.lazy').then((d) => d.Route),
 )
+const DashboardIndexLazyRoute = DashboardIndexLazyRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/dashboard/index.lazy').then((d) => d.Route),
+)
+const AdminIndexLazyRoute = AdminIndexLazyRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/admin/index.lazy').then((d) => d.Route))
 const TripFinanceHistoryLazyRoute = TripFinanceHistoryLazyRouteImport.update({
   id: '/trip/finance-history',
   path: '/trip/finance-history',
@@ -125,6 +138,20 @@ const ReimbursementFinanceHistoryLazyRoute =
   } as any).lazy(() =>
     import('./routes/reimbursement/finance-history.lazy').then((d) => d.Route),
   )
+const DashboardManagerLazyRoute = DashboardManagerLazyRouteImport.update({
+  id: '/dashboard/manager',
+  path: '/dashboard/manager',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/dashboard/manager.lazy').then((d) => d.Route),
+)
+const DashboardFinanceLazyRoute = DashboardFinanceLazyRouteImport.update({
+  id: '/dashboard/finance',
+  path: '/dashboard/finance',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/dashboard/finance.lazy').then((d) => d.Route),
+)
 const ApprovalManagerLazyRoute = ApprovalManagerLazyRouteImport.update({
   id: '/approval/manager',
   path: '/approval/manager',
@@ -139,22 +166,45 @@ const ApprovalFinanceLazyRoute = ApprovalFinanceLazyRouteImport.update({
 } as any).lazy(() =>
   import('./routes/approval/finance.lazy').then((d) => d.Route),
 )
+const AdminUserLazyRoute = AdminUserLazyRouteImport.update({
+  id: '/admin/user',
+  path: '/admin/user',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/admin/user.lazy').then((d) => d.Route))
+const AdminRoleLazyRoute = AdminRoleLazyRouteImport.update({
+  id: '/admin/role',
+  path: '/admin/role',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/admin/role.lazy').then((d) => d.Route))
+const AdminCategoryLazyRoute = AdminCategoryLazyRouteImport.update({
+  id: '/admin/category',
+  path: '/admin/category',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/admin/category.lazy').then((d) => d.Route),
+)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/error': typeof ErrorRoute
-  '/dashboard': typeof DashboardLazyRoute
   '/history': typeof HistoryLazyRoute
   '/login': typeof LoginLazyRoute
   '/test': typeof TestLazyRoute
+  '/admin/category': typeof AdminCategoryLazyRoute
+  '/admin/role': typeof AdminRoleLazyRoute
+  '/admin/user': typeof AdminUserLazyRoute
   '/approval/finance': typeof ApprovalFinanceLazyRoute
   '/approval/manager': typeof ApprovalManagerLazyRoute
+  '/dashboard/finance': typeof DashboardFinanceLazyRoute
+  '/dashboard/manager': typeof DashboardManagerLazyRoute
   '/reimbursement/finance-history': typeof ReimbursementFinanceHistoryLazyRoute
   '/reimbursement/manager-history': typeof ReimbursementManagerHistoryLazyRoute
   '/reimbursement/update': typeof ReimbursementUpdateLazyRoute
   '/trip/create': typeof TripCreateLazyRoute
   '/trip/finance': typeof TripFinanceLazyRoute
   '/trip/finance-history': typeof TripFinanceHistoryLazyRoute
+  '/admin': typeof AdminIndexLazyRoute
+  '/dashboard': typeof DashboardIndexLazyRoute
   '/reimbursement': typeof ReimbursementIndexLazyRoute
   '/salary': typeof SalaryIndexLazyRoute
   '/trip': typeof TripIndexLazyRoute
@@ -162,18 +212,24 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/error': typeof ErrorRoute
-  '/dashboard': typeof DashboardLazyRoute
   '/history': typeof HistoryLazyRoute
   '/login': typeof LoginLazyRoute
   '/test': typeof TestLazyRoute
+  '/admin/category': typeof AdminCategoryLazyRoute
+  '/admin/role': typeof AdminRoleLazyRoute
+  '/admin/user': typeof AdminUserLazyRoute
   '/approval/finance': typeof ApprovalFinanceLazyRoute
   '/approval/manager': typeof ApprovalManagerLazyRoute
+  '/dashboard/finance': typeof DashboardFinanceLazyRoute
+  '/dashboard/manager': typeof DashboardManagerLazyRoute
   '/reimbursement/finance-history': typeof ReimbursementFinanceHistoryLazyRoute
   '/reimbursement/manager-history': typeof ReimbursementManagerHistoryLazyRoute
   '/reimbursement/update': typeof ReimbursementUpdateLazyRoute
   '/trip/create': typeof TripCreateLazyRoute
   '/trip/finance': typeof TripFinanceLazyRoute
   '/trip/finance-history': typeof TripFinanceHistoryLazyRoute
+  '/admin': typeof AdminIndexLazyRoute
+  '/dashboard': typeof DashboardIndexLazyRoute
   '/reimbursement': typeof ReimbursementIndexLazyRoute
   '/salary': typeof SalaryIndexLazyRoute
   '/trip': typeof TripIndexLazyRoute
@@ -182,18 +238,24 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexLazyRoute
   '/error': typeof ErrorRoute
-  '/dashboard': typeof DashboardLazyRoute
   '/history': typeof HistoryLazyRoute
   '/login': typeof LoginLazyRoute
   '/test': typeof TestLazyRoute
+  '/admin/category': typeof AdminCategoryLazyRoute
+  '/admin/role': typeof AdminRoleLazyRoute
+  '/admin/user': typeof AdminUserLazyRoute
   '/approval/finance': typeof ApprovalFinanceLazyRoute
   '/approval/manager': typeof ApprovalManagerLazyRoute
+  '/dashboard/finance': typeof DashboardFinanceLazyRoute
+  '/dashboard/manager': typeof DashboardManagerLazyRoute
   '/reimbursement/finance-history': typeof ReimbursementFinanceHistoryLazyRoute
   '/reimbursement/manager-history': typeof ReimbursementManagerHistoryLazyRoute
   '/reimbursement/update': typeof ReimbursementUpdateLazyRoute
   '/trip/create': typeof TripCreateLazyRoute
   '/trip/finance': typeof TripFinanceLazyRoute
   '/trip/finance-history': typeof TripFinanceHistoryLazyRoute
+  '/admin/': typeof AdminIndexLazyRoute
+  '/dashboard/': typeof DashboardIndexLazyRoute
   '/reimbursement/': typeof ReimbursementIndexLazyRoute
   '/salary/': typeof SalaryIndexLazyRoute
   '/trip/': typeof TripIndexLazyRoute
@@ -203,18 +265,24 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/error'
-    | '/dashboard'
     | '/history'
     | '/login'
     | '/test'
+    | '/admin/category'
+    | '/admin/role'
+    | '/admin/user'
     | '/approval/finance'
     | '/approval/manager'
+    | '/dashboard/finance'
+    | '/dashboard/manager'
     | '/reimbursement/finance-history'
     | '/reimbursement/manager-history'
     | '/reimbursement/update'
     | '/trip/create'
     | '/trip/finance'
     | '/trip/finance-history'
+    | '/admin'
+    | '/dashboard'
     | '/reimbursement'
     | '/salary'
     | '/trip'
@@ -222,18 +290,24 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/error'
-    | '/dashboard'
     | '/history'
     | '/login'
     | '/test'
+    | '/admin/category'
+    | '/admin/role'
+    | '/admin/user'
     | '/approval/finance'
     | '/approval/manager'
+    | '/dashboard/finance'
+    | '/dashboard/manager'
     | '/reimbursement/finance-history'
     | '/reimbursement/manager-history'
     | '/reimbursement/update'
     | '/trip/create'
     | '/trip/finance'
     | '/trip/finance-history'
+    | '/admin'
+    | '/dashboard'
     | '/reimbursement'
     | '/salary'
     | '/trip'
@@ -241,18 +315,24 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/error'
-    | '/dashboard'
     | '/history'
     | '/login'
     | '/test'
+    | '/admin/category'
+    | '/admin/role'
+    | '/admin/user'
     | '/approval/finance'
     | '/approval/manager'
+    | '/dashboard/finance'
+    | '/dashboard/manager'
     | '/reimbursement/finance-history'
     | '/reimbursement/manager-history'
     | '/reimbursement/update'
     | '/trip/create'
     | '/trip/finance'
     | '/trip/finance-history'
+    | '/admin/'
+    | '/dashboard/'
     | '/reimbursement/'
     | '/salary/'
     | '/trip/'
@@ -261,18 +341,24 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   ErrorRoute: typeof ErrorRoute
-  DashboardLazyRoute: typeof DashboardLazyRoute
   HistoryLazyRoute: typeof HistoryLazyRoute
   LoginLazyRoute: typeof LoginLazyRoute
   TestLazyRoute: typeof TestLazyRoute
+  AdminCategoryLazyRoute: typeof AdminCategoryLazyRoute
+  AdminRoleLazyRoute: typeof AdminRoleLazyRoute
+  AdminUserLazyRoute: typeof AdminUserLazyRoute
   ApprovalFinanceLazyRoute: typeof ApprovalFinanceLazyRoute
   ApprovalManagerLazyRoute: typeof ApprovalManagerLazyRoute
+  DashboardFinanceLazyRoute: typeof DashboardFinanceLazyRoute
+  DashboardManagerLazyRoute: typeof DashboardManagerLazyRoute
   ReimbursementFinanceHistoryLazyRoute: typeof ReimbursementFinanceHistoryLazyRoute
   ReimbursementManagerHistoryLazyRoute: typeof ReimbursementManagerHistoryLazyRoute
   ReimbursementUpdateLazyRoute: typeof ReimbursementUpdateLazyRoute
   TripCreateLazyRoute: typeof TripCreateLazyRoute
   TripFinanceLazyRoute: typeof TripFinanceLazyRoute
   TripFinanceHistoryLazyRoute: typeof TripFinanceHistoryLazyRoute
+  AdminIndexLazyRoute: typeof AdminIndexLazyRoute
+  DashboardIndexLazyRoute: typeof DashboardIndexLazyRoute
   ReimbursementIndexLazyRoute: typeof ReimbursementIndexLazyRoute
   SalaryIndexLazyRoute: typeof SalaryIndexLazyRoute
   TripIndexLazyRoute: typeof TripIndexLazyRoute
@@ -299,13 +385,6 @@ declare module '@tanstack/react-router' {
       path: '/history'
       fullPath: '/history'
       preLoaderRoute: typeof HistoryLazyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/error': {
@@ -341,6 +420,20 @@ declare module '@tanstack/react-router' {
       path: '/reimbursement'
       fullPath: '/reimbursement'
       preLoaderRoute: typeof ReimbursementIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/trip/finance-history': {
@@ -385,6 +478,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReimbursementFinanceHistoryLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/manager': {
+      id: '/dashboard/manager'
+      path: '/dashboard/manager'
+      fullPath: '/dashboard/manager'
+      preLoaderRoute: typeof DashboardManagerLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/finance': {
+      id: '/dashboard/finance'
+      path: '/dashboard/finance'
+      fullPath: '/dashboard/finance'
+      preLoaderRoute: typeof DashboardFinanceLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/approval/manager': {
       id: '/approval/manager'
       path: '/approval/manager'
@@ -399,24 +506,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApprovalFinanceLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/user': {
+      id: '/admin/user'
+      path: '/admin/user'
+      fullPath: '/admin/user'
+      preLoaderRoute: typeof AdminUserLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/role': {
+      id: '/admin/role'
+      path: '/admin/role'
+      fullPath: '/admin/role'
+      preLoaderRoute: typeof AdminRoleLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/category': {
+      id: '/admin/category'
+      path: '/admin/category'
+      fullPath: '/admin/category'
+      preLoaderRoute: typeof AdminCategoryLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   ErrorRoute: ErrorRoute,
-  DashboardLazyRoute: DashboardLazyRoute,
   HistoryLazyRoute: HistoryLazyRoute,
   LoginLazyRoute: LoginLazyRoute,
   TestLazyRoute: TestLazyRoute,
+  AdminCategoryLazyRoute: AdminCategoryLazyRoute,
+  AdminRoleLazyRoute: AdminRoleLazyRoute,
+  AdminUserLazyRoute: AdminUserLazyRoute,
   ApprovalFinanceLazyRoute: ApprovalFinanceLazyRoute,
   ApprovalManagerLazyRoute: ApprovalManagerLazyRoute,
+  DashboardFinanceLazyRoute: DashboardFinanceLazyRoute,
+  DashboardManagerLazyRoute: DashboardManagerLazyRoute,
   ReimbursementFinanceHistoryLazyRoute: ReimbursementFinanceHistoryLazyRoute,
   ReimbursementManagerHistoryLazyRoute: ReimbursementManagerHistoryLazyRoute,
   ReimbursementUpdateLazyRoute: ReimbursementUpdateLazyRoute,
   TripCreateLazyRoute: TripCreateLazyRoute,
   TripFinanceLazyRoute: TripFinanceLazyRoute,
   TripFinanceHistoryLazyRoute: TripFinanceHistoryLazyRoute,
+  AdminIndexLazyRoute: AdminIndexLazyRoute,
+  DashboardIndexLazyRoute: DashboardIndexLazyRoute,
   ReimbursementIndexLazyRoute: ReimbursementIndexLazyRoute,
   SalaryIndexLazyRoute: SalaryIndexLazyRoute,
   TripIndexLazyRoute: TripIndexLazyRoute,
