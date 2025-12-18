@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 
 const ReciptList = ({ value, index, onRemove }) => {
-  const { recipt, amount, dateOfExpense } = value;
+  const { receipt, amount, dateOfExpense } = value;
 
   const formatCurrency = (amount) => 
     new Intl.NumberFormat('id-ID', { 
@@ -16,7 +16,7 @@ const ReciptList = ({ value, index, onRemove }) => {
     <div className="flex items-center justify-between border p-3 rounded-lg mb-2">
       <div className="flex items-center space-x-4">
         <img
-          src={recipt}
+          src={receipt}
           alt="Receipt"
           className="w-16 h-16 object-cover rounded"
         />

@@ -41,7 +41,9 @@ const DashboardFinanceLazyRouteImport = createFileRoute('/dashboard/finance')()
 const ApprovalManagerLazyRouteImport = createFileRoute('/approval/manager')()
 const ApprovalFinanceLazyRouteImport = createFileRoute('/approval/finance')()
 const AdminUserLazyRouteImport = createFileRoute('/admin/user')()
+const AdminUpdateUserLazyRouteImport = createFileRoute('/admin/update-user')()
 const AdminRoleLazyRouteImport = createFileRoute('/admin/role')()
+const AdminCreateUserLazyRouteImport = createFileRoute('/admin/create-user')()
 const AdminCategoryLazyRouteImport = createFileRoute('/admin/category')()
 
 const TestLazyRoute = TestLazyRouteImport.update({
@@ -171,11 +173,25 @@ const AdminUserLazyRoute = AdminUserLazyRouteImport.update({
   path: '/admin/user',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/admin/user.lazy').then((d) => d.Route))
+const AdminUpdateUserLazyRoute = AdminUpdateUserLazyRouteImport.update({
+  id: '/admin/update-user',
+  path: '/admin/update-user',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/admin/update-user.lazy').then((d) => d.Route),
+)
 const AdminRoleLazyRoute = AdminRoleLazyRouteImport.update({
   id: '/admin/role',
   path: '/admin/role',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/admin/role.lazy').then((d) => d.Route))
+const AdminCreateUserLazyRoute = AdminCreateUserLazyRouteImport.update({
+  id: '/admin/create-user',
+  path: '/admin/create-user',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/admin/create-user.lazy').then((d) => d.Route),
+)
 const AdminCategoryLazyRoute = AdminCategoryLazyRouteImport.update({
   id: '/admin/category',
   path: '/admin/category',
@@ -191,7 +207,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginLazyRoute
   '/test': typeof TestLazyRoute
   '/admin/category': typeof AdminCategoryLazyRoute
+  '/admin/create-user': typeof AdminCreateUserLazyRoute
   '/admin/role': typeof AdminRoleLazyRoute
+  '/admin/update-user': typeof AdminUpdateUserLazyRoute
   '/admin/user': typeof AdminUserLazyRoute
   '/approval/finance': typeof ApprovalFinanceLazyRoute
   '/approval/manager': typeof ApprovalManagerLazyRoute
@@ -216,7 +234,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginLazyRoute
   '/test': typeof TestLazyRoute
   '/admin/category': typeof AdminCategoryLazyRoute
+  '/admin/create-user': typeof AdminCreateUserLazyRoute
   '/admin/role': typeof AdminRoleLazyRoute
+  '/admin/update-user': typeof AdminUpdateUserLazyRoute
   '/admin/user': typeof AdminUserLazyRoute
   '/approval/finance': typeof ApprovalFinanceLazyRoute
   '/approval/manager': typeof ApprovalManagerLazyRoute
@@ -242,7 +262,9 @@ export interface FileRoutesById {
   '/login': typeof LoginLazyRoute
   '/test': typeof TestLazyRoute
   '/admin/category': typeof AdminCategoryLazyRoute
+  '/admin/create-user': typeof AdminCreateUserLazyRoute
   '/admin/role': typeof AdminRoleLazyRoute
+  '/admin/update-user': typeof AdminUpdateUserLazyRoute
   '/admin/user': typeof AdminUserLazyRoute
   '/approval/finance': typeof ApprovalFinanceLazyRoute
   '/approval/manager': typeof ApprovalManagerLazyRoute
@@ -269,7 +291,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/test'
     | '/admin/category'
+    | '/admin/create-user'
     | '/admin/role'
+    | '/admin/update-user'
     | '/admin/user'
     | '/approval/finance'
     | '/approval/manager'
@@ -294,7 +318,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/test'
     | '/admin/category'
+    | '/admin/create-user'
     | '/admin/role'
+    | '/admin/update-user'
     | '/admin/user'
     | '/approval/finance'
     | '/approval/manager'
@@ -319,7 +345,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/test'
     | '/admin/category'
+    | '/admin/create-user'
     | '/admin/role'
+    | '/admin/update-user'
     | '/admin/user'
     | '/approval/finance'
     | '/approval/manager'
@@ -345,7 +373,9 @@ export interface RootRouteChildren {
   LoginLazyRoute: typeof LoginLazyRoute
   TestLazyRoute: typeof TestLazyRoute
   AdminCategoryLazyRoute: typeof AdminCategoryLazyRoute
+  AdminCreateUserLazyRoute: typeof AdminCreateUserLazyRoute
   AdminRoleLazyRoute: typeof AdminRoleLazyRoute
+  AdminUpdateUserLazyRoute: typeof AdminUpdateUserLazyRoute
   AdminUserLazyRoute: typeof AdminUserLazyRoute
   ApprovalFinanceLazyRoute: typeof ApprovalFinanceLazyRoute
   ApprovalManagerLazyRoute: typeof ApprovalManagerLazyRoute
@@ -513,11 +543,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUserLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/update-user': {
+      id: '/admin/update-user'
+      path: '/admin/update-user'
+      fullPath: '/admin/update-user'
+      preLoaderRoute: typeof AdminUpdateUserLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/role': {
       id: '/admin/role'
       path: '/admin/role'
       fullPath: '/admin/role'
       preLoaderRoute: typeof AdminRoleLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/create-user': {
+      id: '/admin/create-user'
+      path: '/admin/create-user'
+      fullPath: '/admin/create-user'
+      preLoaderRoute: typeof AdminCreateUserLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/category': {
@@ -537,7 +581,9 @@ const rootRouteChildren: RootRouteChildren = {
   LoginLazyRoute: LoginLazyRoute,
   TestLazyRoute: TestLazyRoute,
   AdminCategoryLazyRoute: AdminCategoryLazyRoute,
+  AdminCreateUserLazyRoute: AdminCreateUserLazyRoute,
   AdminRoleLazyRoute: AdminRoleLazyRoute,
+  AdminUpdateUserLazyRoute: AdminUpdateUserLazyRoute,
   AdminUserLazyRoute: AdminUserLazyRoute,
   ApprovalFinanceLazyRoute: ApprovalFinanceLazyRoute,
   ApprovalManagerLazyRoute: ApprovalManagerLazyRoute,

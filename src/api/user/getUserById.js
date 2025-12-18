@@ -1,11 +1,11 @@
-export default async function getReimbursementById(id, token) {
+export default async function getUserById(token, id) {
   let response;
   try {
-    response = await fetch(`/api/reimbursement/${id}`, {
+    response = await fetch(`/api/user/${id}`, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
     });
   } catch (e) {
@@ -22,6 +22,5 @@ export default async function getReimbursementById(id, token) {
   }
 
   const res = await response.json();
-  console.log(res.data);
   return res.data;
 }
