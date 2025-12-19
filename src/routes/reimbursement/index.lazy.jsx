@@ -88,7 +88,7 @@ export default function RouteComponent() {
         return;
       }
       if (file.size > maxSize) {
-        toast.error('File Error', { description: 'File size must be under 10MB.' });
+        toast.error('File Error', { description: 'File size must be under 1MB.' });
         return;
       }
       setImage(file);
@@ -261,7 +261,7 @@ export default function RouteComponent() {
                       onChange={handleFileChange}
                     />
                     <p className="text-xs text-muted-foreground mt-1">
-                      {image ? `Selected: ${image.name}` : 'PNG, JPG, GIF up to 10MB'}
+                      {image ? `Selected: ${image.name}` : 'PNG, JPG, GIF up to 1MB'}
                     </p>
                   </div>
                 </div>

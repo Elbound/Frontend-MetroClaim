@@ -124,7 +124,7 @@ export default function ManagerSummaryWidget() {
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
           <CardTitle className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider">
-            Finance Approved
+            Trip Finance Approved
           </CardTitle>
           <CheckCircle2 className="h-4 w-4 text-green-500" />
         </CardHeader>
