@@ -114,6 +114,10 @@ export default function SideBarComponent({ mobileMode = false, mobileOpen = fals
                 {!collapsed && <div className="mt-4 mb-2 px-2 text-xs font-semibold text-blue-300 uppercase tracking-wider opacity-80 whitespace-nowrap">Management</div>}
                 {collapsed && <div className="my-2 border-t border-white/10"></div>}
                 
+                <Link to="/dashboard/manager" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
+                  <LayoutDashboard className="w-4 h-4 shrink-0" />
+                  {!collapsed && <span className="truncate">Dashboard</span>}
+                </Link>
                 <Link to="/approval/manager" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
                   <UserCheck className="w-4 h-4 shrink-0" />
                   {!collapsed && <span className="truncate">Manager Approval</span>}
@@ -134,6 +138,10 @@ export default function SideBarComponent({ mobileMode = false, mobileOpen = fals
                  {!collapsed && <div className="mt-4 mb-2 px-2 text-xs font-semibold text-blue-300 uppercase tracking-wider opacity-80 whitespace-nowrap">Finance</div>}
                  {collapsed && <div className="my-2 border-t border-white/10"></div>}
 
+                <Link to="/dashboard/finance" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
+                    <LayoutDashboard className="w-4 h-4 shrink-0" />
+                    {!collapsed && <span className="truncate">Dashboard</span>}
+                </Link>
                 <Link to="/approval/finance" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
                   <UserPlus className="w-4 h-4 shrink-0" />
                   {!collapsed && <span className="truncate">Finance Approval</span>}
