@@ -27,7 +27,7 @@ import { toast } from 'sonner';
 // import getCategory from '@/api/getCategory'; // Removed as not needed
 import { useAuth } from '@/hooks/AuthContext';
 import ReciptList from '@/components/ReciptList';
-import useImageConverter from '@/hooks/useImageConverter';
+import useCloudinaryUpload from '@/hooks/useCloudinaryUpload';
 import putReimbursementUpdate from '@/api/reimbursement/putReimbursementUpdate';
 import getReimbursementById from '@/api/reimbursement/getReimbursementById';
 import { router } from '@/router';
@@ -49,7 +49,7 @@ const formatCurrency = (amount) =>
 function RouteComponent() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { convertFile } = useImageConverter();
+  const { upload, loading: uploadLoading } = useCloudinaryUpload();
 
   // Get search params for ID
   const searchParams = Route.useSearch();
@@ -141,10 +141,13 @@ function RouteComponent() {
       return;
     }
 
-    const convertedImage = await convertFile(image);
+    const imageUrl = await upload(image);
+    console.log(imageUrl);
+
+    if (!imageUrl) return;
 
     const newItem = {
-      receipt: convertedImage,
+      receipt: imageUrl,
       amount: parseFloat(amount),
       dateOfExpense: new Date(itemDate).toISOString(),
     };
@@ -331,9 +334,13 @@ function RouteComponent() {
               <Button
                 type="button"
                 onClick={handleCreateRecipt}
-                disabled={!image || parseFloat(amount) <= 0 || !itemDate}
+                disabled={!image || parseFloat(amount) <= 0 || !itemDate || uploadLoading}
               >
-                <PlusCircle className="w-4 h-4 mr-2" />
+                {uploadLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                )}
                 Add Item
               </Button>
             </div>

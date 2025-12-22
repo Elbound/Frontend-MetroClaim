@@ -40,9 +40,10 @@ export default function ReimbursementDetail({ detailData, onClose, userRole, onA
 
   const handleViewReceipt = (receiptBase64) => {
    
-    const imgSrc = receiptBase64.startsWith('data:image')
-      ? receiptBase64
-      : `data:image/jpeg;base64,${receiptBase64}`;
+    const imgSrc =
+      receiptBase64.startsWith('data:image') || receiptBase64.startsWith('http')
+        ? receiptBase64
+        : `data:image/jpeg;base64,${receiptBase64}`;
 
     setSelectedReceipt(imgSrc);
   };
