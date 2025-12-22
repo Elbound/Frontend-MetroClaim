@@ -6,13 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -22,15 +15,16 @@ import {
 } from '@/components/ui/dialog';
 import { AlertCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { FileText, PlusCircle, LayoutList, Save, Loader2 } from 'lucide-react';
+import { LayoutList, Save, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 // import getCategory from '@/api/getCategory'; // Removed as not needed
 import { useAuth } from '@/hooks/AuthContext';
-import ReciptList from '@/components/ReciptList';
-import useCloudinaryUpload from '@/hooks/useCloudinaryUpload';
 import putReimbursementUpdate from '@/api/reimbursement/putReimbursementUpdate';
 import getReimbursementById from '@/api/reimbursement/getReimbursementById';
 import { router } from '@/router';
+import ExpenseItemInput from '@/components/ExpenseItemInput';
+import { PlusCircle } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 export const Route = createLazyFileRoute('/reimbursement/update')({
   component: RouteComponent,
@@ -49,7 +43,6 @@ const formatCurrency = (amount) =>
 function RouteComponent() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { upload, loading: uploadLoading } = useCloudinaryUpload();
 
   // Get search params for ID
   const searchParams = Route.useSearch();
@@ -57,9 +50,6 @@ function RouteComponent() {
 
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
-  const [image, setImage] = useState(null);
-  const [amount, setAmount] = useState('');
-  const [itemDate, setItemDate] = useState('');
   const [category, setCategory] = useState('');
 
   const [items, setItems] = useState([]);
@@ -83,20 +73,18 @@ function RouteComponent() {
 
         setTitle(detail.title || '');
         setDesc(detail.description || '');
-        setTitle(detail.title || '');
-        setDesc(detail.description || '');
         setCategory(detail.categoryName || 'Uncategorized'); // Use Name instead of ID
 
         if (detail.items && Array.isArray(detail.items)) {
           setItems(
             detail.items.map((i) => ({
+              id: crypto.randomUUID(), // Assign local ID for list management
               receipt: i.receipt,
               amount: i.amount,
               dateOfExpense: i.dateOfExpense,
             }))
           );
         }
-        console.log(detail);
       } catch (error) {
         router.navigate({
           to: '/error',
@@ -113,64 +101,50 @@ function RouteComponent() {
     fetchData();
   }, [user?.tk, reimbursementId]);
 
-  // --- Handlers (Reuse from Create) ---
+  // --- Dynamic List Handlers ---
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const allowedTypes = ['image/png', 'image/jpeg', 'image/gif'];
-      const maxSize = 1 * 1024 * 1024;
-      if (!allowedTypes.includes(file.type)) {
-        toast.error('File Error', { description: 'Please select a PNG, JPG, or GIF file.' });
-        return;
-      }
-      if (file.size > maxSize) {
-        toast.error('File Error', { description: 'File size must be under 1MB.' });
-        return;
-      }
-      setImage(file);
-    }
+  const handleAddItem = () => {
+    setItems([
+      ...items,
+      { id: crypto.randomUUID(), receipt: '', amount: '', dateOfExpense: '' }
+    ]);
   };
 
-  const handleCreateRecipt = async (e) => {
+  const handleRemoveItem = (index) => {
+    if (items.length === 1) {
+      toast.error('Cannot remove the last item.');
+      return;
+    }
+    const newItems = items.filter((_, i) => i !== index);
+    setItems(newItems);
+  };
+
+  const handleUpdateItem = (index, field, value) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setItems(newItems);
+  };
+
+  // --- Submission ---
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!image || parseFloat(amount) <= 0 || !amount) {
-      toast.warning('Missing Data', {
-        description: 'Please select an image and enter a valid amount.',
+
+    // Validation
+    if (!title.trim()) {
+      toast.error('Update Failed', {
+        description: 'Please fill in the Title.',
       });
       return;
     }
 
-    const imageUrl = await upload(image);
-    console.log(imageUrl);
+    const invalidItems = items.filter(
+      (item) => !item.receipt || !item.amount || item.amount <= 0 || !item.dateOfExpense
+    );
 
-    if (!imageUrl) return;
-
-    const newItem = {
-      receipt: imageUrl,
-      amount: parseFloat(amount),
-      dateOfExpense: new Date(itemDate).toISOString(),
-    };
-
-    setItems([...items, newItem]);
-    setImage(null);
-    setAmount('');
-    setItemDate('');
-    toast.success('Item Added', {
-      description: `Added ${formatCurrency(newItem.amount)} to the list.`,
-    });
-  };
-
-  const handleRemoveItem = (index) => {
-    setItems(items.filter((_, i) => i !== index));
-    toast.info('Item Removed');
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!title.trim() || items.length === 0) {
-      toast.error('Update Failed', {
-        description: 'Please fill in the Title and ensure at least one item remains.',
+    if (invalidItems.length > 0) {
+      toast.error('Incomplete Items', {
+        description: 'Please ensure all items have a receipt, valid amount, and date.',
       });
       return;
     }
@@ -179,21 +153,24 @@ function RouteComponent() {
       title: title,
       description: desc,
       items: items.map((i) => ({
-        amount: i.amount,
+        amount: parseFloat(i.amount),
         dateOfExpense: i.dateOfExpense,
         receipt: i.receipt,
       })),
     };
+    
+    const totalammount = items.reduce((total, i) => total + (parseFloat(i.amount) || 0), 0);
 
     try {
       setIsSubmitting(true);
       await putReimbursementUpdate(reimbursementId, payload, user.tk);
 
-      toast.success('Reimbursement Updated!', {
-        description: 'Your request has been successfully updated.',
+      // Navigate to success page
+      router.navigate({ 
+        to: '/reimbursement/success',
+        search: { amount: totalammount } 
       });
 
-      navigate({ to: '/history' });
     } catch (error) {
       console.error(error);
 
@@ -201,19 +178,22 @@ function RouteComponent() {
         setErrorDialogMsg(error.message || 'The selected dates overlap with an existing trip.');
         setErrorDialogOpen(true);
       } else {
-        toast.error(error.message || 'Failed to create trip');
+        toast.error(error.message || 'Failed to update reimbursement');
       }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const totalClaimAmount = items.reduce((total, i) => total + i.amount, 0);
+  const totalClaimAmount = items.reduce((total, i) => total + (parseFloat(i.amount) || 0), 0);
 
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <p className="text-muted-foreground">Loading details...</p>
+        <div className="flex flex-col items-center gap-2 text-gray-400">
+           <Loader2 className="h-8 w-8 animate-spin" />
+           <p className="text-sm">Loading details...</p>
+        </div>
       </div>
     );
   }
@@ -274,115 +254,46 @@ function RouteComponent() {
 
         <Separator />
 
-        {/* Add Receipt Item Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center">
-              <PlusCircle className="w-5 h-5 mr-2 text-primary" /> Add New Expense
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="file-upload-input">Receipt Photo</Label>
-                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 p-6 bg-gray-50">
-                  <FileText className="w-8 h-8 text-muted-foreground mb-2" />
-                  <Label
-                    htmlFor="file-upload"
-                    className="cursor-pointer text-sm font-semibold text-primary hover:text-primary/80"
-                  >
-                    Click to upload
-                  </Label>
-                  <Input
-                    id="file-upload"
-                    type="file"
-                    className="sr-only"
-                    onChange={handleFileChange}
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {image ? `Selected: ${image.name}` : 'PNG, JPG, GIF up to 1MB'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Amount</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Current Amount: {formatCurrency(amount)}
-                  </p>
-                </div>
-                <div className="pt-4">
-                  <Label htmlFor="date">Expense Date</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={itemDate}
-                    onChange={(e) => setItemDate(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
+        {/* Dynamic Item List */}
+        <div className="space-y-4">
+           <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold flex items-center text-gray-800">
+                 <LayoutList className="w-5 h-5 mr-2" /> Expense Items
+              </h3>
+              <span className="font-bold text-lg text-primary">
+                Total: {formatCurrency(totalClaimAmount)}
+              </span>
+           </div>
 
-            <div className="flex justify-end pt-2">
-              <Button
-                type="button"
-                onClick={handleCreateRecipt}
-                disabled={!image || parseFloat(amount) <= 0 || !itemDate || uploadLoading}
-              >
-                {uploadLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                )}
-                Add Item
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+           {items.map((item, index) => (
+             <ExpenseItemInput
+               key={item.id}
+               item={item}
+               index={index}
+               onUpdate={handleUpdateItem}
+               onRemove={handleRemoveItem}
+             />
+           ))}
+
+           <Button
+             type="button"
+             variant="outline"
+             className="w-full border-dashed border-2 py-6 text-muted-foreground hover:text-primary hover:border-primary"
+             onClick={handleAddItem}
+           >
+             <PlusCircle className="w-5 h-5 mr-2" />
+             Add Another Item
+           </Button>
+        </div>
 
         <Separator />
 
-        {/* Item List */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-xl flex items-center">
-              <LayoutList className="w-5 h-5 mr-2 text-primary" /> Current Items ({items.length})
-            </CardTitle>
-            <span className="font-bold text-xl text-primary">
-              Total: {formatCurrency(totalClaimAmount)}
-            </span>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {items.length === 0 ? (
-              <div className="text-center py-4 text-muted-foreground">
-                <p>No receipt items added yet.</p>
-              </div>
-            ) : (
-              items.map((item, index) => (
-                <ReciptList
-                  key={index} // Using index as key since items might not have unique IDs if new
-                  value={item}
-                  index={index}
-                  onRemove={handleRemoveItem}
-                />
-              ))
-            )}
-          </CardContent>
-        </Card>
-
         {/* Action Buttons */}
-        <div className="flex justify-between pt-4">
+        <div className="flex justify-end pt-4 gap-4">
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate({ to: '/history' })}
+            onClick={() => navigate({ to: '/dashboard' })}
             disabled={isSubmitting}
           >
             Cancel
