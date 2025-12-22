@@ -37,7 +37,7 @@ export default function ManagerSummaryWidget() {
           getTripManager(user.tk),
         ]);
         const financeApproved =
-          tripData?.filter((t) => t.status === 'Finance Approved')?.length || 0;
+          tripData?.filter((t) => t.status === 'FinanceApproved')?.length || 0;
         const ongoing = tripData?.filter((t) => t.status === 'Ongoing')?.length || 0;
 
         setManagerStats({
@@ -56,7 +56,7 @@ export default function ManagerSummaryWidget() {
   }, [user?.tk]);
 
   const reimbursementClick = () => router.navigate({ to: '/approval/manager' });
-  const tripClick = () => router.navigate({ to: '/trip/' });
+  const tripClick = () => router.navigate({ to: '/trip' });
 
   if (loading) {
     return (
