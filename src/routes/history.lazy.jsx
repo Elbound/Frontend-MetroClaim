@@ -1,6 +1,16 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useState, useMemo, useEffect } from 'react';
-import { FileClock, Loader2 } from 'lucide-react';
+import {
+  ArrowBigLeft,
+  ArrowBigRight,
+  ArrowLeft,
+  ArrowLeftIcon,
+  ArrowLeftSquare,
+  ArrowLeftSquareIcon,
+  ArrowRight,
+  FileClock,
+  Loader2,
+} from 'lucide-react';
 
 import {
   Sheet,
@@ -17,6 +27,14 @@ import getReimbursementMe from '@/api/reimbursement/getReimbursementMe';
 import getReimbursementById from '@/api/reimbursement/getReimbursementById';
 import { useAuth } from '@/hooks/AuthContext';
 import { router } from '@/router';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import getMyReimbursementPaged from '@/api/paginated/getMyReimbursementPaged';
 
 export const Route = createLazyFileRoute('/history')({
   component: RouteComponent,
@@ -30,6 +48,9 @@ function RouteComponent() {
   const [selectedId, setSelectedId] = useState(null);
   const [data, setData] = useState(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+
   const [detailData, setDetailData] = useState(null);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
 
@@ -38,8 +59,9 @@ function RouteComponent() {
       if (!user || !user.tk) return;
 
       try {
-        const response = await getReimbursementMe(user.tk);
-        setData(response || []);
+        const { data, pages } = await getMyReimbursementPaged(currentPage, user.tk);
+        setData(data || []);
+        setTotalPage(pages || 1);
       } catch (error) {
         router.navigate({
           to: '/error',
@@ -53,7 +75,7 @@ function RouteComponent() {
     };
 
     fetchRequests();
-  }, [user?.tk, router]); 
+  }, [user?.tk, currentPage, router]);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -80,11 +102,12 @@ function RouteComponent() {
 
   const filteredRequests = useMemo(() => {
     return allRequests.filter((request) => {
-      const matchesSearch = request.title?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
-      
+      const matchesSearch =
+        request.title?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+
       const latestAction = getLatestAction(request);
       const matchesStatus = statusFilter === 'all' || latestAction === statusFilter;
-      
+
       return matchesSearch && matchesStatus;
     });
   }, [searchTerm, statusFilter, allRequests]);
@@ -98,16 +121,22 @@ function RouteComponent() {
     setDetailData(null);
   };
 
+  const handlePageChange = (change) => {
+    const nextPage = currentPage + change;
+    if (nextPage <= 0) return;
+    if (totalPage && nextPage > totalPage) return;
+    setCurrentPage(nextPage);
+  };
+
   const isFetching = data === null;
 
   return (
     <div className="bg-gray-50 min-h-full">
-
-      <ReimbursementFilter 
-        searchTerm={searchTerm} 
-        setSearchTerm={setSearchTerm} 
-        statusFilter={statusFilter} 
-        setStatusFilter={setStatusFilter} 
+      <ReimbursementFilter
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
       />
 
       {/* Content */}
@@ -116,17 +145,70 @@ function RouteComponent() {
         {isFetching || filteredRequests.length === 0 ? (
           <div className="w-full bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center py-16 text-center text-muted-foreground transition-all">
             <FileClock className="h-12 w-12 mb-4 text-gray-300" />
-            <p>
-              {isFetching
-                ? 'Loading history...'
-                : 'No requests matched your search filters.'}
-            </p>
+            <p>{isFetching ? 'Loading history...' : 'No requests matched your search filters.'}</p>
           </div>
         ) : (
           <ReimbursementList items={filteredRequests} onRowClick={handleRowClick} />
         )}
       </div>
 
+      {/* <div className="flex flex-row mt-3 items-center justify-center">
+        <button
+        onClick={handlePageChange(-1)}
+        disabled={currentPage === 1}
+        className="p-2 rounded-md hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      >
+        <ArrowBigLeft className="w-6 h-6" />
+      </button>
+
+      <div className="flex items-center gap-2 font-medium text-sm">
+        <span className="flex items-center justify-center w-8 h-8 rounded-md bg-primary text-primary-foreground">
+          {currentPage}
+        </span>
+        <span className="text-muted-foreground">of</span>
+        <span>{totalPage || 1}</span>
+      </div>
+
+      <button
+        onClick={handlePageChange(1)}
+        disabled={currentPage === totalPage}
+        className="p-2 rounded-md hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      >
+        <ArrowBigRight className="w-6 h-6" />
+      </button>
+      </div> */}
+
+      <Pagination className="mt-6">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handlePageChange(-1);
+              }}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+
+          <div className="text-sm font-medium px-4 select-none">
+            Page {currentPage} of {totalPage || 1}
+          </div>
+
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handlePageChange(1);
+              }}
+              className={
+                currentPage === totalPage ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+              }
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
       {/* Detail Sheet */}
       <Sheet open={!!selectedId} onOpenChange={(open) => !open && closeDetail()}>
         <SheetContent className="sm:max-w-xl w-full flex flex-col h-full">
