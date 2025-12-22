@@ -24,6 +24,7 @@ import { Users, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { router } from '@/router';
+import StatusBadge from '@/components/ui/StatusBadge';
 
 export const Route = createLazyFileRoute('/trip/finance-history')({
   component: RouteComponent,
@@ -114,12 +115,8 @@ function RouteComponent() {
                       }).format(trip.cost)}
                     </TableCell>
                     <TableCell className="py-4">
-                      <Badge
-                        variant="secondary"
-                        className="bg-gray-100 text-gray-600 hover:bg-gray-200 font-normal rounded-full px-3"
-                      >
-                        {trip.status}
-                      </Badge>
+                       <StatusBadge status={trip.status}/>
+                      
                     </TableCell>
                   </TableRow>
                 ))

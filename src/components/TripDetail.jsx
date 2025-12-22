@@ -20,6 +20,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog';
+import StatusBadge from './ui/StatusBadge';
 
 export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
   const { user, isFinance } = useAuth();
@@ -117,9 +118,10 @@ export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
       <div className="flex-1 space-y-6 pr-6 pb-6 pt-2 overflow-y-auto">
         {/* Header Section */}
         <div className="space-y-1">
-          <Badge variant="outline" className={`mb-2 ${getStatusColor(trip.status)}`}>
+          <StatusBadge status={trip.status}/>
+          {/* <Badge variant="outline" className={`mb-2 ${getStatusColor(trip.status)}`}>
             {trip.status}
-          </Badge>
+          </Badge> */}
           <h2 className="text-2xl font-bold text-gray-900">{trip.title || 'Untitled Trip'}</h2>
           <p className="text-sm text-gray-500 flex items-center gap-2">
             Created on {format(new Date(trip.createdAt), 'dd MMM yyyy, HH:mm')}
@@ -201,9 +203,10 @@ export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
                   <tr key={p.userId}>
                     <td className="p-3 font-medium text-gray-900">{p.fullName}</td>
                     <td className="p-3">
-                      <Badge variant="secondary" className="text-xs font-normal">
+                      <StatusBadge status={p.reimbursementStatus}/>
+                      {/* <Badge variant="secondary" className="text-xs font-normal">
                         {p.reimbursementStatus}
-                      </Badge>
+                      </Badge> */}
                     </td>
                     <td className="p-3 text-right text-gray-700">
                       {new Intl.NumberFormat('id-ID', {

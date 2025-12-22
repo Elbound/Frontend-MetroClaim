@@ -25,6 +25,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { router } from '@/router';
 import getReimbursementManagerHistory from '@/api/reimbursement/getReimbursementManagerHistory';
+import StatusBadge from '@/components/ui/StatusBadge';
 
 export const Route = createLazyFileRoute('/reimbursement/manager-history')({
   component: RouteComponent,
@@ -152,12 +153,8 @@ function RouteComponent() {
                       }).format(item.totalAmount)}
                     </TableCell>
                     <TableCell className="py-4">
-                      <Badge
-                        variant="secondary"
-                        className="bg-gray-100 text-gray-600 hover:bg-gray-200 font-normal rounded-full px-3"
-                      >
-                        {item.status}
-                      </Badge>
+                      <StatusBadge status={item.status}/>
+              
                     </TableCell>
                     <TableCell className="py-4 text-gray-600 text-sm">
                       {format(new Date(item.createdAt), 'dd MMM yyyy, HH:mm')}

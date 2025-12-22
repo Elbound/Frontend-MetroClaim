@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from '@tanstack/react-router';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/AuthContext';
+import StatusBadge from './ui/StatusBadge';
 
 //  badge config
 const getStatusVariant = (status) => {
@@ -68,7 +69,8 @@ export default function ReimbursementDetail({ detailData, onClose, userRole, onA
             <div>
               <label className="text-xs font-medium text-muted-foreground">Status</label>
               <div className="mt-1">
-                <Badge variant={getStatusVariant(detailData.status)}>{detailData.status}</Badge>
+                <StatusBadge status={detailData.status}/>
+                {/* <Badge variant={getStatusVariant(detailData.status)}>{detailData.status}</Badge> */}
               </div>
             </div>
             <div>
@@ -96,6 +98,21 @@ export default function ReimbursementDetail({ detailData, onClose, userRole, onA
             if (userRole === 'Manager') {
               return (
                 <div className="flex justify-end space-x-2 pt-2">
+                  
+                  <Button variant="destructive" onClick={() => onAction && onAction(1)}>
+                    Reject
+                  </Button>
+
+                  {!isFinance && (
+                    <Button
+                      variant="default"
+                      className="bg-yellow-400 hover:bg-yellow-50"
+                      onClick={() => onAction && onAction(2)}
+                    >
+                      Revision
+                    </Button>
+                  )}
+
                   <Button
                     variant="default"
                     className="bg-green-600 hover:bg-green-700"
@@ -104,19 +121,6 @@ export default function ReimbursementDetail({ detailData, onClose, userRole, onA
                     Approve
                   </Button>
 
-                  {!isFinance && (
-                    <Button
-                      variant="outline"
-                      className="text-yellow-600 border-yellow-200 hover:bg-yellow-50"
-                      onClick={() => onAction && onAction(2)}
-                    >
-                      Revision
-                    </Button>
-                  )}
-
-                  <Button variant="destructive" onClick={() => onAction && onAction(1)}>
-                    Reject
-                  </Button>
                 </div>
               );
             }

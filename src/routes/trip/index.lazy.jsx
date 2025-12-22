@@ -25,6 +25,7 @@ import { format } from 'date-fns';
 import { useAuth } from '@/hooks/AuthContext';
 import getTripManager from '@/api/trip/getTripManager';
 import { router } from '@/router';
+import StatusBadge from '@/components/ui/StatusBadge';
 
 export const Route = createLazyFileRoute('/trip/')({
   component: RouteComponent,
@@ -134,12 +135,13 @@ function RouteComponent() {
                       </div>
                     </TableCell>
                     <TableCell className="py-4">
-                      <Badge
+                      <StatusBadge status={trip.status}/>
+                      {/* <Badge
                         variant="secondary"
                         className="bg-gray-100 text-gray-600 hover:bg-gray-200 font-normal rounded-full px-3"
                       >
                         {trip.status}
-                      </Badge>
+                      </Badge> */}
                     </TableCell>
                   </TableRow>
                 ))
