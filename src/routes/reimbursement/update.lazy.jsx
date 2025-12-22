@@ -90,7 +90,7 @@ function RouteComponent() {
         if (detail.items && Array.isArray(detail.items)) {
           setItems(
             detail.items.map((i) => ({
-              recipt: i.receipt,
+              receipt: i.receipt,
               amount: i.amount,
               dateOfExpense: i.dateOfExpense,
             }))
@@ -144,7 +144,7 @@ function RouteComponent() {
     const convertedImage = await convertFile(image);
 
     const newItem = {
-      recipt: convertedImage,
+      receipt: convertedImage,
       amount: parseFloat(amount),
       dateOfExpense: new Date(itemDate).toISOString(),
     };
@@ -178,7 +178,7 @@ function RouteComponent() {
       items: items.map((i) => ({
         amount: i.amount,
         dateOfExpense: i.dateOfExpense,
-        receipt: i.recipt,
+        receipt: i.receipt,
       })),
     };
 

@@ -97,8 +97,8 @@ export default function LimitChartWidget() {
         <CardDescription>Distribution by category</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[250px]">
-          <PieChart>
+        <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[300px]">
+          <PieChart >
             <ChartTooltip
               cursor={false}
               content={
@@ -108,7 +108,7 @@ export default function LimitChartWidget() {
                 />
               }
             />
-            <Pie
+            <Pie 
               data={chartData}
               dataKey="used"
               nameKey="category"
