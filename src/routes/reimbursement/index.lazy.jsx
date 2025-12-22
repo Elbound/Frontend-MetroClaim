@@ -30,7 +30,7 @@ import getCategory from '@/api/getCategory';
 import { Description } from '@radix-ui/react-dialog';
 import { useAuth } from '@/hooks/AuthContext';
 import ReciptList from '@/components/ReciptList';
-import useImageConverter from '@/hooks/useImageConverter';
+import useCloudinaryUpload from '@/hooks/useCloudinaryUpload';
 import postReimbursementCreate from '@/api/reimbursement/postReimbursementCreate';
 import { router } from '@/router';
 
@@ -61,7 +61,7 @@ export default function RouteComponent() {
   const selectedCategoryName = search.categoryName || '';
 
   const { user } = useAuth();
-  const { convertFile } = useImageConverter();
+  const { upload, loading: uploadLoading } = useCloudinaryUpload();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -105,11 +105,13 @@ export default function RouteComponent() {
       return;
     }
 
-    const convertedImage = await convertFile(image);
-    console.log(convertedImage);
+    const imageUrl = await upload(image);
+    console.log(imageUrl);
+
+    if (!imageUrl) return;
 
     const newItem = {
-      receipt: convertedImage,
+      receipt: imageUrl,
       amount: parseFloat(amount),
       dateOfExpense: new Date(itemDate).toISOString(),
     };
@@ -299,9 +301,13 @@ export default function RouteComponent() {
                 <Button
                   type="button"
                   onClick={handleCreateRecipt}
-                  disabled={!image || parseFloat(amount) <= 0}
+                  disabled={!image || parseFloat(amount) <= 0 || uploadLoading}
                 >
-                  <PlusCircle className="w-4 h-4 mr-2" />
+                  {uploadLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <PlusCircle className="w-4 h-4 mr-2" />
+                  )}
                   Add Item
                 </Button>
               </div>
@@ -329,7 +335,7 @@ export default function RouteComponent() {
                 items.map((item, index) => (
                   // CRUCIAL: Pass required props to ReciptList
                   <ReciptList
-                    key={item.recipt}
+                    key={item.receipt || index}
                     value={item}
                     index={index}
                     onRemove={handleRemoveItem}
