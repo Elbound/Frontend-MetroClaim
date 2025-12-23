@@ -1,13 +1,6 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useState, useMemo, useEffect } from 'react';
 import {
-  ArrowBigLeft,
-  ArrowBigRight,
-  ArrowLeft,
-  ArrowLeftIcon,
-  ArrowLeftSquare,
-  ArrowLeftSquareIcon,
-  ArrowRight,
   FileClock,
   Loader2,
 } from 'lucide-react';
@@ -35,6 +28,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import getMyReimbursementPaged from '@/api/paginated/getMyReimbursementPaged';
+import getPagedData from '@/api/paginated/getPagedData';
 
 export const Route = createLazyFileRoute('/history')({
   component: RouteComponent,
@@ -59,7 +53,7 @@ function RouteComponent() {
       if (!user || !user.tk) return;
 
       try {
-        const { data, pages } = await getMyReimbursementPaged(currentPage, user.tk);
+        const { data, pages } = await getPagedData(currentPage, user.tk,"reimbursement/me");
         setData(data || []);
         setTotalPage(pages || 1);
       } catch (error) {
@@ -209,6 +203,7 @@ function RouteComponent() {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+
       {/* Detail Sheet */}
       <Sheet open={!!selectedId} onOpenChange={(open) => !open && closeDetail()}>
         <SheetContent className="sm:max-w-xl w-full flex flex-col h-full">

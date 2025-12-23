@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import {
   Sheet,
   SheetContent,
-  SheetHeader,  
+  SheetHeader,
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet';
@@ -26,6 +26,14 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { router } from '@/router';
 import StatusBadge from '@/components/ui/StatusBadge';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import getPagedData from '@/api/paginated/getPagedData';
 
 export const Route = createLazyFileRoute('/reimbursement/finance-history')({
   component: RouteComponent,
@@ -41,12 +49,20 @@ function RouteComponent() {
   const [detailData, setDetailData] = useState(null);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+
   const fetchHistory = async () => {
     if (!user?.tk) return;
     try {
       setIsLoading(true);
-      const data = await getReimbursementFinanceHistory(user.tk);
+      const { data, pages } = await getPagedData(
+        currentPage,
+        user.tk,
+        'reimbursement/finance/history'
+      );
       setReimbursements(data);
+      setTotalPage(pages || 1);
     } catch (error) {
       toast.error('Error', { description: 'Failed to load history list.' });
       router.navigate({
@@ -64,7 +80,7 @@ function RouteComponent() {
 
   useEffect(() => {
     fetchHistory();
-  }, [user?.tk]);
+  }, [user?.tk, currentPage]);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -97,6 +113,13 @@ function RouteComponent() {
   const closeDetail = () => {
     setSelectedId(null);
     setDetailData(null);
+  };
+
+  const handlePageChange = (change) => {
+    const nextPage = currentPage + change;
+    if (nextPage <= 0) return;
+    if (totalPage && nextPage > totalPage) return;
+    setCurrentPage(nextPage);
   };
 
   return (
@@ -153,7 +176,7 @@ function RouteComponent() {
                       }).format(item.totalAmount)}
                     </TableCell>
                     <TableCell className="py-4">
-                       <StatusBadge status={item.status}/>
+                      <StatusBadge status={item.status} />
                     </TableCell>
                     <TableCell className="py-4 text-gray-600 text-sm">
                       {format(new Date(item.createdAt), 'dd MMM yyyy, HH:mm')}
@@ -172,6 +195,38 @@ function RouteComponent() {
           </Table>
         </CardContent>
       </Card>
+
+      <Pagination className="mt-6">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handlePageChange(-1);
+              }}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+
+          <div className="text-sm font-medium px-4 select-none">
+            Page {currentPage} of {totalPage || 1}
+          </div>
+
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handlePageChange(1);
+              }}
+              className={
+                currentPage === totalPage ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+              }
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
 
       <Sheet open={!!selectedId} onOpenChange={(open) => !open && closeDetail()}>
         <SheetContent className="sm:max-w-xl w-full flex flex-col h-full">
