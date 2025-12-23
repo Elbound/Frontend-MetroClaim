@@ -17,6 +17,7 @@ const TestLazyRouteImport = createFileRoute('/test')()
 const LoginLazyRouteImport = createFileRoute('/login')()
 const HistoryLazyRouteImport = createFileRoute('/history')()
 const IndexLazyRouteImport = createFileRoute('/')()
+const UserIndexLazyRouteImport = createFileRoute('/user/')()
 const TripIndexLazyRouteImport = createFileRoute('/trip/')()
 const SalaryIndexLazyRouteImport = createFileRoute('/salary/')()
 const ReimbursementIndexLazyRouteImport = createFileRoute('/reimbursement/')()
@@ -75,6 +76,11 @@ const IndexLazyRoute = IndexLazyRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+const UserIndexLazyRoute = UserIndexLazyRouteImport.update({
+  id: '/user/',
+  path: '/user/',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/user/index.lazy').then((d) => d.Route))
 const TripIndexLazyRoute = TripIndexLazyRouteImport.update({
   id: '/trip/',
   path: '/trip/',
@@ -245,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/reimbursement': typeof ReimbursementIndexLazyRoute
   '/salary': typeof SalaryIndexLazyRoute
   '/trip': typeof TripIndexLazyRoute
+  '/user': typeof UserIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
@@ -274,6 +281,7 @@ export interface FileRoutesByTo {
   '/reimbursement': typeof ReimbursementIndexLazyRoute
   '/salary': typeof SalaryIndexLazyRoute
   '/trip': typeof TripIndexLazyRoute
+  '/user': typeof UserIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -304,6 +312,7 @@ export interface FileRoutesById {
   '/reimbursement/': typeof ReimbursementIndexLazyRoute
   '/salary/': typeof SalaryIndexLazyRoute
   '/trip/': typeof TripIndexLazyRoute
+  '/user/': typeof UserIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -335,6 +344,7 @@ export interface FileRouteTypes {
     | '/reimbursement'
     | '/salary'
     | '/trip'
+    | '/user'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -364,6 +374,7 @@ export interface FileRouteTypes {
     | '/reimbursement'
     | '/salary'
     | '/trip'
+    | '/user'
   id:
     | '__root__'
     | '/'
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/reimbursement/'
     | '/salary/'
     | '/trip/'
+    | '/user/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -423,6 +435,7 @@ export interface RootRouteChildren {
   ReimbursementIndexLazyRoute: typeof ReimbursementIndexLazyRoute
   SalaryIndexLazyRoute: typeof SalaryIndexLazyRoute
   TripIndexLazyRoute: typeof TripIndexLazyRoute
+  UserIndexLazyRoute: typeof UserIndexLazyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -460,6 +473,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/user/': {
+      id: '/user/'
+      path: '/user'
+      fullPath: '/user'
+      preLoaderRoute: typeof UserIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/trip/': {
@@ -647,6 +667,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReimbursementIndexLazyRoute: ReimbursementIndexLazyRoute,
   SalaryIndexLazyRoute: SalaryIndexLazyRoute,
   TripIndexLazyRoute: TripIndexLazyRoute,
+  UserIndexLazyRoute: UserIndexLazyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
