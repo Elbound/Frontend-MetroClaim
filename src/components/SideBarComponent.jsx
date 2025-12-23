@@ -87,17 +87,19 @@ export default function SideBarComponent({ mobileMode = false, mobileOpen = fals
           </div>
 
           {/* User Profile Snippet */}
-          <div className={`flex items-center gap-3 p-3 mb-6 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm shrink-0 ${collapsed ? 'justify-center' : ''}`}>
+          <Link to="/user" className={`flex items-center gap-3 p-3 mb-6 rounded-lg bg-white/5 border border-white/10 backdrop-blur-sm shrink-0 hover:bg-white/10 transition-colors cursor-pointer ${collapsed ? 'justify-center' : ''}`} onClick={handleLinkClick}>
             <div className="flex items-center justify-center w-8 h-8 bg-white/20 rounded-full text-white font-bold text-sm shrink-0">
                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
             </div>
             {!collapsed && (
               <div className="flex flex-col overflow-hidden transition-all duration-300">
                 <span className="font-semibold truncate text-sm" title={user?.name}>{user?.name || 'Guest User'}</span>
-                <span className="text-xs text-blue-200 capitalize">{user?.role || 'No Role'}</span>
+                <span className="text-xs text-blue-200 capitalize">
+                    {Array.isArray(user?.role) ? user.role.join(' ') : (user?.role || 'No Role')}
+                </span>
               </div>
             )}
-          </div>
+          </Link>
 
           <div className="flex flex-col flex-1">
             <Link to="/dashboard" className={linkClass} activeProps={{ className: activeClass }} onClick={handleLinkClick}>
