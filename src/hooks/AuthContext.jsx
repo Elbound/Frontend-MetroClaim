@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from 'react';
-import { useRouter } from '@tanstack/react-router';
+import { redirect, useRouter } from '@tanstack/react-router';
 import { jwtDecode } from 'jwt-decode';
+import { queryClient } from '@/queryClient';
 
 const AuthContext = createContext(null);
 
@@ -34,6 +35,7 @@ export function AuthProvider({ children }) {
   };
 
   const [user, setUser] = useState(getInitialUser);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const login = (token) => {
     const userTK = decodeAndStructureUser(token);
@@ -52,12 +54,21 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    setIsLoggingOut(true);
+
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
 
     setUser(null);
-    router.navigate({ to: '/login' });
+
+    queryClient.clear();
+
+    // await router.invalidate();
+    console.log('logged out');
+    // router.navigate({ to: '/login' });
+    window.location.href = '/login';
+    // throw redirect({ to: '/login' });
   };
 
   const isLoggedIn = !!user;
@@ -68,6 +79,7 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     isLoggedIn,
+    isLoggingOut,
     isManager,
     isFinance,
     isAdmin,

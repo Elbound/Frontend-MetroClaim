@@ -2,6 +2,7 @@ import ManagerRevisionTracker from '@/components/dashboard/manager/ManagerRevisi
 import ManagerSummaryWidget from '@/components/dashboard/manager/ManagerSummaryWidget';
 import TripCalendarWidget from '@/components/dashboard/manager/TripCalendarWidget';
 import { useAuth } from '@/hooks/AuthContext';
+import { router } from '@/router';
 import { createLazyFileRoute } from '@tanstack/react-router'
 
 export const Route = createLazyFileRoute('/dashboard/manager')({

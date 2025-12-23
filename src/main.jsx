@@ -6,12 +6,25 @@ import { createRoot } from 'react-dom/client';
 import { queryClient } from './queryClient';
 import { router } from './router';
 import './index.css';
+import { AuthProvider, useAuth } from './hooks/AuthContext';
+
+const AppRouter = ()=>{
+  const auth = useAuth()
+  return(
+    <RouterProvider
+      router = {router}
+      context = {{auth}}
+    />
+  )
+}
 
 const RootSetup = () => {
   return (
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <AuthProvider>
+          <AppRouter/>
+        </AuthProvider>
       </QueryClientProvider>
     </StrictMode>
   );
