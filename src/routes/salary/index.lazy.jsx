@@ -3,7 +3,14 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/AuthContext';
 import getUsers from '@/api/user/getUsers';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, DollarSign, Users, CreditCard, Banknote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,6 +27,14 @@ import {
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import postProcessSalary from '@/api/finance/postProcessSalary';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import getPagedData from '@/api/paginated/getPagedData';
 
 export const Route = createLazyFileRoute('/salary/')({
   component: SalaryPage,
@@ -37,12 +52,16 @@ function SalaryPage() {
   const [commitText, setCommitText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+
   const fetchUsers = async () => {
     if (!user?.tk) return;
     setLoading(true);
     try {
-      const data = await getUsers(user.tk);
+      const { data, pages } = await getPagedData(currentPage, user.tk, 'user/on');
       setUsers(data);
+      setTotalPage(pages);
     } catch (err) {
       setError(err.message || 'Failed to fetch user data');
     } finally {
@@ -52,7 +71,7 @@ function SalaryPage() {
 
   useEffect(() => {
     fetchUsers();
-  }, [user?.tk]);
+  }, [user?.tk, currentPage]);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('id-ID', {
@@ -87,22 +106,31 @@ function SalaryPage() {
     setCommitText('');
   };
 
+  const handlePageChange = (change) => {
+    const nextPage = currentPage + change;
+    if (nextPage <= 0) return;
+    if (totalPage && nextPage > totalPage) return;
+    setCurrentPage(nextPage);
+  };
+
   return (
     <div className="w-full p-6 min-h-screen bg-gray-50/50">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">Salary Management</h1>
-          <p className="text-gray-500 mt-1">Overview of employee salaries and reimbursement status.</p>
+          <p className="text-gray-500 mt-1">
+            Overview of employee salaries and reimbursement status.
+          </p>
         </div>
-        <Button 
-            className="bg-green-600 hover:bg-green-700 text-white shadow-sm"
-            onClick={() => {
-                resetDialog();
-                setSalaryDialogOpen(true);
-            }}
+        <Button
+          className="bg-green-600 hover:bg-green-700 text-white shadow-sm"
+          onClick={() => {
+            resetDialog();
+            setSalaryDialogOpen(true);
+          }}
         >
-            <Banknote className="w-4 h-4 mr-2" />
-            Process Salary
+          <Banknote className="w-4 h-4 mr-2" />
+          Process Salary
         </Button>
       </div>
 
@@ -148,20 +176,23 @@ function SalaryPage() {
                       <div className="flex flex-col">
                         <span className="font-semibold text-gray-900">{employee.fullName}</span>
                         <div className="flex items-center gap-2 mt-1">
-                           <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200 font-mono">
-                             {employee.employeeId}
-                           </span>
-                           <span className="text-xs text-gray-400 truncate max-w-[150px]" title={employee.email}>
-                             {employee.email}
-                           </span>
+                          <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200 font-mono">
+                            {employee.employeeId}
+                          </span>
+                          <span
+                            className="text-xs text-gray-400 truncate max-w-[150px]"
+                            title={employee.email}
+                          >
+                            {employee.email}
+                          </span>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="py-4">
-                        <div className="flex items-center gap-2 text-gray-700 text-sm">
-                            <CreditCard className="w-4 h-4 text-gray-400" />
-                            <span className="font-mono">{employee.bankAccountNumber || '-'}</span>
-                        </div>
+                      <div className="flex items-center gap-2 text-gray-700 text-sm">
+                        <CreditCard className="w-4 h-4 text-gray-400" />
+                        <span className="font-mono">{employee.bankAccountNumber || '-'}</span>
+                      </div>
                     </TableCell>
                     <TableCell className="py-4 text-right text-gray-700 font-medium">
                       {formatCurrency(employee.dueReimbursement || 0)}
@@ -185,56 +216,106 @@ function SalaryPage() {
         </CardContent>
       </Card>
 
+      <Pagination className="mt-6">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handlePageChange(-1);
+              }}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+
+          <div className="text-sm font-medium px-4 select-none">
+            Page {currentPage} of {totalPage || 1}
+          </div>
+
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handlePageChange(1);
+              }}
+              className={
+                currentPage === totalPage ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+              }
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+
       {/* Process Salary Dialog */}
-      <Dialog open={salaryDialogOpen} onOpenChange={(open) => {
-          if(!isSubmitting) setSalaryDialogOpen(open);
-      }}>
+      <Dialog
+        open={salaryDialogOpen}
+        onOpenChange={(open) => {
+          if (!isSubmitting) setSalaryDialogOpen(open);
+        }}
+      >
         <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-                <DialogTitle>Process Monthly Salary</DialogTitle>
-                <DialogDescription>
-                    {confirmationStep === 1 
-                        ? "Are you sure you want to process salary for all employees? This will calculate and disburse salaries along with any due reimbursements."
-                        : "Final Confirmation Required."
-                    }
-                </DialogDescription>
-            </DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Process Monthly Salary</DialogTitle>
+            <DialogDescription>
+              {confirmationStep === 1
+                ? 'Are you sure you want to process salary for all employees? This will calculate and disburse salaries along with any due reimbursements.'
+                : 'Final Confirmation Required.'}
+            </DialogDescription>
+          </DialogHeader>
 
-            {confirmationStep === 2 && (
-                <div className="py-4 space-y-3">
-                    <p className="text-sm text-gray-600">
-                        To confirm, please type <span className="font-bold select-all text-gray-900">{expectedCommitText}</span> below:
-                    </p>
-                    <Input 
-                        value={commitText}
-                        onChange={(e) => setCommitText(e.target.value)}
-                        placeholder={expectedCommitText}
-                        disabled={isSubmitting}
-                        className={commitText === expectedCommitText ? 'border-green-500 focus-visible:ring-green-500' : ''}
-                    />
-                </div>
+          {confirmationStep === 2 && (
+            <div className="py-4 space-y-3">
+              <p className="text-sm text-gray-600">
+                To confirm, please type{' '}
+                <span className="font-bold select-all text-gray-900">{expectedCommitText}</span>{' '}
+                below:
+              </p>
+              <Input
+                value={commitText}
+                onChange={(e) => setCommitText(e.target.value)}
+                placeholder={expectedCommitText}
+                disabled={isSubmitting}
+                className={
+                  commitText === expectedCommitText
+                    ? 'border-green-500 focus-visible:ring-green-500'
+                    : ''
+                }
+              />
+            </div>
+          )}
+
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            {confirmationStep === 1 ? (
+              <>
+                <Button variant="outline" onClick={() => setSalaryDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => setConfirmationStep(2)}>Yes, Proceed</Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setConfirmationStep(1)}
+                  disabled={isSubmitting}
+                >
+                  Back
+                </Button>
+                <Button
+                  onClick={handleProcessSalary}
+                  disabled={commitText !== expectedCommitText || isSubmitting}
+                  className={
+                    commitText === expectedCommitText ? 'bg-green-600 hover:bg-green-700' : ''
+                  }
+                >
+                  {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Confirm Execution
+                </Button>
+              </>
             )}
-
-            <DialogFooter className="flex gap-2 sm:gap-0">
-                {confirmationStep === 1 ? (
-                    <>
-                        <Button variant="outline" onClick={() => setSalaryDialogOpen(false)}>Cancel</Button>
-                        <Button onClick={() => setConfirmationStep(2)}>Yes, Proceed</Button>
-                    </>
-                ) : (
-                    <>
-                        <Button variant="outline" onClick={() => setConfirmationStep(1)} disabled={isSubmitting}>Back</Button>
-                        <Button 
-                            onClick={handleProcessSalary} 
-                            disabled={commitText !== expectedCommitText || isSubmitting}
-                            className={commitText === expectedCommitText ? 'bg-green-600 hover:bg-green-700' : ''}
-                        >
-                            {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                            Confirm Execution
-                        </Button>
-                    </>
-                )}
-            </DialogFooter>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
