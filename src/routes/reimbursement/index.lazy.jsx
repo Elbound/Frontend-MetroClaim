@@ -1,6 +1,7 @@
 import { createLazyFileRoute, useLocation } from '@tanstack/react-router';
 
 import { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -130,12 +131,18 @@ export default function RouteComponent() {
       setIsLoading(true);
       await postReimbursementCreate(submitedData, user.tk);
       
-      // Navigate to success page which will show the alert
-      router.navigate({ 
-        to: '/reimbursement/success',
-        search: { amount: totalammount } 
+      Swal.fire({
+          title: 'Success!',
+          text: `Claim for ${formatCurrency(totalammount)} has been submitted.`,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#0f172a',
+          allowOutsideClick: false,
+          allowEscapeKey: false
+      }).then(() => {
+          router.navigate({ to: '/dashboard' });
       });
-      
+
       // Reset form (though we are navigating away, good practice)
       setTitle('');
       setDesc('');

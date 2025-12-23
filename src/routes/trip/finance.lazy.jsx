@@ -36,6 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Users, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import Swal from 'sweetalert2';
 
 export const Route = createLazyFileRoute('/trip/finance')({
   component: RouteComponent,
@@ -97,7 +98,23 @@ function RouteComponent() {
       setIsSubmitting(true);
       console.log(submitedData);
       await putTripFinanceReview(requestId, submitedData, user.tk);
-      toast.success('Success', { description: 'Reimbursement status updated.' });
+      
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        icon: 'success',
+        title: 'Cost Updated',
+        text: `Trip cost set to ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(submitedData.allocatedCost)}`,
+        background: '#fff',
+        color: '#0f172a',
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        }
+      });
       setModalState({ isOpen: false, type: null, requestId: null });
       setActiveRequest(null); // Close detail view
       fetchRequests(); // Refresh list

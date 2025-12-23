@@ -1,5 +1,6 @@
 import { createLazyFileRoute, useNavigate } from '@tanstack/react-router';
 import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -128,8 +129,18 @@ function RouteComponent() {
 
     try {
       await postTrip(payload, user.tk);
-      toast.success('Trip created successfully');
-      navigate({ to: '/trip' });
+      // Show inline success alert
+      Swal.fire({
+          title: 'Trip Created!',
+          text: `Trip "${payload.title}" has been successfully created.`,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#0f172a',
+          allowOutsideClick: false,
+          allowEscapeKey: false
+      }).then(() => {
+          navigate({ to: '/trip' });
+      });
     } catch (error) {
       console.error(error);
 
