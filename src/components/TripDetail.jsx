@@ -11,6 +11,7 @@ import { useAuth } from '../hooks/AuthContext';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
+import Swal from 'sweetalert2';
 import { router } from '@/router';
 import {
   Dialog,
@@ -59,13 +60,58 @@ export default function TripDetail({ tripId, onClose, onAction, readOnly }) {
     try {
       if (confirmationAction === 'confirm') {
         await postTripPublish(tripId, user.tk);
-        toast.success('Trip confirmed successfully');
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          icon: 'success',
+          title: 'Trip Confirmed',
+          text: 'Trip confirmed successfully',
+          background: '#fff',
+          color: '#0f172a',
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          }
+        });
       } else if (confirmationAction === 'cancel') {
         await putTripCancel(tripId, user.tk);
-        toast.success('Trip cancelled successfully');
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          icon: 'success', // Or info/warning depending on preference, sticking to success for successful action
+          title: 'Trip Cancelled',
+          text: 'Trip cancelled successfully',
+          background: '#fff',
+          color: '#0f172a',
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          }
+        });
       } else if (confirmationAction === 'close') {
         await putTripClose(tripId, user.tk);
-        toast.success('Trip closed successfully');
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          icon: 'success',
+          title: 'Trip Closed',
+          text: 'Trip closed successfully',
+          background: '#fff',
+          color: '#0f172a',
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          }
+        });
       }
       setConfirmationAction(null);
       await fetchTrip();

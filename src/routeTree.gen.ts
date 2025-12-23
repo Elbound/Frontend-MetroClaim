@@ -22,6 +22,7 @@ const SalaryIndexLazyRouteImport = createFileRoute('/salary/')()
 const ReimbursementIndexLazyRouteImport = createFileRoute('/reimbursement/')()
 const DashboardIndexLazyRouteImport = createFileRoute('/dashboard/')()
 const AdminIndexLazyRouteImport = createFileRoute('/admin/')()
+const TripSuccessLazyRouteImport = createFileRoute('/trip/success')()
 const TripFinanceHistoryLazyRouteImport = createFileRoute(
   '/trip/finance-history',
 )()
@@ -103,6 +104,11 @@ const AdminIndexLazyRoute = AdminIndexLazyRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/admin/index.lazy').then((d) => d.Route))
+const TripSuccessLazyRoute = TripSuccessLazyRouteImport.update({
+  id: '/trip/success',
+  path: '/trip/success',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/trip/success.lazy').then((d) => d.Route))
 const TripFinanceHistoryLazyRoute = TripFinanceHistoryLazyRouteImport.update({
   id: '/trip/finance-history',
   path: '/trip/finance-history',
@@ -233,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/trip/create': typeof TripCreateLazyRoute
   '/trip/finance': typeof TripFinanceLazyRoute
   '/trip/finance-history': typeof TripFinanceHistoryLazyRoute
+  '/trip/success': typeof TripSuccessLazyRoute
   '/admin': typeof AdminIndexLazyRoute
   '/dashboard': typeof DashboardIndexLazyRoute
   '/reimbursement': typeof ReimbursementIndexLazyRoute
@@ -261,6 +268,7 @@ export interface FileRoutesByTo {
   '/trip/create': typeof TripCreateLazyRoute
   '/trip/finance': typeof TripFinanceLazyRoute
   '/trip/finance-history': typeof TripFinanceHistoryLazyRoute
+  '/trip/success': typeof TripSuccessLazyRoute
   '/admin': typeof AdminIndexLazyRoute
   '/dashboard': typeof DashboardIndexLazyRoute
   '/reimbursement': typeof ReimbursementIndexLazyRoute
@@ -290,6 +298,7 @@ export interface FileRoutesById {
   '/trip/create': typeof TripCreateLazyRoute
   '/trip/finance': typeof TripFinanceLazyRoute
   '/trip/finance-history': typeof TripFinanceHistoryLazyRoute
+  '/trip/success': typeof TripSuccessLazyRoute
   '/admin/': typeof AdminIndexLazyRoute
   '/dashboard/': typeof DashboardIndexLazyRoute
   '/reimbursement/': typeof ReimbursementIndexLazyRoute
@@ -320,6 +329,7 @@ export interface FileRouteTypes {
     | '/trip/create'
     | '/trip/finance'
     | '/trip/finance-history'
+    | '/trip/success'
     | '/admin'
     | '/dashboard'
     | '/reimbursement'
@@ -348,6 +358,7 @@ export interface FileRouteTypes {
     | '/trip/create'
     | '/trip/finance'
     | '/trip/finance-history'
+    | '/trip/success'
     | '/admin'
     | '/dashboard'
     | '/reimbursement'
@@ -376,6 +387,7 @@ export interface FileRouteTypes {
     | '/trip/create'
     | '/trip/finance'
     | '/trip/finance-history'
+    | '/trip/success'
     | '/admin/'
     | '/dashboard/'
     | '/reimbursement/'
@@ -405,6 +417,7 @@ export interface RootRouteChildren {
   TripCreateLazyRoute: typeof TripCreateLazyRoute
   TripFinanceLazyRoute: typeof TripFinanceLazyRoute
   TripFinanceHistoryLazyRoute: typeof TripFinanceHistoryLazyRoute
+  TripSuccessLazyRoute: typeof TripSuccessLazyRoute
   AdminIndexLazyRoute: typeof AdminIndexLazyRoute
   DashboardIndexLazyRoute: typeof DashboardIndexLazyRoute
   ReimbursementIndexLazyRoute: typeof ReimbursementIndexLazyRoute
@@ -482,6 +495,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trip/success': {
+      id: '/trip/success'
+      path: '/trip/success'
+      fullPath: '/trip/success'
+      preLoaderRoute: typeof TripSuccessLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/trip/finance-history': {
@@ -621,6 +641,7 @@ const rootRouteChildren: RootRouteChildren = {
   TripCreateLazyRoute: TripCreateLazyRoute,
   TripFinanceLazyRoute: TripFinanceLazyRoute,
   TripFinanceHistoryLazyRoute: TripFinanceHistoryLazyRoute,
+  TripSuccessLazyRoute: TripSuccessLazyRoute,
   AdminIndexLazyRoute: AdminIndexLazyRoute,
   DashboardIndexLazyRoute: DashboardIndexLazyRoute,
   ReimbursementIndexLazyRoute: ReimbursementIndexLazyRoute,

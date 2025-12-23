@@ -1,5 +1,6 @@
 import { createLazyFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -165,10 +166,18 @@ function RouteComponent() {
       setIsSubmitting(true);
       await putReimbursementUpdate(reimbursementId, payload, user.tk);
 
-      // Navigate to success page
-      router.navigate({ 
-        to: '/reimbursement/success',
-        search: { amount: totalammount } 
+      // Show inline success alert
+      Swal.fire({
+          title: 'Success!',
+          text: `Claim for ${formatCurrency(totalammount)} has been updated.`,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#0f172a',
+          allowOutsideClick: false,
+          allowEscapeKey: false
+      }).then(() => {
+           // Navigate to success page
+           router.navigate({ to: '/dashboard' });
       });
 
     } catch (error) {

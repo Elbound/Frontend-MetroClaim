@@ -34,6 +34,7 @@ import {
 import { format } from 'date-fns';
 import ReimbursementDetail from '@/components/ReimbursementDetail';
 import { toast } from 'sonner';
+import Swal from 'sweetalert2';
 
 export const Route = createLazyFileRoute('/approval/finance')({
   component: RouteComponent,
@@ -81,7 +82,54 @@ function RouteComponent() {
     try {
       setIsSubmitting(true);
       await patchReimbursementStatus(id, action, comment, user.tk);
-      toast.success('Success', { description: 'Reimbursement status updated.' });
+      
+      // Determine Alert Config based on Action
+      let alertConfig = {
+        icon: 'success',
+        title: 'Action Successful',
+        text: 'Reimbursement status has been updated.'
+      };
+
+      switch (action) {
+        case 0: // Approve
+          alertConfig = {
+            icon: 'success',
+            title: 'Approved!',
+            text: 'Reimbursement has been approved.'
+          };
+          break;
+        case 1: // Reject
+          alertConfig = {
+            icon: 'error',
+            title: 'Rejected',
+            text: 'Reimbursement has been rejected.'
+          };
+          break;
+        case 2: // Revision
+          alertConfig = {
+            icon: 'warning',
+            title: 'Revision Requested',
+            text: 'Reimbursement sent for revision.'
+          };
+          break;
+      }
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        icon: alertConfig.icon,
+        title: alertConfig.title,
+        text: alertConfig.text,
+        background: '#fff',
+        color: '#0f172a',
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        }
+      });
       setModalState({ isOpen: false, type: null, requestId: null });
       setActiveRequest(null); // Close detail view
       fetchRequests(); // Refresh list
