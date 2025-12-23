@@ -1,8 +1,15 @@
 
-export default async function getPagedData(page, token, path) {
+export default async function getPagedData(page, token, path, params = {}) {
   let response;
   try {
-    response = await fetch(`/api/${path}/${page}`, {
+    const url = new URL(`/api/${path}/${page}`, window.location.origin);
+    Object.keys(params).forEach(key => {
+        if (params[key] && params[key] !== 'all') {
+            url.searchParams.append(key, params[key]);
+        }
+    });
+
+    response = await fetch(url.toString(), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

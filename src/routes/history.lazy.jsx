@@ -48,12 +48,30 @@ function RouteComponent() {
   const [detailData, setDetailData] = useState(null);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, statusFilter]);
+
   useEffect(() => {
     const fetchRequests = async () => {
       if (!user || !user.tk) return;
 
       try {
-        const { data, pages } = await getPagedData(currentPage, user.tk,"reimbursement/me");
+        const { data, pages } = await getPagedData(currentPage, user.tk, "reimbursement/me", {
+            search: debouncedSearch,
+            status: statusFilter
+        });
         setData(data || []);
         setTotalPage(pages || 1);
       } catch (error) {
@@ -69,7 +87,7 @@ function RouteComponent() {
     };
 
     fetchRequests();
-  }, [user?.tk, currentPage, router]);
+  }, [user?.tk, currentPage, debouncedSearch, statusFilter, router]);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -92,19 +110,8 @@ function RouteComponent() {
     fetchDetail();
   }, [selectedId, user?.tk]);
 
-  const allRequests = data || [];
-
-  const filteredRequests = useMemo(() => {
-    return allRequests.filter((request) => {
-      const matchesSearch =
-        request.title?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
-
-      const latestAction = getLatestAction(request);
-      const matchesStatus = statusFilter === 'all' || latestAction === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [searchTerm, statusFilter, allRequests]);
+  // Remove client-side filtering logic
+  const filteredRequests = data || [];
 
   const handleRowClick = (id) => {
     setSelectedId(id);
