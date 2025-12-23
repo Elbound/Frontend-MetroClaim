@@ -57,7 +57,8 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('user');
 
     setUser(null);
-    router.navigate({ to: '/login' });
+    window.location.href = '/login';
+    // router.navigate({ to: '/login' });
   };
 
   const isLoggedIn = !!user;
