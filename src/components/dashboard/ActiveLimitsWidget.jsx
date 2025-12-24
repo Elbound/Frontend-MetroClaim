@@ -27,65 +27,22 @@ const getIconForCategory = (name) => {
   return Wallet;
 };
 
-export default function ActiveLimitsWidget({ onQuickClaim }) {
+export default function ActiveLimitsWidget({ onQuickClaim, limitsData, categoriesData, activeLimitLoading = true }) {
   const { user } = useAuth();
 
-  const [limits, setLimits] = useState([]);
-  const [categories, setCategories] = useState([]);
+  // const [limits, setLimits] = useState(limitsData);
+  // const [categories, setCategories] = useState(categoriesData);
+  const limits = limitsData;
+  const categories = categoriesData;
+  const loading = activeLimitLoading;
 
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [availableCategories, setAvailableCategories] = useState([]);
 
   const [selectedCategoryToAdd, setSelectedCategoryToAdd] = useState('');
 
   const [adding, setAdding] = useState(false);
-  //============= FETCH DATA
-
-  const fetchCategory = async () => {
-    try {
-      setLoading(true);
-      const response = await getCategory(user.tk);
-
-      setCategories(response);
-    } catch (error) {
-      router.navigate({
-        to: '/error',
-        replace: true,
-        search: {
-          status: error.status || 500,
-          msg: error.message || 'An unexpected error occurred.',
-        },
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-  const fetchLimit = async () => {
-    try {
-      setLoading(true);
-      const response = await getLimit(user.tk);
-
-      setLimits(response);
-      setLoading(false);
-    } catch (error) {
-      router.navigate({
-        to: '/error',
-        replace: true,
-        search: {
-          status: error.status || 500,
-          msg: error.message || 'An unexpected error occurred.',
-        },
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategory();
-    fetchLimit();
-  }, []);
 
   //==================================
   const handleOpenAddModal = () => {

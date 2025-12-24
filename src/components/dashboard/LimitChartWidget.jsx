@@ -19,39 +19,18 @@ const formatCurrency = (amount) =>
     minimumFractionDigits: 0,
   }).format(amount);
 
-export default function LimitChartWidget() {
+export default function LimitChartWidget({ limitsData, limitChartLoading = true }) {
   const { user } = useAuth();
-  const [limits, setLimits] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // const [limits, setLimits] = useState(limitsData);
+  // const [loading, setLoading] = useState(false);
 
-  //   const [totalUsed, setTotalUsed] = useState(0);
-
+  //===========fetch data==============
+  const limits = limitsData;
+  const loading = limitChartLoading;
+  //====================================
   const totalUsed = useMemo(() => {
     return limits.reduce((sum, item) => sum + item.limitUsed, 0);
   }, [limits]);
-
-  const fetchLimit = async () => {
-    try {
-      setLoading(true);
-      const response = await getLimit(user.tk);
-      setLimits(response);
-    } catch (error) {
-      router.navigate({
-        to: '/error',
-        replace: true,
-        search: {
-          status: error.status || 500,
-          msg: error.message || 'An unexpected error occurred.',
-        },
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (user?.tk) fetchLimit();
-  }, [user?.tk]);
 
   const chartData = useMemo(() => {
     return limits.map((item, index) => ({
@@ -98,7 +77,7 @@ export default function LimitChartWidget() {
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[300px]">
-          <PieChart >
+          <PieChart>
             <ChartTooltip
               cursor={false}
               content={
@@ -108,7 +87,7 @@ export default function LimitChartWidget() {
                 />
               }
             />
-            <Pie 
+            <Pie
               data={chartData}
               dataKey="used"
               nameKey="category"
@@ -137,9 +116,7 @@ export default function LimitChartWidget() {
             />
           </PieChart>
         </ChartContainer>
-      <div>
-        Total Limit used: {formatCurrency(totalUsed)}
-      </div>
+        <div>Total Limit used: {formatCurrency(totalUsed)}</div>
       </CardContent>
     </Card>
   );

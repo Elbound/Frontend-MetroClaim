@@ -9,11 +9,11 @@ import './index.css';
 
 const RootSetup = () => {
   return (
-    <StrictMode>
+    // <StrictMode>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
       </QueryClientProvider>
-    </StrictMode>
+    // </StrictMode>
   );
 };
 

@@ -6,12 +6,15 @@ import getTripAssigned from '@/api/trip/getTripAssigned';
 import getTripAssignedReimbursement from '@/api/trip/getTripAssignedReimbrusement';
 import getReimbursementById from '@/api/reimbursement/getReimbursementById';
 
-export default function OngoingTripWidget() {
+export default function OngoingTripWidget({ tripPlusData, ongoingTripLoading = true }) {
   const { user } = useAuth();
   const router = useRouter();
-  const [trips, setTrips] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // const [trips, setTrips] = useState(tripPlusData);
+  // const [loading, setLoading] = useState(false);
 
+  const trips = tripPlusData;
+  const loading = ongoingTripLoading;
+  
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -19,42 +22,6 @@ export default function OngoingTripWidget() {
       maximumFractionDigits: 0,
     }).format(amount);
   };
-
-  useEffect(() => {
-    const fetchTrips = async () => {
-      if (!user?.tk) return;
-      try {
-        setLoading(true);
-        const data = await getTripAssigned(user.tk);
-
-        const ongoingOnly = Array.isArray(data) ? data.filter((t) => t.status === 'Ongoing') : [];
-
-        const tripPlus = await Promise.all(
-          ongoingOnly.map(async (trip) => {
-            const rId = await getTripAssignedReimbursement(trip.id, user.tk);
-            const reimb = await getReimbursementById(rId, user.tk);
-            const latestStatus = reimb.logs[0].action || 'No Status';
-            
-            return { ...trip, reimbursementId: rId, reimbursementStatus: latestStatus };
-          })
-        );
-
-        setTrips(tripPlus);
-      } catch (error) {
-        router.navigate({
-          to: '/error',
-          search: {
-            status: error.status || 500,
-            msg: error.message || 'Failed to load assigned trips.',
-          },
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTrips();
-  }, [user?.tk]);
 
   const handleUpdate = (reimbursementId) => {
     router.navigate({
@@ -86,17 +53,23 @@ export default function OngoingTripWidget() {
             className={`transition-transform ${!isLocked ? 'active:scale-[0.99]' : ''}`}
             onClick={() => !isLocked && handleUpdate(trip.reimbursementId)}
           >
-            <div 
+            <div
               className={`w-full bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center justify-between transition-all 
                 ${isLocked ? 'cursor-not-allowed opacity-80 bg-gray-50/50' : 'hover:shadow-md cursor-pointer border-l-4 border-l-[#003366]'}`}
             >
               <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-full shrink-0 ${isLocked ? 'bg-gray-100' : 'bg-blue-50'}`}>
-                  <PlaneTakeoff className={`h-5 w-5 ${isLocked ? 'text-gray-400' : 'text-[#003366]'}`} />
+                <div
+                  className={`p-3 rounded-full shrink-0 ${isLocked ? 'bg-gray-100' : 'bg-blue-50'}`}
+                >
+                  <PlaneTakeoff
+                    className={`h-5 w-5 ${isLocked ? 'text-gray-400' : 'text-[#003366]'}`}
+                  />
                 </div>
 
                 <div className="flex flex-col">
-                  <span className={`text-[10px] font-bold uppercase tracking-widest opacity-70 ${isLocked ? 'text-gray-500' : 'text-blue-800'}`}>
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-widest opacity-70 ${isLocked ? 'text-gray-500' : 'text-blue-800'}`}
+                  >
                     {isLocked ? 'Request Processed' : 'Ongoing Trip'}
                   </span>
                   <h3 className="text-base font-bold text-gray-800 leading-tight">
@@ -110,7 +83,9 @@ export default function OngoingTripWidget() {
               </div>
 
               <div className="flex items-center gap-2 text-gray-400 group">
-                <span className={`text-xs font-medium hidden sm:block transition-colors ${!isLocked ? 'group-hover:text-[#003366]' : ''}`}>
+                <span
+                  className={`text-xs font-medium hidden sm:block transition-colors ${!isLocked ? 'group-hover:text-[#003366]' : ''}`}
+                >
                   {isLocked ? 'reimbursement request submitted' : 'update your spent'}
                 </span>
                 {isLocked ? (
