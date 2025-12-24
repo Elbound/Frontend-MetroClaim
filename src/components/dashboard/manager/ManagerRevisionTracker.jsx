@@ -2,10 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, AlertCircle, RefreshCcw, CheckCircle2 } from 'lucide-react';
-import getReimbursementManager from '@/api/reimbursement/getReimbursementManager';
 import { useAuth } from '@/hooks/AuthContext';
-import getReimbursementManagerHistory from '@/api/reimbursement/getReimbursementManagerHistory';
-import getReimbursementById from '@/api/reimbursement/getReimbursementById';
+import getReimbursementManagerRevisionSummary from '@/api/reimbursement/getReimbursementManagerRevisionSummary';
 
 export default function ManagerRevisionTracker() {
   const { user } = useAuth();
@@ -21,29 +19,11 @@ export default function ManagerRevisionTracker() {
     try {
       setLoading(true);
 
-      const summaryData = await getReimbursementManagerHistory(user.tk);
-
-      if (!summaryData || summaryData.length === 0) {
-        setRevisionState({ pendingRevision: 0, finishRevision: 0 });
-        return;
-      }
-
-      const detailedRequests = await Promise.all(
-        summaryData.map(item => getReimbursementById(item.id, user.tk))
-      );
-
-      const pending = detailedRequests.filter(
-        (r) => r.logs?.[0]?.action === 'ManagerRevision'
-      ).length || 0;
-
-      const finished = detailedRequests.filter(
-        (r) => r.logs?.[0]?.action !== "ManagerRevision" && 
-               r.logs?.[1]?.action === 'ManagerRevision'
-      ).length || 0;
+      const summaryData = await getReimbursementManagerRevisionSummary(user.tk);
 
       setRevisionState({
-        pendingRevision: pending,
-        finishRevision: finished,
+        pendingRevision: summaryData.pendingRevision || 0,
+        finishRevision: summaryData.finishRevision || 0,
       });
 
     } catch (err) {
