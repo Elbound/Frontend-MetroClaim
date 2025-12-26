@@ -14,25 +14,15 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-export default function FinanceBarDataWidget() {
+export default function FinanceBarDataWidget({historyData, barDataLoading}) {
   const { user } = useAuth();
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // const [history, setHistory] = useState([]);
+  // const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchHistoryData = async () => {
-      try {
-        setLoading(true);
-        const data = await getReimbursementFinanceHistory(user?.tk);
-        setHistory(data);
-      } catch (error) {
-        console.error('Chart Fetch Error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (user?.tk) fetchHistoryData();
-  }, [user?.tk]);
+  const history = historyData;
+  const loading = barDataLoading;
+
+  
 
   const chartData = useMemo(() => {
     const categories = {};

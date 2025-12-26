@@ -14,32 +14,16 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-export function PaydayWidget() {
+export function PaydayWidget({ employeesData, paydayLoading }) {
   const { user } = useAuth();
-  const [employees, setEmployees] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // const [employees, setEmployees] = useState([]);
+  // const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        setLoading(true);
-        const userData = await getUsers(user?.tk);
-        setEmployees(userData);
-      } catch (error) {
-        router.navigate({
-          to: '/error',
-          replace: true,
-          search: {
-            status: error.status || 500,
-            msg: error.message || 'An unexpected error occurred.',
-          },
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (user?.tk) fetchUserData();
-  }, [user?.tk]);
+  // fetch data========
+  const employees = employeesData;
+  const loading = paydayLoading;
+
+  //===================
 
   const totalDue = useMemo(() => {
     return employees.reduce((sum, emp) => sum + (emp.dueReimbursement || 0), 0);
@@ -50,7 +34,6 @@ export function PaydayWidget() {
   return (
     <Card className="overflow-hidden border-none bg-linear-to-br from-slate-50 to-slate-100 shadow-lg dark:from-slate-900 dark:to-slate-950">
       <div className="flex flex-col sm:flex-row">
-      
         <div className="flex-1 p-6">
           <div className="flex items-center gap-2 mb-2">
             <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />

@@ -7,49 +7,27 @@ import getReimbursementFinance from '@/api/reimbursement/getReimbursementFinance
 import getTripFinance from '@/api/trip/getTripFinance';
 import { router } from '@/router';
 
-
-export default function FinanceSummaryWidget() {
+export default function FinanceSummaryWidget({ statData, summaryLoading }) {
   const { user } = useAuth();
-  const [financeStats, setFinanceStats] = useState({
-    pendingApproval: 0,
-    pendingTripCost: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  // const [financeStats, setFinanceStats] = useState({
+  //   pendingApproval: 0,
+  //   pendingTripCost: 0,
+  // });
+  // const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user?.tk) return;
-      setLoading(true);
-      try {
-        const [reimbursementData, tripData] = await Promise.all([
-          getReimbursementFinance(user.tk),
-          getTripFinance(user.tk),
-        ]);
+  const financeStats = statData;
+  const loading = summaryLoading;
 
-        setFinanceStats({
-          pendingApproval: reimbursementData?.length || 0,
-          pendingTripCost: tripData?.length || 0,
-        });
-      } catch (error) {
-        console.error('Failed to fetch dashboard data', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [user?.tk]);
-
-  const reimbursementclick = ()=>{
+  const reimbursementclick = () => {
     router.navigate({
-        to:'/approval/finance'
-    })
-  }
-  const tripClick = ()=>{
+      to: '/approval/finance',
+    });
+  };
+  const tripClick = () => {
     router.navigate({
-        to:'/trip/finance'
-    })
-  }
+      to: '/trip/finance',
+    });
+  };
 
   if (loading) {
     return (
@@ -74,10 +52,11 @@ export default function FinanceSummaryWidget() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-   
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      
-        <Card onClick={reimbursementclick} className="cursor-pointer hover:bg-gray-100 transition-colors rounded-lg shadow-sm">
+        <Card
+          onClick={reimbursementclick}
+          className="cursor-pointer hover:bg-gray-100 transition-colors rounded-lg shadow-sm"
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
             <CardTitle
               className="text-[10px] font-medium uppercase text-muted-foreground truncate"
@@ -94,7 +73,10 @@ export default function FinanceSummaryWidget() {
         </Card>
 
         {/* Pending Trip Costs Card */}
-        <Card onClick={tripClick} className="cursor-pointer hover:bg-gray-100 transition-colors rounded-lg shadow-sm">
+        <Card
+          onClick={tripClick}
+          className="cursor-pointer hover:bg-gray-100 transition-colors rounded-lg shadow-sm"
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
             <CardTitle
               className="text-[10px] font-medium uppercase text-muted-foreground truncate"
