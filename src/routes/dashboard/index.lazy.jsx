@@ -34,115 +34,84 @@ function RouteComponent() {
   const [summaryIsLoading, setSummaryIsLoading] = useState(true);
 
   const fetchCategory = async () => {
-    try {
-      setLoading(true);
-      const response = await getCategory(user.tk);
+    setLoading(true);
+    const response = await getCategory(user.tk);
 
-      setCategories(response);
-    } catch (error) {
-      router.navigate({
-        to: '/error',
-        replace: true,
-        search: {
-          status: error.status || 500,
-          msg: error.message || 'An unexpected error occurred.',
-        },
-      });
-    } finally {
-      setLoading(false);
-    }
+    setCategories(response);
   };
+
   const fetchLimit = async () => {
-    try {
-      setLoading(true);
-      const response = await getLimit(user.tk);
+    setLoading(true);
+    const response = await getLimit(user.tk);
 
-      setLimits(response);
-      setLoading(false);
-    } catch (error) {
-      router.navigate({
-        to: '/error',
-        replace: true,
-        search: {
-          status: error.status || 500,
-          msg: error.message || 'An unexpected error occurred.',
-        },
-      });
-    } finally {
-      setLoading(false);
-    }
+    setLimits(response);
+    setLoading(false);
   };
+
   const fetchTrips = async () => {
-    if (!user?.tk) return;
-    try {
-      setLoading(true);
-      const data = await getTripAssigned(user.tk);
+    const data = await getTripAssigned(user.tk);
 
-      const ongoingOnly = Array.isArray(data) ? data.filter((t) => t.status === 'Ongoing') : [];
+    const ongoingOnly = Array.isArray(data) ? data.filter((t) => t.status === 'Ongoing') : [];
 
-      const tripPlus = await Promise.all(
-        ongoingOnly.map(async (trip) => {
-          const rId = await getTripAssignedReimbursement(trip.id, user.tk);
-          const reimb = await getReimbursementById(rId, user.tk);
-          const latestStatus = reimb.logs[0].action || 'No Status';
+    const tripPlus = await Promise.all(
+      ongoingOnly.map(async (trip) => {
+        const rId = await getTripAssignedReimbursement(trip.id, user.tk);
+        const reimb = await getReimbursementById(rId, user.tk);
+        const latestStatus = reimb.logs[0].action || 'No Status';
 
-          return { ...trip, reimbursementId: rId, reimbursementStatus: latestStatus };
-        })
-      );
+        return { ...trip, reimbursementId: rId, reimbursementStatus: latestStatus };
+      })
+    );
 
-      setTrips(tripPlus);
-    } catch (error) {
-      router.navigate({
-        to: '/error',
-        search: {
-          status: error.status || 500,
-          msg: error.message || 'Failed to load assigned trips.',
-        },
-      });
-    } finally {
-      setLoading(false);
-    }
+    setTrips(tripPlus);
   };
 
   const fetchData = async () => {
-    if (!user?.tk) return;
-    setLoading(true);
-    try {
-      const [userData, reimbursements] = await Promise.all([
-        getUserData(user.tk),
-        getReimbursementMe(user.tk),
-      ]);
+    const [userData, reimbursements] = await Promise.all([
+      getUserData(user.tk),
+      getReimbursementMe(user.tk),
+    ]);
 
-      setData(userData);
+    setData(userData);
 
-      if (reimbursements && Array.isArray(reimbursements)) {
-        // Sort by date descending (newest first)
-        const sorted = [...reimbursements].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
+    if (reimbursements && Array.isArray(reimbursements)) {
+      // Sort by date descending (newest first)
+      const sorted = [...reimbursements].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
 
-        const lastReimb = sorted[0];
-        const lastApproved = sorted.find((r) => r.status === 'Approved');
-        const lastRejected = sorted.find((r) => r.status === 'Rejected');
+      const lastReimb = sorted[0];
+      const lastApproved = sorted.find((r) => r.status === 'Approved');
+      const lastRejected = sorted.find((r) => r.status === 'Rejected');
 
-        setReimbursementStats({
-          lastAmount: lastReimb ? lastReimb.totalAmount : 0,
-          lastApprovedAmount: lastApproved ? lastApproved.totalAmount : 0,
-          lastRejectedAmount: lastRejected ? lastRejected.totalAmount : 0,
-        });
-      }
-    } catch (error) {
-      console.error('Failed to fetch dashboard data', error);
-    } finally {
-      setLoading(false);
+      setReimbursementStats({
+        lastAmount: lastReimb ? lastReimb.totalAmount : 0,
+        lastApprovedAmount: lastApproved ? lastApproved.totalAmount : 0,
+        lastRejectedAmount: lastRejected ? lastRejected.totalAmount : 0,
+      });
     }
   };
 
   useEffect(() => {
-    fetchCategory();
-    fetchLimit();
-    fetchTrips();
-    fetchData();
+    if (!user?.tk) return;
+    setLoading(true);
+    try {
+      fetchCategory();
+      fetchLimit();
+      fetchTrips();
+      fetchData();
+    } catch (error) {
+      router.navigate({
+        to: '/error',
+        replace: true,
+        search: {
+          status: error.status || 500,
+          msg: error.message || 'An unexpected error occurred.',
+        },
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, [user?.tk]);
 
   const handleCategoryClick = (limit) => {

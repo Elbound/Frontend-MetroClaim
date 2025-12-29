@@ -26,42 +26,36 @@ function RouteComponent() {
   const [loading, setLoading] = useState(false);
 
   const fetchHistoryData = async () => {
-    try {
-      setLoading(true);
-      const data = await getReimbursementFinanceHistory(user?.tk);
-      setHistory(data);
-    } catch (error) {
-      console.error('Chart Fetch Error:', error);
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    const data = await getReimbursementFinanceHistory(user?.tk);
+    setHistory(data);
   };
 
   const fetchData = async () => {
-    if (!user?.tk) return;
-    setLoading(true);
-    try {
-      const [reimbursementData, tripData] = await Promise.all([
-        getReimbursementFinance(user.tk),
-        getTripFinance(user.tk),
-      ]);
+    const [reimbursementData, tripData] = await Promise.all([
+      getReimbursementFinance(user.tk),
+      getTripFinance(user.tk),
+    ]);
 
-      setFinanceStats({
-        pendingApproval: reimbursementData?.length || 0,
-        pendingTripCost: tripData?.length || 0,
-      });
-    } catch (error) {
-      console.error('Failed to fetch dashboard data', error);
-    } finally {
-      setLoading(false);
-    }
+    setFinanceStats({
+      pendingApproval: reimbursementData?.length || 0,
+      pendingTripCost: tripData?.length || 0,
+    });
   };
 
   const fetchUserData = async () => {
+    setLoading(true);
+    const userData = await getUsers(user?.tk);
+    setEmployees(userData);
+  };
+
+  useEffect(() => {
+    if (!user?.tk) return;
+    setLoading(true);
     try {
-      setLoading(true);
-      const userData = await getUsers(user?.tk);
-      setEmployees(userData);
+      fetchHistoryData();
+      fetchData();
+      fetchUserData();
     } catch (error) {
       router.navigate({
         to: '/error',
@@ -72,16 +66,8 @@ function RouteComponent() {
         },
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  };
-
-  useEffect(() => {
-    if (!user?.tk) return;
-
-    fetchHistoryData();
-    fetchData();
-    fetchUserData();
   }, []);
 
   if (!isFinance) {
@@ -97,7 +83,7 @@ function RouteComponent() {
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
       <div className="mt-6">
-        <FinanceSummaryWidget statData={financeStats} summaryLoading={loading}/>
+        <FinanceSummaryWidget statData={financeStats} summaryLoading={loading} />
       </div>
       <div className="mt-8">
         <PaydayWidget employeesData={employees} paydayLoading={loading} />
