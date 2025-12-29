@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import { router } from '@/router';
 import getReimbursementManagerHistory from '@/api/reimbursement/getReimbursementManagerHistory';
 import StatusBadge from '@/components/ui/StatusBadge';
+//pagination Import====================
 import {
   Pagination,
   PaginationContent,
@@ -34,6 +35,8 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import getPagedData from '@/api/paginated/getPagedData';
+import StatusBadge from '@/components/ui/StatusBadge';
+//pagination Import====================
 
 export const Route = createLazyFileRoute('/reimbursement/manager-history')({
   component: RouteComponent,
@@ -49,13 +52,16 @@ function RouteComponent() {
   const [detailData, setDetailData] = useState(null);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
 
+  // pagination useState ===========================
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
+  // pagination useState ===========================
 
   const fetchHistory = async () => {
     if (!user?.tk) return;
     try {
       setIsLoading(true);
+      //fetch function: (current page, user token, path nya)
       const { data, pages } = await getPagedData(
         currentPage,
         user.tk,
@@ -115,12 +121,14 @@ function RouteComponent() {
     setDetailData(null);
   };
 
+  // pagination handler ===========================
   const handlePageChange = (change) => {
     const nextPage = currentPage + change;
     if (nextPage <= 0) return;
     if (totalPage && nextPage > totalPage) return;
     setCurrentPage(nextPage);
   };
+  // pagination handler ===========================
 
   return (
     <div className="mx-6 mt-5 space-y-6">
@@ -196,6 +204,7 @@ function RouteComponent() {
         </CardContent>
       </Card>
 
+      {/* pagination component */}
       <Pagination className="mt-6">
         <PaginationContent>
           <PaginationItem>
