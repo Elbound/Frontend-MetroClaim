@@ -18,42 +18,18 @@ import { router } from '@/router';
 import getReimbursementManager from '@/api/reimbursement/getReimbursementManager';
 import getTripManager from '@/api/trip/getTripManager';
 
-export default function ManagerSummaryWidget() {
+export default function ManagerSummaryWidget({statData, summaryLoading}) {
   const { user } = useAuth();
-  const [managerStats, setManagerStats] = useState({
-    pendingApproval: 0,
-    TripFinanceApproved: 0,
-    TripOngoing: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  // const [managerStats, setManagerStats] = useState({
+  //   pendingApproval: 0,
+  //   TripFinanceApproved: 0,
+  //   TripOngoing: 0,
+  // });
+  // const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user?.tk) return;
-      setLoading(true);
-      try {
-        const [reimbursementData, tripData] = await Promise.all([
-          getReimbursementManager(user.tk),
-          getTripManager(user.tk),
-        ]);
-        const financeApproved =
-          tripData?.filter((t) => t.status === 'FinanceApproved')?.length || 0;
-        const ongoing = tripData?.filter((t) => t.status === 'Ongoing')?.length || 0;
+  const managerStats = statData;
+  const loading = summaryLoading;
 
-        setManagerStats({
-          pendingApproval: reimbursementData?.length || 0,
-          TripFinanceApproved: financeApproved,
-          TripOngoing: ongoing,
-        });
-      } catch (error) {
-        console.error('Failed to fetch dashboard data', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [user?.tk]);
 
   const reimbursementClick = () => router.navigate({ to: '/approval/manager' });
   const tripClick = () => router.navigate({ to: '/trip' });

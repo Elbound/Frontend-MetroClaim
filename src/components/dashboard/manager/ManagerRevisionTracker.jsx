@@ -5,39 +5,23 @@ import { Loader2, AlertCircle, RefreshCcw, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/hooks/AuthContext';
 import getReimbursementManagerRevisionSummary from '@/api/reimbursement/getReimbursementManagerRevisionSummary';
 
-export default function ManagerRevisionTracker() {
+export default function ManagerRevisionTracker({ revisionData, revisionTrackerLoading }) {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [revisionState, setRevisionState] = useState({
-    pendingRevision: 0, // Employee hasn't fixed it yet
-    finishRevision: 0,  // Employee fixed it, Manager needs to look again
-  });
+  // const [loading, setLoading] = useState(false);
+  // const [revisionState, setRevisionState] = useState({
+  //   pendingRevision: 0, // Employee hasn't fixed it yet
+  //   finishRevision: 0,  // Employee fixed it, Manager needs to look again
+  // });
 
-  useEffect(() => {
-  const fetchData = async () => {
-    if (!user?.tk) return;
-    try {
-      setLoading(true);
-
-      const summaryData = await getReimbursementManagerRevisionSummary(user.tk);
-
-      setRevisionState({
-        pendingRevision: summaryData.pendingRevision || 0,
-        finishRevision: summaryData.finishRevision || 0,
-      });
-
-    } catch (err) {
-      console.error("Revision Tracker Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchData();
-}, [user?.tk]);
+  const revisionState = revisionData;
+  const loading = revisionTrackerLoading;
 
   if (loading) {
-    return <div className="h-32 flex items-center justify-center border-2 border-dashed rounded-xl"><Loader2 className="animate-spin text-muted-foreground" /></div>;
+    return (
+      <div className="h-32 flex items-center justify-center border-2 border-dashed rounded-xl">
+        <Loader2 className="animate-spin text-muted-foreground" />
+      </div>
+    );
   }
 
   return (
@@ -57,7 +41,9 @@ export default function ManagerRevisionTracker() {
             </div>
             <div>
               <p className="text-sm font-bold">Awaiting Team Fixes</p>
-              <p className="text-[10px] text-muted-foreground font-medium">Items currently with employees</p>
+              <p className="text-[10px] text-muted-foreground font-medium">
+                Items currently with employees
+              </p>
             </div>
           </div>
           <div className="text-xl font-black text-amber-600">{revisionState.pendingRevision}</div>
@@ -71,7 +57,9 @@ export default function ManagerRevisionTracker() {
             </div>
             <div>
               <p className="text-sm font-bold">Ready to Re-approve</p>
-              <p className="text-[10px] text-muted-foreground font-medium">Updated by team, needs your check</p>
+              <p className="text-[10px] text-muted-foreground font-medium">
+                Updated by team, needs your check
+              </p>
             </div>
           </div>
           <div className="text-xl font-black text-blue-600">{revisionState.finishRevision}</div>
