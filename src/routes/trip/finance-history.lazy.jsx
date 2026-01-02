@@ -25,6 +25,13 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { router } from '@/router';
 import StatusBadge from '@/components/ui/StatusBadge';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 export const Route = createLazyFileRoute('/trip/finance-history')({
   component: RouteComponent,
@@ -37,12 +44,18 @@ function RouteComponent() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTrip, setActiveTrip] = useState(null);
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
+
   const fetchHistory = async () => {
     if (!user?.tk) return;
     try {
       setIsLoading(true);
-      const data = await getTripFinanceHistory(user.tk);
-      setTrips(data);
+      const response = await getTripFinanceHistory(user.tk, currentPage, itemsPerPage);
+      setTrips(response.data || []);
+      setTotalPages(Math.ceil((response.meta?.total || 0) / itemsPerPage));
     } catch (error) {
       router.navigate({
         to: '/error',
@@ -59,7 +72,13 @@ function RouteComponent() {
 
   useEffect(() => {
     fetchHistory();
-  }, [user?.tk]);
+  }, [user?.tk, currentPage]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   return (
     <div className="mx-6 mt-5 space-y-6">
@@ -132,6 +151,28 @@ function RouteComponent() {
           </Table>
         </CardContent>
       </Card>
+
+      <Pagination className="mt-6">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious 
+              onClick={() => handlePageChange(currentPage - 1)}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+          
+          <div className="text-sm font-medium px-4 select-none">
+            Page {currentPage} of {totalPages || 1}
+          </div>
+
+          <PaginationItem>
+            <PaginationNext 
+              onClick={() => handlePageChange(currentPage + 1)}
+              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
 
       <Sheet open={!!activeTrip} onOpenChange={(open) => !open && setActiveTrip(null)}>
         <SheetContent className="sm:max-w-xl w-full flex flex-col h-full">
