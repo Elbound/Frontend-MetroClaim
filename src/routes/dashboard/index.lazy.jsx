@@ -110,7 +110,7 @@ function RouteComponent() {
         },
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }, [user?.tk]);
 

@@ -81,13 +81,13 @@ function RouteComponent() {
         },
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }, [user?.tk]);
 
   if (!isManager) {
     router.navigate({
-      to: '/error',
+      to: '/login',
       search: {
         status: 403,
         msg: 'Need Manager Role',

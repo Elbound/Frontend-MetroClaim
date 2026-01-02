@@ -35,7 +35,6 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import getPagedData from '@/api/paginated/getPagedData';
-import StatusBadge from '@/components/ui/StatusBadge';
 //pagination Import====================
 
 export const Route = createLazyFileRoute('/reimbursement/manager-history')({

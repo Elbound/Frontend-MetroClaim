@@ -66,13 +66,13 @@ function RouteComponent() {
         },
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }, []);
 
   if (!isFinance) {
     router.navigate({
-      to: '/error',
+      to: '/login',
       search: {
         status: 403,
         msg: 'Need Finance Role',
@@ -82,7 +82,7 @@ function RouteComponent() {
 
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
-      <div className="mt-6">
+      <div className="mt-2">
         <FinanceSummaryWidget statData={financeStats} summaryLoading={loading} />
       </div>
       <div className="mt-8">
