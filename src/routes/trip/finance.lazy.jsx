@@ -37,6 +37,13 @@ import { Plus, Users, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import Swal from 'sweetalert2';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 export const Route = createLazyFileRoute('/trip/finance')({
   component: RouteComponent,
@@ -51,13 +58,19 @@ function RouteComponent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeRequest, setActiveRequest] = useState(null);
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
+
   // --- 1. REVISED MOCK DATA STRUCTURE ---
   const fetchRequests = async () => {
     if (!user?.tk) return;
     try {
       setIsLoading(true);
-      const data = await getTripFinance(user.tk);
-      setRequests(data);
+      const response = await getTripFinance(user.tk, currentPage, itemsPerPage);
+      setRequests(response.data || []);
+      setTotalPages(Math.ceil((response.meta?.total || 0) / itemsPerPage));
     } catch (error) {
       router.navigate({
         to: '/error',
@@ -74,7 +87,13 @@ function RouteComponent() {
 
   useEffect(() => {
     fetchRequests();
-  }, [user?.tk]);
+  }, [user?.tk, currentPage]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   useEffect(() => {
     console.log('active request content: ' + activeRequest);
@@ -117,7 +136,15 @@ function RouteComponent() {
       });
       setModalState({ isOpen: false, type: null, requestId: null });
       setActiveRequest(null); // Close detail view
-      fetchRequests(); // Refresh list
+      setModalState({ isOpen: false, type: null, requestId: null });
+      setActiveRequest(null); // Close detail view
+      
+      // Refresh list: logic to handle page if item removed
+      if (requests.length === 1 && currentPage > 1) {
+          setCurrentPage(prev => prev - 1);
+      } else {
+          fetchRequests();
+      }
     } catch (error) {
       router.navigate({
         to: '/error',
@@ -198,6 +225,28 @@ function RouteComponent() {
           </Table>
         </CardContent>
       </Card>
+
+      <Pagination className="mt-6">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious 
+              onClick={() => handlePageChange(currentPage - 1)}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+          
+          <div className="text-sm font-medium px-4 select-none">
+            Page {currentPage} of {totalPages || 1}
+          </div>
+
+          <PaginationItem>
+            <PaginationNext 
+              onClick={() => handlePageChange(currentPage + 1)}
+              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
 
       <ActionModal
         isOpen={modalState.isOpen}

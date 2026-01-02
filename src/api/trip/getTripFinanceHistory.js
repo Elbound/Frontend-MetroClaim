@@ -1,4 +1,4 @@
-export default async function getTripFinanceHistory(token) {
+export default async function getTripFinanceHistory(token, page = 1, limit = 10) {
   let response;
   try {
     response = await fetch('/api/trips/finance/history', {
@@ -6,6 +6,8 @@ export default async function getTripFinanceHistory(token) {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
+        'X-Page': page,
+        'X-Limit': limit,
       },
     });
   } catch (e) {
@@ -22,5 +24,14 @@ export default async function getTripFinanceHistory(token) {
   }
 
   const res = await response.json();
-  return res.data;
+  const total = parseInt(response.headers.get('X-Total-Count') || '0', 10);
+
+  return {
+    data: res.data || [],
+    meta: {
+      total,
+      page,
+      limit
+    }
+  };
 }

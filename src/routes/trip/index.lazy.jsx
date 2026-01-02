@@ -21,6 +21,13 @@ import {
 } from '@/components/ui/sheet';
 import TripDetail from '@/components/TripDetail';
 import { format } from 'date-fns';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 import { useAuth } from '@/hooks/AuthContext';
 import getTripManager from '@/api/trip/getTripManager';
@@ -37,11 +44,18 @@ function RouteComponent() {
   const [loading, setLoading] = useState(true);
   const [activeTripId, setActiveTripId] = useState(null);
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
+
   useEffect(() => {
     const fetchTrips = async () => {
       if (!user?.tk) return;
       try {
-        const data = await getTripManager(user.tk);
+        const response = await getTripManager(user.tk, currentPage, itemsPerPage);
+        const data = response.data || [];
+        setTotalPages(Math.ceil((response.meta?.total || 0) / itemsPerPage));
 
         // Transform data for table display
         const formattedData = data.map((trip) => ({
@@ -65,7 +79,14 @@ function RouteComponent() {
       }
     };
     fetchTrips();
-  }, [user?.tk]);
+    fetchTrips();
+  }, [user?.tk, currentPage]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   return (
     <div className="w-full p-6 min-h-screen bg-gray-50/50">
@@ -156,6 +177,28 @@ function RouteComponent() {
           </Table>
         </CardContent>
       </Card>
+
+      <Pagination className="mt-6">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious 
+              onClick={() => handlePageChange(currentPage - 1)}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+          
+          <div className="text-sm font-medium px-4 select-none">
+            Page {currentPage} of {totalPages || 1}
+          </div>
+
+          <PaginationItem>
+            <PaginationNext 
+              onClick={() => handlePageChange(currentPage + 1)}
+              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
 
       <Sheet open={!!activeTripId} onOpenChange={(open) => !open && setActiveTripId(null)}>
         <SheetContent className="sm:max-w-xl w-full flex flex-col h-full bg-white p-0 gap-0">

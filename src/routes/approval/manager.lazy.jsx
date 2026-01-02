@@ -36,6 +36,15 @@ import getReimbursementManager from '@/api/reimbursement/getReimbursementManager
 import patchReimbursementStatus from '@/api/reimbursement/patchReimbursementStatus';
 import { toast } from 'sonner';
 import Swal from 'sweetalert2';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from '@/components/ui/pagination';
 
 export const Route = createLazyFileRoute('/approval/manager')({
   component: RouteComponent,
@@ -49,12 +58,18 @@ function RouteComponent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeRequest, setActiveRequest] = useState(null);
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
+
   const fetchRequests = async () => {
     if (!user?.tk) return;
     try {
       setIsLoading(true);
-      const data = await getReimbursementManager(user.tk);
-      setRequests(data);
+      const response = await getReimbursementManager(user.tk, currentPage, itemsPerPage);
+      setRequests(response.data || []);
+      setTotalPages(Math.ceil((response.meta?.total || 0) / itemsPerPage));
     } catch (error) {
       router.navigate({
         to: '/error',
@@ -71,7 +86,13 @@ function RouteComponent() {
 
   useEffect(() => {
     fetchRequests();
-  }, [user?.tk]);
+  }, [user?.tk, currentPage]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const openAction = (id, type) => {
     setModalState({ isOpen: true, type, requestId: id });
@@ -134,7 +155,15 @@ function RouteComponent() {
 
       setModalState({ isOpen: false, type: null, requestId: null });
       setActiveRequest(null); // Close detail view
-      fetchRequests(); // Refresh list
+      setModalState({ isOpen: false, type: null, requestId: null });
+      setActiveRequest(null); // Close detail view
+      
+      // Refresh list: if only 1 item on current page (and not page 1), go back one page
+      if (requests.length === 1 && currentPage > 1) {
+          setCurrentPage(prev => prev - 1);
+      } else {
+          fetchRequests();
+      }
     } catch (error) {
       router.navigate({
         to: '/error',
@@ -159,12 +188,22 @@ function RouteComponent() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Reference ID</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Date</TableHead>
+                <TableRow className="bg-transparent hover:bg-transparent border-b border-gray-100">
+                  <TableHead className="w-[15%] py-4 pl-6 text-gray-500 font-medium text-xs uppercase tracking-wider">
+                    Reference ID
+                  </TableHead>
+                  <TableHead className="w-[25%] py-4 text-gray-500 font-medium text-xs uppercase tracking-wider">
+                    Title
+                  </TableHead>
+                  <TableHead className="w-[20%] py-4 text-gray-500 font-medium text-xs uppercase tracking-wider">
+                    Name
+                  </TableHead>
+                  <TableHead className="w-[20%] py-4 text-gray-500 font-medium text-xs uppercase tracking-wider">
+                    Amount
+                  </TableHead>
+                  <TableHead className="w-[20%] py-4 text-gray-500 font-medium text-xs uppercase tracking-wider">
+                    Date
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -174,20 +213,20 @@ function RouteComponent() {
                     className="cursor-pointer hover:bg-muted/50"
                     onClick={() => setActiveRequest(req)}
                   >
-                    <TableCell className="font-medium">
+                    <TableCell className="py-4 pl-6 font-medium text-gray-900">
                       {req.id ? req.id.substring(0, 8) + '...' : '-'}
                     </TableCell>
-                    <TableCell>
-                      <div className="font-semibold">{req.title}</div>
+                    <TableCell className="py-4">
+                      <div className="font-medium text-gray-900">{req.title}</div>
                     </TableCell>
-                    <TableCell>{req.userFullName || req.userEmployeeId}</TableCell>
-                    <TableCell>
+                    <TableCell className="py-4 text-gray-600">{req.userFullName || req.userEmployeeId}</TableCell>
+                    <TableCell className="py-4 font-medium text-gray-900">
                       {new Intl.NumberFormat('id-ID', {
                         style: 'currency',
                         currency: 'IDR',
                       }).format(req.totalAmount || 0)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-4 text-gray-600">
                       {req.updatedAt ? format(new Date(req.updatedAt), 'dd MMM yyyy HH:mm') : '-'}
                     </TableCell>
                   </TableRow>
@@ -205,6 +244,28 @@ function RouteComponent() {
           )}
         </CardContent>
       </Card>
+      
+      <Pagination className="mt-6">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious 
+              onClick={() => handlePageChange(currentPage - 1)}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+          
+          <div className="text-sm font-medium px-4 select-none">
+            Page {currentPage} of {totalPages || 1}
+          </div>
+
+          <PaginationItem>
+            <PaginationNext 
+              onClick={() => handlePageChange(currentPage + 1)}
+              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
       <ActionModal
         isOpen={modalState.isOpen}
         actionType={modalState.type}
